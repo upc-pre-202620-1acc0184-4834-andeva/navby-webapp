@@ -1,0 +1,10 @@
+dist/
+coverage/
+playwright-report/
+test-results/
+pnpm-lock.yaml
+skills-lock.json
+.agents/
+.claude/
+docs/
+src/bones/

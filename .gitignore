@@ -1,0 +1,33 @@
+# Dependencias
+node_modules/
+
+# Build
+dist/
+*.tsbuildinfo
+
+# Entorno: nunca se suben secretos
+.env*
+!.env.example
+
+# Pruebas
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Vercel
+.vercel/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.vscode/
+
+# Agentes (las skills se restauran con `pnpm dlx skills experimental_install`)
+.agents/
+.claude/*
+!.claude/settings.json
+!.claude/launch.json
+.codegraph/

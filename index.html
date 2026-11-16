@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%navby-icon.svg" />
+    <link rel="icon" href="%BASE_URL%navby-icon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="%BASE_URL%navby-icon.png" />
+    <title>Navby</title>
+    <script>
+      // Tema antes del primer pintado. Misma clave que el website (mismo origen, localStorage compartido).
+      (() => {
+        let saved = null;
+        try {
+          saved = localStorage.getItem('navby-theme');
+        } catch {
+          // Almacenamiento no disponible.
+        }
+        const dark = saved
+          ? saved === 'dark'
+          : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
