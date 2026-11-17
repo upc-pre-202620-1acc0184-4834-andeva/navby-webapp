@@ -5,7 +5,7 @@ trabajen en este repositorio. Léela antes de proponer o aplicar cambios.
 
 Navby recomienda los 3 mejores vuelos entre dos ciudades combinando precio, duración y
 escalas en un solo puntaje (el **podio**). Este repositorio es **solo la webapp** (SPA).
-El website público es `navby-website` y el backend es `navby-platform` (FastAPI).
+El sitio web de marketing es `navby-website` y el backend es `navby-platform` (FastAPI).
 
 ---
 
@@ -155,7 +155,7 @@ auth del lado del cliente.
 - **Captcha (Cloudflare Turnstile):** `POST /auth/register`, `/auth/login` y
   `/auth/forgot-password` llevan el token en la cabecera `X-Captcha-Response`, obtenido con
   `<TurnstileField>` (`src/shared/ui`). Sin token no se envía el formulario; si el backend
-  lo rechaza, se reinicia el widget. Sin `VITE_TURNSTILE_SITE_KEY` se usa la clave de
+  responde `400 CAPTCHA_INVALID`, se reinicia el widget. Sin `VITE_TURNSTILE_SITE_KEY` se usa la clave de
   prueba de Cloudflare (local y e2e). La verificación real (`siteverify` con el Secret Key)
   la hace navby-platform: el widget solo no protege nada.
 - Errores RFC 7807: decide por el campo `code` (`INSUFFICIENT_CREDITS`,

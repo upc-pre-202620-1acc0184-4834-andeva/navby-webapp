@@ -38,6 +38,7 @@ export function AppLayout() {
           'flex flex-1 flex-col focus:outline-none',
           layout === 'contained' && 'mx-auto w-full max-w-3xl px-4 py-6 sm:px-6',
           layout === 'auth' && 'mx-auto w-full max-w-sm justify-center px-4 py-8',
+          layout === 'map' && 'relative overflow-x-clip',
         )}
       >
         <Outlet />

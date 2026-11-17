@@ -28,7 +28,7 @@ están en [user-stories.md](user-stories.md); las reglas `RN-xx`/`RL-xx`, en
 | :---: | :--- | :--- | :---: |
 | 0 | **Fundaciones:** Vite con `base: '/app/'`, tokens, DESIGN.md, AGENTS.md, i18n, sileo, boneyard, Vitest, Playwright + axe, skills. | — | ✅ |
 | 1 | **Armazón y cliente de API:** layout, componentes base, cliente fetch con sesión, despliegue. | US-06, US-31 (aviso), US-33 (enlaces) | ✅ |
-| 2 | **Buscador y ruta en el mapa** (público, sin créditos). | US-11, US-12, US-14, US-34 | ⬜ |
+| 2 | **Buscador y ruta en el mapa** (autenticado). | US-11, US-12, US-14, US-34 | ✅ |
 | 3 | **Cuenta y acceso.** | US-01 a US-05, US-07 a US-10 | ⬜ |
 | 4 | **Podio:** cotizar y recomendar. | US-13, US-15 a US-19, US-26, US-31 | ⬜ |
 | 5 | **Preferencias:** reordenar el podio. | US-20, US-21 | ⬜ |
@@ -45,8 +45,7 @@ US-32 y US-33 (contenido) son del website; aquí solo se enlazan.
                               └─► 7 ─► 8
 ```
 
-Los planes 2 y 3 son independientes entre sí (el buscador es público). 5, 6 y 7 dependen
-del podio, pero no entre ellos.
+Los planes 2 y 3 implementan por separado las pantallas autenticadas del buscador y las rutas de acceso de cuenta; toda la webapp operativa requiere sesión iniciada y créditos. 5, 6 y 7 dependen del podio, pero no entre ellos.
 
 ---
 
@@ -74,23 +73,22 @@ del podio, pero no entre ellos.
 
 ## Plan 2 · Buscador y ruta en el mapa
 
-**Objetivo:** la pantalla principal funcionando para un visitante: elegir ciudades y ver
+**Objetivo:** la pantalla principal autenticada funcionando: elegir ciudades y ver
 la ruta preliminar en milisegundos.
 
-- `features/search`: combobox de ciudades (`GET /routing/cities`, ES/EN, debounce corto,
+- `features/search`: combobox de ciudades (`GET /routing/cities`, JWT, ES/EN, debounce corto,
   `role="combobox"`), desplegable de aeropuertos de la ciudad (US-14), tipo de viaje,
   fechas (react-day-picker), pasajeros (RN-02), cabina y moneda (US-34). Validación Zod
   (RN-01 a RN-04, origen ≠ destino).
 - Estado de la búsqueda en la URL (`?trip=…&from=LIM&to=HND,NRT…`): compartir y recargar.
 - `features/map`: MapLibre v6 (`react-map-gl/maplibre`, Positron/Dark Matter según tema),
   `fitBounds`, deck.gl `ArcLayer` con `greatCircle`, arco preliminar punteado y texto
-  «Ruta física más rápida: ~X h» (`GET /routing/preview`). Ruta cargada con `lazy`.
+  «Ruta física más rápida: ~X h» (`GET /routing/preview`, JWT). Ruta cargada con `lazy`.
 - `preview.reachable = false` → aviso «No hay rutas con 2 escalas o menos…».
 - Lista textual equivalente al mapa (accesibilidad).
-- **Hecho cuando:** cada escenario de US-11, 12, 14 y 34 tiene prueba; e2e del flujo
-  público con la API real en local; `prefers-reduced-motion` sin vuelo de cámara.
-- **Decidir antes:** layout exacto en < 1024 px (mapa arriba o abajo del formulario);
-  qué pasa al pulsar **Buscar** sin sesión (abrir login con retorno a la búsqueda).
+- **Hecho cuando:** cada escenario de US-11, 12, 14 y 34 tiene prueba; e2e autenticado
+  con la API real en local; redirección a `/login` sin sesión; `prefers-reduced-motion` sin vuelo de cámara.
+- **Cerrado:** layout en < 1024 px con formulario arriba → mapa (`h-[40dvh]`) → leyenda textual; ruta `/` y endpoints `/routing/*` protegidos con sesión JWT.
 
 ## Plan 3 · Cuenta y acceso
 
@@ -103,9 +101,9 @@ la ruta preliminar en milisegundos.
   Services y `VITE_GOOGLE_CLIENT_ID` (US-05); cerrar sesión (US-07); recuperar contraseña
   (US-08); perfil (US-09); eliminar cuenta escribiendo «ELIMINAR» (US-10, RL-02).
 - Cloudflare Turnstile (`<TurnstileField>`, ya creado) en registro, login y recuperación
-  de contraseña; token en la cabecera `X-Captcha-Response`. **Requiere** que navby-platform
-  verifique el token (`siteverify`) en esos tres endpoints y responda un `code` propio
-  (p. ej. `CAPTCHA_INVALID`) cuando falle.
+  de contraseña; token en la cabecera `X-Captcha-Response`. navby-platform lo verifica
+  (`siteverify`) y responde `400 CAPTCHA_INVALID` (reiniciar el widget) o
+  `503 PROVIDER_UNAVAILABLE` si no pudo consultar a Cloudflare.
 - Retorno a la ruta original después de entrar (incluida una búsqueda en la URL).
 - **Endpoints:** `/auth/*`, `GET /users/me`, `DELETE /users/me`.
 - **Hecho cuando:** escenarios de US-01 a US-10 probados; e2e registro → OTP (leído del
