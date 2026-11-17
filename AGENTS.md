@@ -101,7 +101,7 @@ el bundle): aquí nunca van secretos.
 | Variable                  | Uso                                                                               |
 | :------------------------ | :-------------------------------------------------------------------------------- |
 | `VITE_GOOGLE_CLIENT_ID`   | Client ID de Google Identity Services (mismo que `GOOGLE_CLIENT_ID` del backend). |
-| `VITE_WEBSITE_URL`        | Enlaces a Términos y Privacidad del website.                                      |
+| `VITE_WEBSITE_URL`        | Enlaces a Términos y Privacidad del website (cuando existan esas páginas).        |
 | `VITE_TURNSTILE_SITE_KEY` | Site Key pública de Cloudflare Turnstile (vacía = clave de prueba).               |
 | `VITE_API_PROXY_TARGET`   | Solo `pnpm dev`: destino del proxy `/api`.                                        |
 
@@ -174,7 +174,8 @@ auth del lado del cliente.
   `src/locales/*.json`, con las dos traducciones a la vez.
 - Precios con `Intl.NumberFormat` (billing en soles; USD solo como referencia) y horas con
   `Intl.DateTimeFormat` en la zona horaria de cada aeropuerto.
-- Toda tarifa lleva el aviso RL-03. El pie enlaza Términos y Privacidad del website.
+- Toda tarifa lleva el aviso RL-03. Los enlaces a Términos y Privacidad del website llegan
+  cuando navby-website publique esas páginas.
 - Nunca jerga interna en la interfaz (nodos, grafo, BFS, A\*, FlightAPI, OpenFlights).
 
 ## 8. Calidad antes de terminar

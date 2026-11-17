@@ -9,14 +9,14 @@ Todas las rutas cuelgan de `https://navby.andeva.tech/app` (Vite con `base: "/ap
 | Ruta | Pantalla | Acceso |
 | :--- | :--- | :---: |
 | `/` | Buscador + mapa + panel lateral con el podio | Sesión |
-| `/login`, `/register`, `/verify-email` | Autenticación (correo y contraseña, o botón de Google). El registro tiene la casilla obligatoria «Acepto los Términos y la Política de Privacidad» (RL-01). Registro y login llevan captcha de Cloudflare Turnstile. | Acceso (sin sesión) |
+| `/login`, `/register`, `/verify-email` | Autenticación (correo y contraseña, o botón de Google). El registro tiene la casilla obligatoria «Acepto los Términos y la Política de Privacidad» (RL-01). Registro, login y recuperación de contraseña llevan captcha de Cloudflare Turnstile. | Acceso (sin sesión) |
 | `/forgot-password`, `/reset-password?token=` | Recuperación de contraseña | Acceso (sin sesión) |
 | `/itineraries`, `/itineraries/:id` | Itinerarios guardados | Sesión |
 | `/billing` | Saldo, historial y compra de paquetes. Precios en soles; el equivalente en USD aparece solo como referencia. | Sesión |
 | `/billing/result` | Retorno desde Mercado Pago (consulta el estado de la orden; si sigue `PENDING`, reintenta cada 3 s durante 1 min) | Sesión |
-| `/account` | Perfil y **Eliminar mi cuenta** (escribe «ELIMINAR» para confirmar, RL-02) | Sesión |
+| `/account` | Perfil, **Cerrar sesión** y **Eliminar mi cuenta** (escribe «ELIMINAR», o «DELETE» en inglés, para confirmar, RL-02) | Sesión |
 
-El pie de página de todas las pantallas enlaza a los Términos y la Política de Privacidad del website. Toda tarifa muestra el aviso `price_disclaimer` (RL-03).
+Los enlaces a los Términos y la Política de Privacidad del website se añadirán cuando `navby-website` publique esas páginas; mientras tanto el pie solo muestra el copyright (ver Decisiones del Plan 3). Toda tarifa muestra el aviso `price_disclaimer` (RL-03).
 
 La búsqueda vive en la URL (`/app/?trip=ROUND_TRIP&from=LIM&to=HND,NRT&dep=2026-11-01&ret=2026-11-15&ad=2&ch=1&in=0&cabin=ECONOMY&cur=USD&profile=BALANCED`) para poder compartirla y recargarla.
 
@@ -135,7 +135,7 @@ Las decisiones adoptadas al cerrar el Plan 1 ajustan y precisan la configuració
 - **Captcha Cloudflare Turnstile en Step 1:** `<TurnstileField>` (`src/shared/ui/TurnstileField.tsx`) admite `resetSignal` para reiniciar el widget ante `400 CAPTCHA_INVALID` y sigue reactivamente `useTheme()` e idioma activo (`es`/`en`). Sin `VITE_TURNSTILE_SITE_KEY` evita cargar el script externo y emite `TURNSTILE_DUMMY_TOKEN`.
 - **Sesión compartida en `src/shared/auth/`:** Para cumplir la regla de que ninguna feature importe de otra feature, `useSession`, `bindSessionSync` y `RequireAuth` viven en `src/shared/auth/`.
 - **Preferencias de tema e idioma:** Los selectores de tema e idioma se ubican dentro del menú de cuenta (`AccountMenu`, disponible también en rutas de acceso) para mantener la barra superior limpia en 390 px y respetar las preferencias heredadas desde el website (`navby-theme`).
-- **Términos y privacidad en pie de página:** Se renderizan como etiquetas no navegables (`Términos y condiciones`, `Política de privacidad`) hasta que se definan sus rutas en `navby-website`.
+- **Términos y privacidad en pie de página:** Se renderizaban como etiquetas no navegables; el Plan 3 las retiró del pie (ver Decisiones del Plan 3).
 - **Paridad `/app` en local:** `vite.config.ts` incluye una reescritura de `/app` (sin barra final) hacia `/app/` para replicar en local el rewrite de `vercel.json`.
 
 ## 9. Decisiones del Plan 2
@@ -148,3 +148,20 @@ Las decisiones adoptadas al cerrar el Plan 2 completan la integración autentica
 - **Localización de países en cliente:** Dado que `GET /routing/cities` entrega `country` en inglés, el cliente lo traduce al idioma activo (`es`/`en`) mediante `Intl.DisplayNames` y alias históricos en `src/features/search/countryLocalization.ts`.
 - **Disposición adaptable y accesibilidad del mapa:** En `< 1024 px` la vista fluye en columna (`SearchPanel` → mapa `h-[40dvh] min-h-[260px]` → `RouteTextLegend` visible debajo); en `>= 1024 px` el formulario flota a la izquierda (`420 px`, superficie sólida `bg-surface`) y `RouteTextLegend` queda `lg:sr-only`, haciéndose visible automáticamente si WebGL no está disponible o falla.
 - **MapLibre v6 + deck.gl 9 en módulo `lazy`:** `RouteMap` configura el worker ESM explícito (`?worker&url`), usa `MapboxOverlay` con `interleaved: false` (requerido en MapLibre v6 al no existir `map.transform._nearZ`), segmentos SLERP discontinuos divididos sobre `±180°`, cálculo de límites por mayor brecha circular longitudinal en `[0, 360)` para rutas transpacíficas y transatlánticas, `linear: true` sin animación cuando `prefers-reduced-motion: reduce` está activo, y estilo vectorial inline mínimo como respaldo ante fallos de CARTO.
+
+## 10. Decisiones del Plan 3
+
+Las decisiones adoptadas al cerrar el Plan 3 (cuenta y acceso, US-01 a US-05 y US-07 a US-10):
+
+- **Captcha en las tres pantallas:** `/register`, `/login` y `/forgot-password` llevan `<TurnstileField>`. El token es de un solo uso (Cloudflare lo consume en `siteverify`), así que el widget se reinicia tras **cualquier** respuesta de error, no solo `400 CAPTCHA_INVALID`. Sin token el formulario no se envía y muestra un aviso en línea.
+- **Errores en línea, nunca en toast:** `DISPOSABLE_EMAIL` (RN-17) y `EMAIL_ALREADY_REGISTERED` se marcan bajo el campo de correo en `/register`; con Google, los errores aparecen en un aviso dentro de la tarjeta. Los textos se eligen por `code` (`apiErrorMessage`, `errors.*` en los locales).
+- **Google (US-05, RL-01):** el botón oficial de GIS se oculta si `VITE_GOOGLE_CLIENT_ID` está vacío. Bajo el botón se muestra «Al continuar con Google aceptas los Términos y condiciones y la Política de privacidad de Navby» y la webapp envía siempre `accept_terms: true` (mismo flujo que quina-webapp). No hay paso de consentimiento aparte.
+- **Términos y privacidad sin enlaces por ahora:** la casilla de RL-01 y el aviso de Google son texto. El pie ya no muestra etiquetas legales; los enlaces llegan con las páginas finales de `navby-website`.
+- **Correo pendiente en el estado del router:** `/register` y el `403 EMAIL_NOT_VERIFIED` de `/login` llevan a `/verify-email` con `{ email, reason, from }` en `location.state`, nunca en la URL. El reenvío espera 60 s solo tras registrarse o reenviar.
+- **`RequireAuth` también exige correo verificado (RN-12):** aunque el backend no abre sesión sin verificar, una sesión con `email_verified: false` se redirige a `/verify-email`, la única ruta de acceso donde `RedirectIfAuthenticated` deja quedarse a ese usuario.
+- **Cierre de sesión explícito sin `from`:** `logout`, `deleteMyAccount` y `resetPassword` llaman a `clearSession()`; tras eso `RequireAuth` manda a `/login` sin guardar la ruta. Al cerrar sesión se borran las queries inactivas; al entrar otro usuario, todas (salvo la sesión).
+- **`/reset-password` con un solo campo** de contraseña con mostrar/ocultar; queda fuera de `RedirectIfAuthenticated` y al terminar quita `?token=` de la URL y cierra la sesión local.
+- **Eliminar cuenta según idioma:** se escribe «ELIMINAR» en español y «DELETE» en inglés. La webapp valida la palabra del idioma activo y la envía tal cual; navby-platform acepta `"ELIMINAR"` o `"DELETE"`.
+- **Cerrar sesión** está en el menú de la barra superior y en la tarjeta de perfil de `/account`.
+- **`/account` sin skeleton de boneyard:** nombre, correo y verificación salen de la sesión al instante; métodos de acceso y fecha de alta muestran «Cargando…» en línea hasta que responde `GET /users/me`.
+- **E2E con Google simulado:** Playwright levanta su propio `pnpm dev --port 5174` con un `VITE_GOOGLE_CLIENT_ID` falso y `e2e/fixtures.ts` sustituye `accounts.google.com/gsi/client` por un stub en todas las pruebas.

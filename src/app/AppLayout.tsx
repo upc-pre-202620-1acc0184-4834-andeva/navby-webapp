@@ -1,3 +1,5 @@
+import { Loader2 } from 'lucide-react';
+import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useMatches } from 'react-router';
 import { cn } from '@/shared/ui/cn';
@@ -41,7 +43,16 @@ export function AppLayout() {
           layout === 'map' && 'relative overflow-x-clip',
         )}
       >
-        <Outlet />
+        <Suspense
+          fallback={
+            <div role="status" className="grid flex-1 place-items-center p-6 text-brand-ink">
+              <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
+              <span className="sr-only">{t('common.loading')}</span>
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
 
       <Footer />

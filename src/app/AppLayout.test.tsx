@@ -46,7 +46,7 @@ describe('AppLayout & shell', () => {
     vi.unstubAllGlobals();
   });
 
-  it('usuario sin sesión es redirigido de / a /login, ve preferencias y pie legal sin saldo', async () => {
+  it('usuario sin sesión es redirigido de / a /login, ve preferencias y pie sin saldo', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(
@@ -71,8 +71,6 @@ describe('AppLayout & shell', () => {
 
     expect(screen.queryByText('— créditos')).not.toBeInTheDocument();
     expect(screen.getByText(/© 2026 Andeva/)).toBeInTheDocument();
-    expect(screen.getByText('Términos y condiciones')).toBeInTheDocument();
-    expect(screen.getByText('Política de privacidad')).toBeInTheDocument();
 
     const user = userEvent.setup();
     const trigger = screen.getByRole('button', { name: 'Menú de cuenta y preferencias' });

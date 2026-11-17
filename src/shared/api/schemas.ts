@@ -18,6 +18,14 @@ export const SessionSchema = z.object({
 
 export type Session = z.infer<typeof SessionSchema>;
 
+export const RegisterResponseSchema = z.object({
+  user_id: z.string(),
+  email: z.string(),
+  email_verified: z.boolean(),
+});
+
+export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;
+
 export const UserProfileSchema = UserSummarySchema.extend({
   has_password: z.boolean(),
   has_google: z.boolean(),
