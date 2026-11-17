@@ -5,9 +5,6 @@ import { useTheme } from './theme';
 
 export const TURNSTILE_DUMMY_TOKEN = 'XXXX.DUMMY.TOKEN.XXXX';
 
-/** Cabecera con la que viaja el token a navby-platform (AGENTS.md §6). */
-export const CAPTCHA_HEADER = 'X-Captcha-Response';
-
 export interface TurnstileFieldProps {
   onToken: (token: string) => void;
   /** Incrementar tras un `400 CAPTCHA_INVALID` para limpiar el token y reiniciar el widget. */

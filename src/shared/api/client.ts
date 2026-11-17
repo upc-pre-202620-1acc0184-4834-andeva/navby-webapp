@@ -32,6 +32,30 @@ export function clearSessionToken(): void {
   sessionToken = null;
 }
 
+/** Cabecera con la que viaja el token de Turnstile a navby-platform (AGENTS.md §6). */
+export const CAPTCHA_HEADER = 'X-Captcha-Response';
+
+// true tras un cierre de sesión pedido por el usuario: RequireAuth no guarda `from`.
+let signedOutByUser = false;
+
+export function wasSignedOutByUser(): boolean {
+  return signedOutByUser;
+}
+
+/** Guarda el token de una sesión nueva (login, verificación, Google) y avisa a la caché. */
+export function applySession(session: Session): void {
+  signedOutByUser = false;
+  setSessionToken(session.access_token, session.expires_in);
+  notifySession(session.user);
+}
+
+/** Cierra la sesión local (logout, eliminación de cuenta, cambio de contraseña). */
+export function clearSession(): void {
+  signedOutByUser = true;
+  clearSessionToken();
+  notifySession(null);
+}
+
 export function registerSessionListener(listener: SessionListener): () => void {
   sessionListeners.add(listener);
   return () => {
@@ -42,6 +66,7 @@ export function registerSessionListener(listener: SessionListener): () => void {
 export function resetApiClientForTests(): void {
   sessionToken = null;
   inflightRefresh = null;
+  signedOutByUser = false;
   sessionListeners.clear();
 }
 
