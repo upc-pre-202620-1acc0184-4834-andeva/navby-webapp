@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useSearchParams } from 'react-router';
 import isologoPurple from '@/assets/brand/navby-isologo-purple.svg';
 import isologoWhite from '@/assets/brand/navby-isologo-white.svg';
+import { resolveAuthRedirectFrom } from '@/shared/auth/authRedirect';
 import { useSession } from '@/shared/auth/useSession';
 import { buttonVariants } from '@/shared/ui/buttonVariants';
 import { cn } from '@/shared/ui/cn';
@@ -50,6 +51,7 @@ export function TopBar() {
   }
 
   const currentLang = (i18n.resolvedLanguage ?? i18n.language).startsWith('en') ? 'en' : 'es';
+  const redirectFrom = resolveAuthRedirectFrom(location);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -149,7 +151,7 @@ export function TopBar() {
               ) : (
                 <>
                   <User className="h-4 w-4 text-fg-muted" aria-hidden="true" />
-                  <span className="hidden sm:inline">{t('nav.visitorLabel')}</span>
+                  <span className="hidden sm:inline">{t('nav.accountLabel')}</span>
                 </>
               )}
               <ChevronDown
@@ -212,7 +214,7 @@ export function TopBar() {
                   <>
                     <Link
                       to="/login"
-                      state={{ from: location }}
+                      state={redirectFrom ? { from: redirectFrom } : undefined}
                       className={MENU_ITEM_CLASS}
                       onClick={() => setIsOpen(false)}
                     >
@@ -221,7 +223,7 @@ export function TopBar() {
                     </Link>
                     <Link
                       to="/register"
-                      state={{ from: location }}
+                      state={redirectFrom ? { from: redirectFrom } : undefined}
                       className={MENU_ITEM_CLASS}
                       onClick={() => setIsOpen(false)}
                     >

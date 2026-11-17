@@ -30,11 +30,14 @@ function renderAppAt(initialEntry: string) {
   bindSessionSync(queryClient);
 
   const router = createMemoryRouter(routes, { initialEntries: [initialEntry] });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>,
-  );
+  return {
+    router,
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>,
+    ),
+  };
 }
 
 describe('AppLayout & shell', () => {
@@ -43,7 +46,7 @@ describe('AppLayout & shell', () => {
     vi.unstubAllGlobals();
   });
 
-  it('visitante sin sesión es redirigido de / a /login, ve preferencias y pie legal sin saldo', async () => {
+  it('usuario sin sesión es redirigido de / a /login, ve preferencias y pie legal sin saldo', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(
@@ -128,5 +131,40 @@ describe('AppLayout & shell', () => {
     await user.click(screen.getByRole('button', { name: 'English' }));
     await waitFor(() => expect(document.documentElement).toHaveAttribute('lang', 'en'));
     expect(screen.getByRole('heading', { level: 1, name: 'Flight search' })).toBeInTheDocument();
+  });
+
+  it('conserva la ruta original de búsqueda al cambiar entre /login y /register desde TopBar', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              title: 'Invalid',
+              status: 401,
+              detail: 'Missing',
+              code: 'INVALID_REFRESH_TOKEN',
+            }),
+            { status: 401, headers: { 'content-type': 'application/problem+json' } },
+          ),
+      ),
+    );
+
+    const { router } = renderAppAt('/?trip=ONE_WAY&from=LIM&to=HND');
+
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { level: 1, name: 'Iniciar sesión' })).toBeInTheDocument(),
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Menú de cuenta y preferencias' }));
+    await user.click(screen.getByRole('link', { name: 'Crear cuenta' }));
+
+    await waitFor(() => expect(router.state.location.pathname).toBe('/register'));
+    const redirectState = router.state.location.state as {
+      from?: { pathname?: string; search?: string };
+    } | null;
+    expect(redirectState?.from?.pathname).toBe('/');
+    expect(redirectState?.from?.search).toBe('?trip=ONE_WAY&from=LIM&to=HND');
   });
 });

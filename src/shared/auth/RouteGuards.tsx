@@ -1,13 +1,23 @@
 import { Loader2 } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type Location, Navigate, Outlet, useLocation } from 'react-router';
+import { Navigate, Outlet, useLocation } from 'react-router';
 import { Button } from '@/shared/ui/Button';
 import { StatusMessage } from '@/shared/ui/StatusMessage';
+import { type AuthRedirectState, resolveAuthRedirectFrom } from './authRedirect';
 import { useSession } from './useSession';
 
-export interface AuthRedirectState {
-  from?: Location;
+function SessionLoadingSpinner({ label }: { label: string }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="grid flex-1 place-items-center p-6 text-brand-ink"
+    >
+      <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
+      <span className="sr-only">{label}</span>
+    </div>
+  );
 }
 
 /** Protege toda ruta privada: espera el refresh inicial, ofrece reintento si falla la red y redirige a `/login` sin sesión. */
@@ -17,16 +27,7 @@ export function RequireAuth({ children }: { children?: ReactNode }) {
   const { user, isPending, isError, refetch } = useSession();
 
   if (isPending) {
-    return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="grid flex-1 place-items-center p-6 text-brand-ink"
-      >
-        <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
-        <span className="sr-only">{t('common.loading')}</span>
-      </div>
-    );
+    return <SessionLoadingSpinner label={t('common.loading')} />;
   }
 
   if (isError) {
@@ -49,6 +50,25 @@ export function RequireAuth({ children }: { children?: ReactNode }) {
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location } satisfies AuthRedirectState} replace />;
+  }
+
+  return <>{children ?? <Outlet />}</>;
+}
+
+/** Redirige a la aplicación a usuarios que ya tienen sesión al entrar en rutas de acceso. */
+export function RedirectIfAuthenticated({ children }: { children?: ReactNode }) {
+  const { t } = useTranslation();
+  const location = useLocation();
+  const { user, isPending } = useSession();
+
+  if (isPending) {
+    return <SessionLoadingSpinner label={t('common.loading')} />;
+  }
+
+  if (user) {
+    const target = resolveAuthRedirectFrom(location);
+    const destination = target ? `${target.pathname}${target.search}${target.hash}` : '/';
+    return <Navigate to={destination} replace />;
   }
 
   return <>{children ?? <Outlet />}</>;

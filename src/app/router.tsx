@@ -1,5 +1,5 @@
 import { createBrowserRouter, type RouteObject } from 'react-router';
-import { RequireAuth } from '@/shared/auth/RouteGuards';
+import { RedirectIfAuthenticated, RequireAuth } from '@/shared/auth/RouteGuards';
 import { AppLayout, type RouteLayoutHandle } from './AppLayout';
 import { HomePage } from './HomePage';
 import { RoutePlaceholderPage } from './RoutePlaceholderPage';
@@ -79,52 +79,57 @@ export const routes: RouteObject[] = [
         ],
       },
       {
-        path: 'login',
-        handle: { layout: 'auth' } satisfies RouteLayoutHandle,
-        element: (
-          <RoutePlaceholderPage
-            titleKey="routes.login.title"
-            descriptionKey="routes.login.description"
-            actionTo="/register"
-            actionLabelKey="routes.login.action"
-          />
-        ),
-      },
-      {
-        path: 'register',
-        handle: { layout: 'auth' } satisfies RouteLayoutHandle,
-        element: (
-          <RoutePlaceholderPage
-            titleKey="routes.register.title"
-            descriptionKey="routes.register.description"
-            actionTo="/login"
-            actionLabelKey="routes.register.action"
-          />
-        ),
-      },
-      {
-        path: 'verify-email',
-        handle: { layout: 'auth' } satisfies RouteLayoutHandle,
-        element: (
-          <RoutePlaceholderPage
-            titleKey="routes.verifyEmail.title"
-            descriptionKey="routes.verifyEmail.description"
-            actionTo="/login"
-            actionLabelKey="routes.verifyEmail.action"
-          />
-        ),
-      },
-      {
-        path: 'forgot-password',
-        handle: { layout: 'auth' } satisfies RouteLayoutHandle,
-        element: (
-          <RoutePlaceholderPage
-            titleKey="routes.forgotPassword.title"
-            descriptionKey="routes.forgotPassword.description"
-            actionTo="/login"
-            actionLabelKey="routes.forgotPassword.action"
-          />
-        ),
+        element: <RedirectIfAuthenticated />,
+        children: [
+          {
+            path: 'login',
+            handle: { layout: 'auth' } satisfies RouteLayoutHandle,
+            element: (
+              <RoutePlaceholderPage
+                titleKey="routes.login.title"
+                descriptionKey="routes.login.description"
+                actionTo="/register"
+                actionLabelKey="routes.login.action"
+              />
+            ),
+          },
+          {
+            path: 'register',
+            handle: { layout: 'auth' } satisfies RouteLayoutHandle,
+            element: (
+              <RoutePlaceholderPage
+                titleKey="routes.register.title"
+                descriptionKey="routes.register.description"
+                actionTo="/login"
+                actionLabelKey="routes.register.action"
+              />
+            ),
+          },
+          {
+            path: 'verify-email',
+            handle: { layout: 'auth' } satisfies RouteLayoutHandle,
+            element: (
+              <RoutePlaceholderPage
+                titleKey="routes.verifyEmail.title"
+                descriptionKey="routes.verifyEmail.description"
+                actionTo="/login"
+                actionLabelKey="routes.verifyEmail.action"
+              />
+            ),
+          },
+          {
+            path: 'forgot-password',
+            handle: { layout: 'auth' } satisfies RouteLayoutHandle,
+            element: (
+              <RoutePlaceholderPage
+                titleKey="routes.forgotPassword.title"
+                descriptionKey="routes.forgotPassword.description"
+                actionTo="/login"
+                actionLabelKey="routes.forgotPassword.action"
+              />
+            ),
+          },
+        ],
       },
       {
         path: 'reset-password',

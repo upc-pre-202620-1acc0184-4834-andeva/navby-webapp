@@ -102,8 +102,10 @@ describe('shared/api client & endpoints', () => {
     expect(listener).toHaveBeenCalledWith(sessionPayload.user);
   });
 
-  it('reintenta una sola vez aunque el reintento vuelva a responder 401', async () => {
+  it('reintenta una sola vez aunque el reintento vuelva a responder 401 y limpia la sesión', async () => {
     setSessionToken('stale-jwt', 900);
+    const listener = vi.fn();
+    registerSessionListener(listener);
     let refreshCount = 0;
 
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
@@ -130,6 +132,8 @@ describe('shared/api client & endpoints', () => {
       code: 'UNAUTHENTICATED',
     });
     expect(refreshCount).toBe(1);
+    expect(getAccessToken()).toBeNull();
+    expect(listener).toHaveBeenLastCalledWith(null);
   });
 
   it('no dispara refresh ante 401 INVALID_CREDENTIALS ni en auth: none', async () => {
