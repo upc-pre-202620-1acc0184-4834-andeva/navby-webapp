@@ -124,3 +124,14 @@ src/
 | `eslint`, `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`, `eslint-plugin-jsx-a11y`, `eslint-config-prettier`, `prettier`, `prettier-plugin-tailwindcss` | `^10.15.0`, `^8.72.2`, `^7.1.1`, `^0.5.8`, `^6.10.2`, `^10.1.8`, `^3.10.1`, `^0.8.1` | Calidad (dev). |
 
 No se usa Better Auth ni otra librería de auth en el cliente: la sesión la maneja `navby-platform` (ver `AGENTS.md` §6).
+
+## 8. Decisiones del Plan 1
+
+Las decisiones adoptadas al cerrar el Plan 1 ajustan y precisan la configuración anterior de este documento:
+
+- **Acceso autenticado en toda la webapp (`/`):** A diferencia de la tabla inicial de §1, toda la aplicación (incluida `/`) exige sesión iniciada (`RequireAuth`), dejando públicas únicamente las pantallas de acceso (`/login`, `/register`, `/verify-email`, `/forgot-password`, `/reset-password`). La presentación pública del producto vive en `navby-website`.
+- **Guardas alineadas al IAM real:** `navby-platform` no emite sesiones ni cookies `navby_refresh` a correos sin verificar (`403 EMAIL_NOT_VERIFIED`). Por ello se omite una guarda `RequireVerified` en el cliente y las rutas privadas usan `RequireAuth`.
+- **Sesión compartida en `src/shared/auth/`:** Para cumplir la regla de que ninguna feature importe de otra feature, `useSession`, `bindSessionSync` y `RequireAuth` viven en `src/shared/auth/`.
+- **Preferencias de tema e idioma:** Los selectores de tema e idioma se ubican dentro del menú de cuenta (`AccountMenu`, disponible también en rutas públicas) para mantener la barra superior limpia en 390 px y respetar las preferencias heredadas desde el website (`navby-theme`).
+- **Términos y privacidad en pie de página:** Se renderizan como etiquetas no navegables (`Términos y condiciones`, `Política de privacidad`) hasta que se definan sus rutas en `navby-website`.
+- **Paridad `/app` en local:** `vite.config.ts` incluye una reescritura de `/app` (sin barra final) hacia `/app/` para replicar en local el rewrite de `vercel.json`.
