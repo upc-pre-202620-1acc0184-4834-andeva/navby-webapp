@@ -1,5 +1,89 @@
 {
   "home": {
+    "title": "Flight search",
     "placeholder": "The best flight. At the best price. Search is coming soon."
+  },
+  "common": {
+    "skipToContent": "Skip to main content",
+    "loading": "Loading…",
+    "retry": "Retry",
+    "backHome": "Back to home"
+  },
+  "nav": {
+    "homeAria": "Navby, go to home",
+    "creditsPlaceholder": "— credits",
+    "creditsAria": "Credit balance coming soon",
+    "accountMenu": "Account and preferences menu",
+    "visitorLabel": "Account",
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "itineraries": "Itineraries",
+    "billing": "Credits",
+    "account": "My account",
+    "preferences": "Preferences",
+    "themeLabel": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "languageLabel": "Language",
+    "langEs": "ES",
+    "langEn": "EN"
+  },
+  "footer": {
+    "copyright": "© 2026 Andeva. All rights reserved.",
+    "terms": "Terms and conditions",
+    "privacy": "Privacy policy",
+    "legalSoon": "Coming soon on navby.andeva.tech"
+  },
+  "legal": {
+    "priceDisclaimer": "Reference price obtained from third parties; confirmed on the seller's site."
+  },
+  "errors": {
+    "UNAUTHENTICATED": "Sign in to continue.",
+    "NETWORK_ERROR": "We could not reach Navby. Check your connection and try again.",
+    "UNKNOWN": "An unexpected error occurred. Please try again.",
+    "sessionCheckTitle": "Could not verify your session"
+  },
+  "routes": {
+    "login": {
+      "title": "Sign in",
+      "description": "You need a verified account to search and save flights. Sign in arrives in the next step.",
+      "action": "Go to create account"
+    },
+    "register": {
+      "title": "Create account",
+      "description": "Email and Google registration arrives in the next step.",
+      "action": "Go to sign in"
+    },
+    "verifyEmail": {
+      "title": "Verify email",
+      "description": "6-digit email verification arrives in the next step.",
+      "action": "Go to sign in"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "description": "Password recovery arrives in the next step.",
+      "action": "Go to sign in"
+    },
+    "resetPassword": {
+      "title": "Set a new password",
+      "description": "Password reset arrives in the next step.",
+      "action": "Go to sign in"
+    },
+    "itineraries": {
+      "title": "Saved itineraries",
+      "description": "Your saved flights will appear here once the podium is available."
+    },
+    "billing": {
+      "title": "Credits and packages",
+      "description": "Your daily credit balance and prepaid packages will appear here."
+    },
+    "account": {
+      "title": "My account",
+      "description": "Profile management and account deletion arrives in the next step."
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you are looking for does not exist or moved."
+    }
   }
 }
