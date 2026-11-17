@@ -8,9 +8,9 @@ Todas las rutas cuelgan de `https://navby.andeva.tech/app` (Vite con `base: "/ap
 
 | Ruta | Pantalla | Acceso |
 | :--- | :--- | :---: |
-| `/` | Buscador + mapa + panel lateral con el podio | Público (cotizar exige sesión) |
-| `/login`, `/register`, `/verify-email` | Autenticación (correo y contraseña, o botón de Google). El registro tiene la casilla obligatoria «Acepto los Términos y la Política de Privacidad» (RL-01). Registro y login llevan captcha de Cloudflare Turnstile. | Público |
-| `/forgot-password`, `/reset-password?token=` | Recuperación de contraseña | Público |
+| `/` | Buscador + mapa + panel lateral con el podio | Sesión |
+| `/login`, `/register`, `/verify-email` | Autenticación (correo y contraseña, o botón de Google). El registro tiene la casilla obligatoria «Acepto los Términos y la Política de Privacidad» (RL-01). Registro y login llevan captcha de Cloudflare Turnstile. | Acceso (sin sesión) |
+| `/forgot-password`, `/reset-password?token=` | Recuperación de contraseña | Acceso (sin sesión) |
 | `/itineraries`, `/itineraries/:id` | Itinerarios guardados | Sesión |
 | `/billing` | Saldo, historial y compra de paquetes. Precios en soles; el equivalente en USD aparece solo como referencia. | Sesión |
 | `/billing/result` | Retorno desde Mercado Pago (consulta el estado de la orden; si sigue `PENDING`, reintenta cada 3 s durante 1 min) | Sesión |
@@ -130,18 +130,19 @@ No se usa Better Auth ni otra librería de auth en el cliente: la sesión la man
 
 Las decisiones adoptadas al cerrar el Plan 1 ajustan y precisan la configuración anterior de este documento:
 
-- **Acceso autenticado en toda la webapp (`/`):** A diferencia de la tabla inicial de §1, toda la aplicación (incluida `/`) exige sesión iniciada (`RequireAuth`), dejando públicas únicamente las pantallas de acceso (`/login`, `/register`, `/verify-email`, `/forgot-password`, `/reset-password`). La presentación pública del producto vive en `navby-website`.
+- **Acceso autenticado en toda la webapp (`/`):** Toda la aplicación operativa (incluida `/`) exige sesión iniciada (`RequireAuth`), dejando disponibles sin sesión previa únicamente las pantallas de autenticación y recuperación (`/login`, `/register`, `/verify-email`, `/forgot-password`, `/reset-password`). Un usuario ya autenticado es redirigido desde `/login`, `/register`, `/verify-email` y `/forgot-password` mediante `RedirectIfAuthenticated`, conservando el parámetro `from` original al cambiar entre acceso y registro (`resolveAuthRedirectFrom`). La presentación informativa del producto vive en `navby-website`.
 - **Guardas alineadas al IAM real:** `navby-platform` no emite sesiones ni cookies `navby_refresh` a correos sin verificar (`403 EMAIL_NOT_VERIFIED`). Por ello se omite una guarda `RequireVerified` en el cliente y las rutas privadas usan `RequireAuth`.
+- **Captcha Cloudflare Turnstile en Step 1:** `<TurnstileField>` (`src/shared/ui/TurnstileField.tsx`) admite `resetSignal` para reiniciar el widget ante `400 CAPTCHA_INVALID` y sigue reactivamente `useTheme()` e idioma activo (`es`/`en`). Sin `VITE_TURNSTILE_SITE_KEY` evita cargar el script externo y emite `TURNSTILE_DUMMY_TOKEN`.
 - **Sesión compartida en `src/shared/auth/`:** Para cumplir la regla de que ninguna feature importe de otra feature, `useSession`, `bindSessionSync` y `RequireAuth` viven en `src/shared/auth/`.
-- **Preferencias de tema e idioma:** Los selectores de tema e idioma se ubican dentro del menú de cuenta (`AccountMenu`, disponible también en rutas públicas) para mantener la barra superior limpia en 390 px y respetar las preferencias heredadas desde el website (`navby-theme`).
+- **Preferencias de tema e idioma:** Los selectores de tema e idioma se ubican dentro del menú de cuenta (`AccountMenu`, disponible también en rutas de acceso) para mantener la barra superior limpia en 390 px y respetar las preferencias heredadas desde el website (`navby-theme`).
 - **Términos y privacidad en pie de página:** Se renderizan como etiquetas no navegables (`Términos y condiciones`, `Política de privacidad`) hasta que se definan sus rutas en `navby-website`.
 - **Paridad `/app` en local:** `vite.config.ts` incluye una reescritura de `/app` (sin barra final) hacia `/app/` para replicar en local el rewrite de `vercel.json`.
 
 ## 9. Decisiones del Plan 2
 
-Las decisiones adoptadas al cerrar el Plan 2 completan la integración real con `navby-platform` (`routing`) y definen la conducta de diseño y mapa:
+Las decisiones adoptadas al cerrar el Plan 2 completan la integración autenticada con `navby-platform` (`routing`) y definen la conducta de diseño y mapa:
 
-- **Sin vistas públicas en el buscador (`/`):** `/` permanece protegido por `RequireAuth`, y tanto `searchCities` (`GET /routing/cities`) como `getRoutePreview` (`GET /routing/preview`) usan `auth: 'required'`. El usuario debe registrarse, verificar su correo y tener sesión activa para usar el buscador (si `navby-platform` mantiene `/routing/*` sin guardia JWT, la restricción de producto vigente exige igualmente el acceso autenticado desde la webapp).
+- **Buscador y rutas autenticadas (`/`):** `/` está protegido por `RequireAuth`, y tanto la webapp (`auth: 'required'`) como `navby-platform` (`GET /routing/cities`, `GET /routing/preview`, además de `GET /billing/packages`) exigen un token JWT válido (`Authorization: Bearer <access_token>`). Todo usuario debe registrarse, verificar su correo y tener sesión activa para usar el buscador y sus créditos.
 - **Disparo de la vista previa y debounce de aeropuertos:** `GET /routing/preview` se consulta y reencuadra el mapa (`fitBounds`) al pulsar **Buscar** (sincronizando los parámetros en `URLSearchParams`) o al cargar/recargar una URL compartida con `from` y `to` válidos y disjuntos. Una vez activa la búsqueda, marcar o desmarcar casillas en «Aeropuertos de [Ciudad]» aplica un debounce de `400 ms` antes de actualizar la URL (`replace: true`) y recalcular. Mientras no exista el Plan 4 (`POST /quotes/search`), **Buscar** muestra la ruta preliminar y la nota discreta de cierre del Plan 2.
 - **Cálculo de horas en `ROUND_TRIP`:** En `ONE_WAY` se toma `best_route.t_min_minutes`; en `ROUND_TRIP` se calcula el mínimo de `pairs[].t_min_minutes` (respaldado por `best_route.t_min_minutes` si `pairs` está vacío), redondeando con piso de `1 h` para evitar `~0 h`.
 - **Localización de países en cliente:** Dado que `GET /routing/cities` entrega `country` en inglés, el cliente lo traduce al idioma activo (`es`/`en`) mediante `Intl.DisplayNames` y alias históricos en `src/features/search/countryLocalization.ts`.

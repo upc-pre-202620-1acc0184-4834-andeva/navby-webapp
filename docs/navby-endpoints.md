@@ -6,25 +6,25 @@
 
 | Contexto | Método y ruta | Acceso | Propósito |
 | :--- | :--- | :---: | :--- |
-| IAM | `POST /auth/register` | Público | Crear una cuenta y enviar el OTP. |
-| IAM | `POST /auth/verify-email` | Público | Validar el OTP y abrir la sesión. |
-| IAM | `POST /auth/verify-email/resend` | Público | Reenviar el OTP. |
-| IAM | `POST /auth/login` | Público | Iniciar sesión con correo y contraseña. |
-| IAM | `POST /auth/google` | Público | Iniciar sesión o registrarse con Google. |
+| IAM | `POST /auth/register` | Sin sesión | Crear una cuenta y enviar el OTP. |
+| IAM | `POST /auth/verify-email` | Sin sesión | Validar el OTP y abrir la sesión. |
+| IAM | `POST /auth/verify-email/resend` | Sin sesión | Reenviar el OTP. |
+| IAM | `POST /auth/login` | Sin sesión | Iniciar sesión con correo y contraseña. |
+| IAM | `POST /auth/google` | Sin sesión | Iniciar sesión o registrarse con Google. |
 | IAM | `POST /auth/refresh` | Cookie | Rotar el refresh token. |
 | IAM | `POST /auth/logout` | Cookie | Cerrar la sesión. |
-| IAM | `POST /auth/forgot-password` | Público | Enviar el enlace de recuperación. |
-| IAM | `POST /auth/reset-password` | Público | Definir una contraseña nueva. |
+| IAM | `POST /auth/forgot-password` | Sin sesión | Enviar el enlace de recuperación. |
+| IAM | `POST /auth/reset-password` | Sin sesión | Definir una contraseña nueva. |
 | IAM | `GET /users/me` | JWT | Consultar el perfil propio. |
 | IAM | `DELETE /users/me` | JWT | Eliminar la cuenta (RL-02). |
-| Routing | `GET /routing/cities?q=` | Público | Autocompletar ciudades y sus aeropuertos. |
-| Routing | `GET /routing/preview` | Público | Obtener BFS + A\*: alcanzabilidad, escalas mínimas, T_min y ruta preliminar. |
+| Routing | `GET /routing/cities?q=` | JWT | Autocompletar ciudades y sus aeropuertos. |
+| Routing | `GET /routing/preview` | JWT | Obtener BFS + A\*: alcanzabilidad, escalas mínimas, T_min y ruta preliminar. |
 | Quotes | `POST /quotes/search` | JWT verificado | Cotizar y obtener el podio (5 créditos, RN-08). |
 | Quotes | `POST /quotes/{search_id}/rank` | JWT verificado | Reordenar con otro perfil (gratis, RN-11). |
 | Quotes | `GET /quotes/{search_id}` | JWT verificado | Volver a leer el podio vigente. |
 | Billing | `GET /billing/wallet` | JWT | Consultar el saldo. |
 | Billing | `GET /billing/transactions` | JWT | Ver el historial de movimientos de créditos. |
-| Billing | `GET /billing/packages` | Público | Ver el catálogo de paquetes. |
+| Billing | `GET /billing/packages` | JWT | Ver el catálogo de paquetes. |
 | Billing | `POST /billing/orders` | JWT verificado | Crear una orden y la preferencia de Mercado Pago. |
 | Billing | `GET /billing/orders/{order_id}` | JWT | Consultar el estado de una orden. |
 | Billing | `POST /billing/webhooks/mercadopago` | Firma HMAC | Recibir la notificación de pago. |
@@ -32,7 +32,7 @@
 | Itineraries | `GET /itineraries` | JWT | Listar los itinerarios guardados. |
 | Itineraries | `GET /itineraries/{id}` | JWT | Ver el detalle de un itinerario. |
 | Itineraries | `DELETE /itineraries/{id}` | JWT | Eliminar un itinerario. |
-| Sistema | `GET /health` | Público | Estado de PostgreSQL, Redis y grafo. |
+| Sistema | `GET /health` | Sin sesión | Estado de PostgreSQL, Redis y grafo. |
 
 **Autenticación:**
 - **Access token**: cabecera `Authorization: Bearer <access_token>` (JWT HS256, 15 min).
@@ -158,7 +158,7 @@ La webapp envía todos los aeropuertos de cada ciudad (1 a 5 por lado, sin aerop
 }
 ```
 
-Si ningún par tiene ruta: `200` con `"reachable": false`, `pairs: []` y `best_route: null`. `telemetry` suma todos los pares evaluados. Errores: `404 AIRPORT_NOT_FOUND` y `422 VALIDATION_ERROR`.
+Si ningún par tiene ruta: `200` con `"reachable": false`, `pairs: []` y `best_route: null`. `telemetry` suma todos los pares evaluados. Errores: `401 UNAUTHENTICATED`, `404 AIRPORT_NOT_FOUND` y `422 VALIDATION_ERROR`. Rate limit: 30 por minuto por usuario.
 
 ## 4. Quotes
 

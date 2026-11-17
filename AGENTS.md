@@ -5,7 +5,7 @@ trabajen en este repositorio. Léela antes de proponer o aplicar cambios.
 
 Navby recomienda los 3 mejores vuelos entre dos ciudades combinando precio, duración y
 escalas en un solo puntaje (el **podio**). Este repositorio es **solo la webapp** (SPA).
-El website público es `navby-website` y el backend es `navby-platform` (FastAPI).
+El sitio web de marketing es `navby-website` y el backend es `navby-platform` (FastAPI).
 
 ---
 
