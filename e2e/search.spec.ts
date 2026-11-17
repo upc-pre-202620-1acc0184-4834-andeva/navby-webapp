@@ -100,6 +100,18 @@ async function setupAuthenticatedMocks(
   );
 
   await page.route('**/api/v1/routing/cities*', (route: Route) => {
+    if (route.request().headers().authorization !== `Bearer ${MOCK_SESSION.access_token}`) {
+      return route.fulfill({
+        status: 401,
+        contentType: 'application/problem+json',
+        body: JSON.stringify({
+          title: 'No autenticado',
+          status: 401,
+          detail: 'Falta token Bearer',
+          code: 'UNAUTHENTICATED',
+        }),
+      });
+    }
     const url = new URL(route.request().url());
     const rawQ = url.searchParams.get('q') ?? '';
     counters?.cityCalls.push(rawQ);
@@ -121,6 +133,18 @@ async function setupAuthenticatedMocks(
   });
 
   await page.route('**/api/v1/routing/preview*', (route: Route) => {
+    if (route.request().headers().authorization !== `Bearer ${MOCK_SESSION.access_token}`) {
+      return route.fulfill({
+        status: 401,
+        contentType: 'application/problem+json',
+        body: JSON.stringify({
+          title: 'No autenticado',
+          status: 401,
+          detail: 'Falta token Bearer',
+          code: 'UNAUTHENTICATED',
+        }),
+      });
+    }
     const url = new URL(route.request().url());
     const origins = (url.searchParams.get('origins') ?? '').split(',').filter(Boolean);
     const destinations = (url.searchParams.get('destinations') ?? '').split(',').filter(Boolean);
@@ -172,7 +196,7 @@ async function setupAuthenticatedMocks(
 }
 
 test.describe('Buscador y mapa preliminar (Plan 2)', () => {
-  test('visitante sin sesión con parámetros de búsqueda es redirigido a /login (US-12)', async ({
+  test('usuario sin sesión con parámetros de búsqueda es redirigido a /login (US-12)', async ({
     page,
   }) => {
     await page.route('**/api/v1/auth/refresh', (route) =>

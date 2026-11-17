@@ -230,5 +230,30 @@ describe('SearchPanel (US-12 y US-34)', () => {
     );
     expect(screen.getByRole('alert')).toHaveTextContent(/Demasiadas consultas/);
     expect(screen.getByRole('button', { name: 'Reintentar' })).toBeDisabled();
+
+    rerender(
+      <QueryClientProvider client={new QueryClient()}>
+        <SearchPanel
+          initialCriteria={DEFAULT_SEARCH_CRITERIA}
+          hasActiveSearch={true}
+          preview={undefined}
+          previewError={
+            new ApiError({
+              status: 401,
+              code: 'UNAUTHENTICATED',
+              title: 'No autenticado',
+              detail: 'Token vencido',
+            })
+          }
+          isPreviewLoading={false}
+          isPreviewFetching={false}
+          isRateLimitCooldown={false}
+          onRetryPreview={vi.fn()}
+          onSubmitCriteria={vi.fn()}
+          onAirportsDebouncedChange={vi.fn()}
+        />
+      </QueryClientProvider>,
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent('Inicia sesión para continuar.');
   });
 });

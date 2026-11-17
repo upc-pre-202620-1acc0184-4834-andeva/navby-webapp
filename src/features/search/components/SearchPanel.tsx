@@ -209,13 +209,27 @@ export function SearchPanel({
           />
         );
       }
+      if (previewError.status === 401 || previewError.code === 'UNAUTHENTICATED') {
+        return (
+          <StatusMessage
+            variant="error"
+            title={t('search.previewErrorTitle')}
+            description={t('errors.UNAUTHENTICATED')}
+          />
+        );
+      }
     }
+
+    const fallbackDescription =
+      isApiError(previewError) && previewError.code === 'NETWORK_ERROR'
+        ? t('errors.NETWORK_ERROR')
+        : t('errors.UNKNOWN');
 
     return (
       <StatusMessage
         variant="error"
         title={t('search.previewErrorTitle')}
-        description={t('errors.NETWORK_ERROR')}
+        description={fallbackDescription}
         action={
           <Button variant="secondary" onClick={onRetryPreview}>
             {t('common.retry')}

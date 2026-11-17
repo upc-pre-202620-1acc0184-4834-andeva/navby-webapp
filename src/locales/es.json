@@ -105,7 +105,7 @@
     "creditsPlaceholder": "— créditos",
     "creditsAria": "Saldo de créditos disponible próximamente",
     "accountMenu": "Menú de cuenta y preferencias",
-    "visitorLabel": "Cuenta",
+    "accountLabel": "Cuenta",
     "signIn": "Iniciar sesión",
     "signUp": "Crear cuenta",
     "itineraries": "Itinerarios",
@@ -130,6 +130,8 @@
   },
   "errors": {
     "UNAUTHENTICATED": "Inicia sesión para continuar.",
+    "CAPTCHA_INVALID": "No pudimos completar la verificación de seguridad. Inténtalo de nuevo.",
+    "PROVIDER_UNAVAILABLE": "No pudimos comprobar la verificación. Inténtalo de nuevo.",
     "NETWORK_ERROR": "No pudimos conectar con Navby. Revisa tu conexión e inténtalo de nuevo.",
     "UNKNOWN": "Ocurrió un error inesperado. Inténtalo de nuevo.",
     "sessionCheckTitle": "No pudimos verificar tu sesión"

@@ -105,7 +105,7 @@
     "creditsPlaceholder": "— credits",
     "creditsAria": "Credit balance coming soon",
     "accountMenu": "Account and preferences menu",
-    "visitorLabel": "Account",
+    "accountLabel": "Account",
     "signIn": "Sign in",
     "signUp": "Create account",
     "itineraries": "Itineraries",
@@ -130,6 +130,8 @@
   },
   "errors": {
     "UNAUTHENTICATED": "Sign in to continue.",
+    "CAPTCHA_INVALID": "We could not complete the security verification. Please try again.",
+    "PROVIDER_UNAVAILABLE": "We could not check the verification. Please try again.",
     "NETWORK_ERROR": "We could not reach Navby. Check your connection and try again.",
     "UNKNOWN": "An unexpected error occurred. Please try again.",
     "sessionCheckTitle": "Could not verify your session"

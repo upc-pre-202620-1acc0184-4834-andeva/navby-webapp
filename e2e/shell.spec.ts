@@ -37,7 +37,7 @@ test.describe('Armazón de navegación, sesión y paridad /app', () => {
     ).toBeVisible();
   });
 
-  test('visitante sin sesión es redirigido a /app/login preservando layout y pasa axe en claro y oscuro', async ({
+  test('usuario sin sesión es redirigido a /app/login preservando layout y pasa axe en claro y oscuro', async ({
     page,
   }) => {
     await page.route('**/api/v1/auth/refresh', (route) =>
