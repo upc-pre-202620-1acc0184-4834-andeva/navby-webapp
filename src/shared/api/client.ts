@@ -255,7 +255,12 @@ export async function apiFetch<T>(
 
     response = await execute(nextToken);
     if (response.status === 401) {
-      throw await parseApiError(response);
+      const retryError = await parseApiError(response);
+      if (retryError.code === 'UNAUTHENTICATED' || retryError.code === 'HTTP_401') {
+        clearSessionToken();
+        notifySession(null);
+      }
+      throw retryError;
     }
   }
 

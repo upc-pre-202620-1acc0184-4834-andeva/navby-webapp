@@ -206,3 +206,114 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Calendario react-day-picker v10 con tokens y curva de DESIGN.md */
+.navby-calendar.rdp-root {
+  --rdp-accent-color: var(--color-primary);
+  --rdp-accent-background-color: var(--color-primary-soft);
+  --rdp-day-height: 44px;
+  --rdp-day-width: 44px;
+  --rdp-day_button-height: 40px;
+  --rdp-day_button-width: 40px;
+  --rdp-today-color: var(--brand-ink);
+  --rdp-range_middle-background-color: var(--color-primary-soft);
+  --rdp-range_middle-color: var(--color-primary-dark);
+  --rdp-range_start-color: #ffffff;
+  --rdp-range_end-color: #ffffff;
+  --rdp-animation_duration: 150ms;
+  --rdp-animation_timing: var(--ease-out);
+  color: var(--fg);
+  font-size: 0.875rem;
+}
+
+.dark .navby-calendar.rdp-root {
+  --rdp-accent-background-color: color-mix(in srgb, var(--color-primary) 28%, var(--surface));
+  --rdp-range_middle-background-color: color-mix(in srgb, var(--color-primary) 28%, var(--surface));
+  --rdp-range_middle-color: var(--fg);
+}
+
+.navby-calendar .rdp-day_button {
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color 125ms var(--ease-out),
+    color 125ms var(--ease-out);
+}
+
+.navby-calendar .rdp-day_button:hover:not(:disabled) {
+  background-color: var(--surface-sunken);
+}
+
+.navby-calendar .rdp-selected .rdp-day_button {
+  font-weight: 600;
+}
+
+.navby-calendar .rdp-button_previous,
+.navby-calendar .rdp-button_next {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 8px;
+  color: var(--fg);
+}
+
+.navby-calendar .rdp-button_previous:hover:not(:disabled),
+.navby-calendar .rdp-button_next:hover:not(:disabled) {
+  background-color: var(--surface-sunken);
+}
+
+/* Pulso suave de opacidad para la ruta preliminar en el mapa (anulado con reduced-motion) */
+@keyframes navby-route-pulse {
+  0%,
+  100% {
+    opacity: 0.92;
+  }
+  50% {
+    opacity: 0.48;
+  }
+}
+
+.navby-preview-pulse {
+  animation: navby-route-pulse 2.6s var(--ease-in-out) infinite;
+}
+
+/* Marcadores y controles MapLibre integrados a los tokens del tema */
+.maplibregl-marker {
+  z-index: 3;
+}
+
+.maplibregl-ctrl-group {
+  overflow: hidden;
+  border-radius: 8px !important;
+  border: 1px solid var(--line);
+  background-color: var(--surface) !important;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--fg) 8%, transparent) !important;
+}
+
+.maplibregl-ctrl-group button + button {
+  border-top-color: var(--line) !important;
+}
+
+.maplibregl-ctrl-group button:hover {
+  background-color: var(--surface-sunken) !important;
+}
+
+.dark .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(1) brightness(1.05);
+}
+
+.maplibregl-ctrl.maplibregl-ctrl-attrib,
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  border: 1px solid var(--line);
+  background-color: var(--surface) !important;
+  color: var(--fg-muted) !important;
+}
+
+.maplibregl-ctrl-attrib.maplibregl-compact a,
+.maplibregl-ctrl-attrib a {
+  color: var(--fg) !important;
+}
+
+.dark .maplibregl-ctrl-attrib.maplibregl-compact-show .maplibregl-ctrl-attrib-button,
+.dark .maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-button {
+  background-color: transparent !important;
+  filter: invert(1);
+}

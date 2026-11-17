@@ -54,7 +54,7 @@ describe('useSession & bindSessionSync', () => {
     expect(getAccessToken()).toBe('jwt-123');
   });
 
-  it('degrada a visitante null en 401 sin marcar error', async () => {
+  it('degrada a null sin sesión en 401 sin marcar error', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(
@@ -81,7 +81,7 @@ describe('useSession & bindSessionSync', () => {
     expect(result.current.user).toBeNull();
   });
 
-  it('expone isError ante fallo de red en lugar de fingir visitante y limpia caché de perfil al expirar sesión', async () => {
+  it('expone isError ante fallo de red en lugar de fingir sesión nula y limpia caché de perfil al expirar sesión', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => {

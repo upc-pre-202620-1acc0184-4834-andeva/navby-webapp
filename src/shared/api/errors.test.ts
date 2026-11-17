@@ -25,20 +25,48 @@ describe('ApiError & parseApiError', () => {
     expect(err.invalidParams).toEqual([{ name: 'email', reason: 'invalid' }]);
   });
 
-  it('tolera códigos de error futuros como CAPTCHA_INVALID sin fallar el parseo', async () => {
-    const response = new Response(
+  it('parsea códigos reales de Turnstile (400 CAPTCHA_INVALID, 503 PROVIDER_UNAVAILABLE) y códigos futuros desconocidos', async () => {
+    const captchaResponse = new Response(
       JSON.stringify({
-        title: 'Captcha inválido',
-        status: 403,
-        detail: 'Verifica que no eres un robot.',
+        title: 'Verificación de seguridad inválida',
+        status: 400,
+        detail: 'La verificación de seguridad no es válida.',
         code: 'CAPTCHA_INVALID',
       }),
-      { status: 403, headers: { 'content-type': 'application/problem+json' } },
+      { status: 400, headers: { 'content-type': 'application/problem+json' } },
     );
 
-    const err = await parseApiError(response);
-    expect(err.code).toBe('CAPTCHA_INVALID');
-    expect(err.status).toBe(403);
+    const captchaErr = await parseApiError(captchaResponse);
+    expect(captchaErr.code).toBe('CAPTCHA_INVALID');
+    expect(captchaErr.status).toBe(400);
+
+    const providerResponse = new Response(
+      JSON.stringify({
+        title: 'Proveedor no disponible',
+        status: 503,
+        detail: 'No se pudo comprobar la verificación de seguridad.',
+        code: 'PROVIDER_UNAVAILABLE',
+      }),
+      { status: 503, headers: { 'content-type': 'application/problem+json' } },
+    );
+
+    const providerErr = await parseApiError(providerResponse);
+    expect(providerErr.code).toBe('PROVIDER_UNAVAILABLE');
+    expect(providerErr.status).toBe(503);
+
+    const futureResponse = new Response(
+      JSON.stringify({
+        title: 'Nuevo error',
+        status: 418,
+        detail: 'Extensible',
+        code: 'SOME_FUTURE_CODE',
+      }),
+      { status: 418, headers: { 'content-type': 'application/problem+json' } },
+    );
+
+    const futureErr = await parseApiError(futureResponse);
+    expect(futureErr.code).toBe('SOME_FUTURE_CODE');
+    expect(futureErr.status).toBe(418);
   });
 
   it('genera ApiError de respaldo cuando el proxy devuelve HTML o JSON inválido', async () => {
