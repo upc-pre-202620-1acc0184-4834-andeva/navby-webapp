@@ -39,6 +39,7 @@ Casos especiales:
 | `409 SEARCH_IN_PROGRESS` | Se ignora: ya hay una búsqueda en curso y el botón **Buscar** está deshabilitado mientras tanto. |
 | `402 INSUFFICIENT_CREDITS` | Toast con enlace a `/billing`. |
 | `403 EMAIL_NOT_VERIFIED` | Redirección a `/verify-email`. |
+| `400 CAPTCHA_INVALID` (registro, login, recuperación) | Se reinicia el widget de Turnstile y se pide repetir la verificación. Si es `503 PROVIDER_UNAVAILABLE` en esos formularios: «No pudimos comprobar la verificación. Inténtalo de nuevo». |
 | `503 PROVIDER_UNAVAILABLE` | Toast «No pudimos consultar precios. No se te cobró». |
 | `partial: true` | Aviso discreto «Algunos aeropuertos no respondieron». |
 | `podium: []` | «No hay vuelos disponibles para esa fecha. No se te cobró». |
@@ -135,3 +136,14 @@ Las decisiones adoptadas al cerrar el Plan 1 ajustan y precisan la configuració
 - **Preferencias de tema e idioma:** Los selectores de tema e idioma se ubican dentro del menú de cuenta (`AccountMenu`, disponible también en rutas públicas) para mantener la barra superior limpia en 390 px y respetar las preferencias heredadas desde el website (`navby-theme`).
 - **Términos y privacidad en pie de página:** Se renderizan como etiquetas no navegables (`Términos y condiciones`, `Política de privacidad`) hasta que se definan sus rutas en `navby-website`.
 - **Paridad `/app` en local:** `vite.config.ts` incluye una reescritura de `/app` (sin barra final) hacia `/app/` para replicar en local el rewrite de `vercel.json`.
+
+## 9. Decisiones del Plan 2
+
+Las decisiones adoptadas al cerrar el Plan 2 completan la integración real con `navby-platform` (`routing`) y definen la conducta de diseño y mapa:
+
+- **Sin vistas públicas en el buscador (`/`):** `/` permanece protegido por `RequireAuth`, y tanto `searchCities` (`GET /routing/cities`) como `getRoutePreview` (`GET /routing/preview`) usan `auth: 'required'`. El usuario debe registrarse, verificar su correo y tener sesión activa para usar el buscador (si `navby-platform` mantiene `/routing/*` sin guardia JWT, la restricción de producto vigente exige igualmente el acceso autenticado desde la webapp).
+- **Disparo de la vista previa y debounce de aeropuertos:** `GET /routing/preview` se consulta y reencuadra el mapa (`fitBounds`) al pulsar **Buscar** (sincronizando los parámetros en `URLSearchParams`) o al cargar/recargar una URL compartida con `from` y `to` válidos y disjuntos. Una vez activa la búsqueda, marcar o desmarcar casillas en «Aeropuertos de [Ciudad]» aplica un debounce de `400 ms` antes de actualizar la URL (`replace: true`) y recalcular. Mientras no exista el Plan 4 (`POST /quotes/search`), **Buscar** muestra la ruta preliminar y la nota discreta de cierre del Plan 2.
+- **Cálculo de horas en `ROUND_TRIP`:** En `ONE_WAY` se toma `best_route.t_min_minutes`; en `ROUND_TRIP` se calcula el mínimo de `pairs[].t_min_minutes` (respaldado por `best_route.t_min_minutes` si `pairs` está vacío), redondeando con piso de `1 h` para evitar `~0 h`.
+- **Localización de países en cliente:** Dado que `GET /routing/cities` entrega `country` en inglés, el cliente lo traduce al idioma activo (`es`/`en`) mediante `Intl.DisplayNames` y alias históricos en `src/features/search/countryLocalization.ts`.
+- **Disposición adaptable y accesibilidad del mapa:** En `< 1024 px` la vista fluye en columna (`SearchPanel` → mapa `h-[40dvh] min-h-[260px]` → `RouteTextLegend` visible debajo); en `>= 1024 px` el formulario flota a la izquierda (`420 px`, superficie sólida `bg-surface`) y `RouteTextLegend` queda `lg:sr-only`, haciéndose visible automáticamente si WebGL no está disponible o falla.
+- **MapLibre v6 + deck.gl 9 en módulo `lazy`:** `RouteMap` configura el worker ESM explícito (`?worker&url`), usa `MapboxOverlay` con `interleaved: false` (requerido en MapLibre v6 al no existir `map.transform._nearZ`), segmentos SLERP discontinuos divididos sobre `±180°`, cálculo de límites por mayor brecha circular longitudinal en `[0, 360)` para rutas transpacíficas y transatlánticas, `linear: true` sin animación cuando `prefers-reduced-motion: reduce` está activo, y estilo vectorial inline mínimo como respaldo ante fallos de CARTO.

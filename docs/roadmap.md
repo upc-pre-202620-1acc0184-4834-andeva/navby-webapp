@@ -28,7 +28,7 @@ están en [user-stories.md](user-stories.md); las reglas `RN-xx`/`RL-xx`, en
 | :---: | :--- | :--- | :---: |
 | 0 | **Fundaciones:** Vite con `base: '/app/'`, tokens, DESIGN.md, AGENTS.md, i18n, sileo, boneyard, Vitest, Playwright + axe, skills. | — | ✅ |
 | 1 | **Armazón y cliente de API:** layout, componentes base, cliente fetch con sesión, despliegue. | US-06, US-31 (aviso), US-33 (enlaces) | ✅ |
-| 2 | **Buscador y ruta en el mapa** (público, sin créditos). | US-11, US-12, US-14, US-34 | ⬜ |
+| 2 | **Buscador y ruta en el mapa** (autenticado). | US-11, US-12, US-14, US-34 | ✅ |
 | 3 | **Cuenta y acceso.** | US-01 a US-05, US-07 a US-10 | ⬜ |
 | 4 | **Podio:** cotizar y recomendar. | US-13, US-15 a US-19, US-26, US-31 | ⬜ |
 | 5 | **Preferencias:** reordenar el podio. | US-20, US-21 | ⬜ |
@@ -103,9 +103,9 @@ la ruta preliminar en milisegundos.
   Services y `VITE_GOOGLE_CLIENT_ID` (US-05); cerrar sesión (US-07); recuperar contraseña
   (US-08); perfil (US-09); eliminar cuenta escribiendo «ELIMINAR» (US-10, RL-02).
 - Cloudflare Turnstile (`<TurnstileField>`, ya creado) en registro, login y recuperación
-  de contraseña; token en la cabecera `X-Captcha-Response`. **Requiere** que navby-platform
-  verifique el token (`siteverify`) en esos tres endpoints y responda un `code` propio
-  (p. ej. `CAPTCHA_INVALID`) cuando falle.
+  de contraseña; token en la cabecera `X-Captcha-Response`. navby-platform lo verifica
+  (`siteverify`) y responde `400 CAPTCHA_INVALID` (reiniciar el widget) o
+  `503 PROVIDER_UNAVAILABLE` si no pudo consultar a Cloudflare.
 - Retorno a la ruta original después de entrar (incluida una búsqueda en la URL).
 - **Endpoints:** `/auth/*`, `GET /users/me`, `DELETE /users/me`.
 - **Hecho cuando:** escenarios de US-01 a US-10 probados; e2e registro → OTP (leído del

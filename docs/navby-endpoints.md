@@ -37,12 +37,14 @@
 **Autenticación:**
 - **Access token**: cabecera `Authorization: Bearer <access_token>` (JWT HS256, 15 min).
 - **Refresh token**: viaja solo en la cookie `navby_refresh` (`HttpOnly`, `Secure`, `SameSite=Strict`, `Path=/api/v1/auth`). Como la webapp y la API comparten el origen `navby.andeva.tech`, la cookie es de primera parte y no hace falta CORS.
+- **Captcha**: `POST /auth/register`, `/auth/login` y `/auth/forgot-password` exigen el token de Cloudflare Turnstile en la cabecera `X-Captcha-Response`. La API lo verifica con `siteverify` antes de procesar el cuerpo. Sin `TURNSTILE_SECRET_KEY` (solo `local`) no se verifica.
 
 **Errores comunes** (no se repiten en cada endpoint):
 - `401 UNAUTHENTICATED` en todo endpoint con acceso JWT o JWT verificado si falta el token o venció.
 - `403 EMAIL_NOT_VERIFIED` en todo endpoint con acceso JWT verificado si el correo no está verificado.
 - `422 VALIDATION_ERROR` en todo endpoint si el cuerpo o los parámetros no cumplen el schema (formato, rangos, límites de paginación, RN-01 a RN-04).
 - `429 RATE_LIMITED` en todo endpoint con rate limit.
+- `400 CAPTCHA_INVALID` en los endpoints con captcha si falta el token o Cloudflare lo rechaza; `503 PROVIDER_UNAVAILABLE` si no se pudo consultar a Cloudflare.
 
 ## 2. IAM
 
