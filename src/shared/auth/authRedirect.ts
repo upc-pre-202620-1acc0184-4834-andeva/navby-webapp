@@ -2,6 +2,9 @@ import { type Location } from 'react-router';
 
 export interface AuthRedirectState {
   from?: Location;
+  /** Correo pendiente de verificar: viaja en el estado del router, nunca en la URL. */
+  email?: string;
+  reason?: 'registered' | 'unverified';
 }
 
 const AUTH_ROUTE_PATHS = new Set([
