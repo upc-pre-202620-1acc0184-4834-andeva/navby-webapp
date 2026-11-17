@@ -87,7 +87,7 @@ Errores:
 
 ### `POST /auth/google`
 
-`{ "id_token": "eyJ...", "accept_terms": true }` → `200 Session`. Crea la cuenta si no existe (entonces `accept_terms` es obligatorio) o la vincula según las reglas de [IAM](extended-bounded-contexts-description/bounded-context-iam.md). Errores: `401 INVALID_GOOGLE_TOKEN` y `422 TERMS_NOT_ACCEPTED`.
+`{ "id_token": "eyJ...", "accept_terms": true }` → `200 Session`. Crea la cuenta si no existe (entonces `accept_terms` es obligatorio) o la vincula según las reglas de [IAM](extended-bounded-contexts-description/bounded-context-iam.md). Errores: `401 INVALID_GOOGLE_TOKEN`, `422 TERMS_NOT_ACCEPTED` y `422 DISPOSABLE_EMAIL`.
 
 ### `POST /auth/refresh`
 
@@ -111,7 +111,7 @@ Sin cuerpo. Revoca el refresh token de la cookie y la borra. `204` siempre.
 
 ### `DELETE /users/me`
 
-`{ "confirmation": "ELIMINAR" }` → `204` y la cookie se borra. Anonimiza la cuenta, borra los itinerarios y anula los créditos; conserva las órdenes de compra. Error: `422 VALIDATION_ERROR` si la confirmación no es exacta.
+`{ "confirmation": "ELIMINAR" }` (o `"DELETE"`, la palabra que pide la webapp en inglés) → `204` y la cookie se borra. Anonimiza la cuenta, borra los itinerarios y anula los créditos; conserva las órdenes de compra. Error: `422 VALIDATION_ERROR` si la confirmación no es exacta.
 
 ## 3. Routing
 

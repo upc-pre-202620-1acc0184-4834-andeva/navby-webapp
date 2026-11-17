@@ -57,10 +57,10 @@ Los planes 2 y 3 implementan por separado las pantallas autenticadas del buscado
   'include'`, access token en memoria, refresh único compartido ante `401` y un solo
   reintento, errores RFC 7807 como `ApiError` con `code`, respuestas validadas con Zod.
 - Sesión: al cargar la app, `POST /auth/refresh` silencioso; contexto/hook `useSession`
-  (TanStack Query) y guardas de ruta (`RequireAuth`, `RequireVerified` →
-  `/verify-email`).
+  (TanStack Query) y guarda de ruta `RequireAuth` (desde el Plan 3 también manda a
+  `/verify-email` si el correo no está verificado).
 - Layout: barra superior (isologo, saldo placeholder, menú de cuenta, tema, idioma) y pie
-  con Términos y Privacidad (`VITE_WEBSITE_URL`).
+  (los enlaces legales llegan con las páginas de navby-website).
 - `shared/ui` mínimo de DESIGN.md: `Button`, `Field`/`Input`, `Card`, `Badge`,
   `PriceDisclaimer` (RL-03), estado vacío/error. Solo lo que usarán los planes 2–3.
 - Despliegue: proyecto Vercel `navby-webapp` y rewrites `/app` en el `vercel.json` del
@@ -108,8 +108,10 @@ la ruta preliminar en milisegundos.
 - **Endpoints:** `/auth/*`, `GET /users/me`, `DELETE /users/me`.
 - **Hecho cuando:** escenarios de US-01 a US-10 probados; e2e registro → OTP (leído del
   log del backend en local) → login → logout; mensajes de error por `code`.
-- **Decidir antes:** si el correo desechable (RN-17) se muestra en línea o en toast; cómo
-  probar Google en e2e (mock del script de GIS).
+- **Decidido:** RN-17 en línea; Google oculto sin `VITE_GOOGLE_CLIENT_ID` y simulado en
+  e2e con un stub del script de GIS (ver Decisiones del Plan 3).
+- **Pendiente para cerrar:** smoke en vivo contra navby-platform (registro → OTP del log →
+  login → logout); las pruebas e2e actuales simulan la API.
 
 ## Plan 4 · Podio
 
