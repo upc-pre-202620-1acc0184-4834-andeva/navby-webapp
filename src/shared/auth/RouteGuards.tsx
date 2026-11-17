@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, Outlet, useLocation } from 'react-router';
+import { wasSignedOutByUser } from '@/shared/api/client';
 import { Button } from '@/shared/ui/Button';
 import { StatusMessage } from '@/shared/ui/StatusMessage';
 import { type AuthRedirectState, resolveAuthRedirectFrom } from './authRedirect';
@@ -49,7 +50,24 @@ export function RequireAuth({ children }: { children?: ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location } satisfies AuthRedirectState} replace />;
+    // Tras un logout o eliminación de cuenta no se guarda la ruta: volver a entrar lleva al inicio.
+    const state: AuthRedirectState | undefined = wasSignedOutByUser()
+      ? undefined
+      : { from: location };
+    return <Navigate to="/login" state={state} replace />;
+  }
+
+  // RN-12: el backend no abre sesión sin correo verificado; esto es defensa en profundidad.
+  if (!user.email_verified) {
+    return (
+      <Navigate
+        to="/verify-email"
+        state={
+          { from: location, email: user.email, reason: 'unverified' } satisfies AuthRedirectState
+        }
+        replace
+      />
+    );
   }
 
   return <>{children ?? <Outlet />}</>;
@@ -65,7 +83,8 @@ export function RedirectIfAuthenticated({ children }: { children?: ReactNode }) 
     return <SessionLoadingSpinner label={t('common.loading')} />;
   }
 
-  if (user) {
+  // Un usuario sin verificar solo puede quedarse en /verify-email.
+  if (user && !(location.pathname === '/verify-email' && !user.email_verified)) {
     const target = resolveAuthRedirectFrom(location);
     const destination = target ? `${target.pathname}${target.search}${target.hash}` : '/';
     return <Navigate to={destination} replace />;

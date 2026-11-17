@@ -2,6 +2,14 @@ import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RedirectIfAuthenticated, RequireAuth } from '@/shared/auth/RouteGuards';
 import { AppLayout, type RouteLayoutHandle } from './AppLayout';
 import { HomePage } from './HomePage';
+import {
+  AccountPage,
+  ForgotPasswordPage,
+  LoginPage,
+  RegisterPage,
+  ResetPasswordPage,
+  VerifyEmailPage,
+} from './lazyPages';
 import { RoutePlaceholderPage } from './RoutePlaceholderPage';
 
 export const routes: RouteObject[] = [
@@ -67,14 +75,7 @@ export const routes: RouteObject[] = [
           {
             path: 'account',
             handle: { layout: 'contained' } satisfies RouteLayoutHandle,
-            element: (
-              <RoutePlaceholderPage
-                titleKey="routes.account.title"
-                descriptionKey="routes.account.description"
-                actionTo="/"
-                actionLabelKey="common.backHome"
-              />
-            ),
+            element: <AccountPage />,
           },
         ],
       },
@@ -84,64 +85,29 @@ export const routes: RouteObject[] = [
           {
             path: 'login',
             handle: { layout: 'auth' } satisfies RouteLayoutHandle,
-            element: (
-              <RoutePlaceholderPage
-                titleKey="routes.login.title"
-                descriptionKey="routes.login.description"
-                actionTo="/register"
-                actionLabelKey="routes.login.action"
-              />
-            ),
+            element: <LoginPage />,
           },
           {
             path: 'register',
             handle: { layout: 'auth' } satisfies RouteLayoutHandle,
-            element: (
-              <RoutePlaceholderPage
-                titleKey="routes.register.title"
-                descriptionKey="routes.register.description"
-                actionTo="/login"
-                actionLabelKey="routes.register.action"
-              />
-            ),
+            element: <RegisterPage />,
           },
           {
             path: 'verify-email',
             handle: { layout: 'auth' } satisfies RouteLayoutHandle,
-            element: (
-              <RoutePlaceholderPage
-                titleKey="routes.verifyEmail.title"
-                descriptionKey="routes.verifyEmail.description"
-                actionTo="/login"
-                actionLabelKey="routes.verifyEmail.action"
-              />
-            ),
+            element: <VerifyEmailPage />,
           },
           {
             path: 'forgot-password',
             handle: { layout: 'auth' } satisfies RouteLayoutHandle,
-            element: (
-              <RoutePlaceholderPage
-                titleKey="routes.forgotPassword.title"
-                descriptionKey="routes.forgotPassword.description"
-                actionTo="/login"
-                actionLabelKey="routes.forgotPassword.action"
-              />
-            ),
+            element: <ForgotPasswordPage />,
           },
         ],
       },
       {
         path: 'reset-password',
         handle: { layout: 'auth' } satisfies RouteLayoutHandle,
-        element: (
-          <RoutePlaceholderPage
-            titleKey="routes.resetPassword.title"
-            descriptionKey="routes.resetPassword.description"
-            actionTo="/login"
-            actionLabelKey="routes.resetPassword.action"
-          />
-        ),
+        element: <ResetPasswordPage />,
       },
       {
         path: '*',

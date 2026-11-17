@@ -1,11 +1,15 @@
-import { apiFetch, refreshSession } from './client';
+import { apiFetch, applySession, CAPTCHA_HEADER, clearSession, refreshSession } from './client';
 import {
   type CitiesResponse,
   CitiesResponseSchema,
   type HealthStatus,
   HealthSchema,
+  type RegisterResponse,
+  RegisterResponseSchema,
   type RoutePreviewResponse,
   RoutePreviewResponseSchema,
+  type Session,
+  SessionSchema,
   type UserProfile,
   UserProfileSchema,
   type UserSummary,
@@ -14,6 +18,107 @@ import {
 export async function bootstrapSession(): Promise<UserSummary | null> {
   const session = await refreshSession();
   return session?.user ?? null;
+}
+
+async function openSession(path: string, body: unknown, headers?: HeadersInit): Promise<Session> {
+  const session = await apiFetch(path, {
+    method: 'POST',
+    auth: 'none',
+    body,
+    headers,
+    schema: SessionSchema,
+  });
+  applySession(session);
+  return session;
+}
+
+export interface RegisterPayload {
+  email: string;
+  password: string;
+  full_name: string;
+  accept_terms: boolean;
+}
+
+export function registerAccount(
+  payload: RegisterPayload,
+  captchaToken: string,
+): Promise<RegisterResponse> {
+  return apiFetch('/auth/register', {
+    method: 'POST',
+    auth: 'none',
+    body: payload,
+    headers: { [CAPTCHA_HEADER]: captchaToken },
+    schema: RegisterResponseSchema,
+  });
+}
+
+export function verifyEmail(payload: { email: string; code: string }): Promise<Session> {
+  return openSession('/auth/verify-email', payload);
+}
+
+export function resendVerificationCode(payload: { email: string }): Promise<void> {
+  return apiFetch('/auth/verify-email/resend', {
+    method: 'POST',
+    auth: 'none',
+    body: payload,
+    parseVoid: true,
+  });
+}
+
+export function login(
+  payload: { email: string; password: string },
+  captchaToken: string,
+): Promise<Session> {
+  return openSession('/auth/login', payload, { [CAPTCHA_HEADER]: captchaToken });
+}
+
+export function loginWithGoogle(payload: {
+  id_token: string;
+  accept_terms?: boolean;
+}): Promise<Session> {
+  return openSession('/auth/google', payload);
+}
+
+export async function logout(): Promise<void> {
+  await apiFetch('/auth/logout', { method: 'POST', auth: 'none', parseVoid: true });
+  clearSession();
+}
+
+export function requestPasswordReset(
+  payload: { email: string },
+  captchaToken: string,
+): Promise<void> {
+  return apiFetch('/auth/forgot-password', {
+    method: 'POST',
+    auth: 'none',
+    body: payload,
+    headers: { [CAPTCHA_HEADER]: captchaToken },
+    parseVoid: true,
+  });
+}
+
+/** El backend revoca todas las sesiones al cambiar la contraseña (US-08). */
+export async function resetPassword(payload: {
+  token: string;
+  new_password: string;
+}): Promise<void> {
+  await apiFetch('/auth/reset-password', {
+    method: 'POST',
+    auth: 'none',
+    body: payload,
+    parseVoid: true,
+  });
+  clearSession();
+}
+
+export async function deleteMyAccount(payload: { confirmation: string }): Promise<void> {
+  await apiFetch('/users/me', {
+    method: 'DELETE',
+    auth: 'required',
+    body: payload,
+    parseVoid: true,
+  });
+  clearSession();
 }
 
 export function getMyProfile(signal?: AbortSignal): Promise<UserProfile> {

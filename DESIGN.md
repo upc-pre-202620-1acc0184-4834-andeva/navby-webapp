@@ -245,8 +245,8 @@ Para texto, siempre el `*-ink` del tema. Nunca el color como única señal: acom
   controles, `gap-4`/`p-4` en tarjetas, `gap-6` entre secciones. Gutter lateral 16 px en
   móvil.
 - Usa `min-h-dvh`, nunca `100vh`.
-- El pie de cada pantalla enlaza Términos y Política de Privacidad del website
-  (`VITE_WEBSITE_URL`).
+- Cuando navby-website publique Términos y Política de Privacidad, el pie los enlazará
+  (`VITE_WEBSITE_URL`). Hoy solo muestra el copyright.
 
 ## Elevation & Depth
 

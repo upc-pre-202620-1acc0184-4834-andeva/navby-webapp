@@ -1,8 +1,15 @@
-import { AlertCircle, AlertTriangle, Inbox, Info, type LucideIcon } from 'lucide-react';
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  Inbox,
+  Info,
+  type LucideIcon,
+} from 'lucide-react';
 import { type ReactNode } from 'react';
 import { cn } from './cn';
 
-export type StatusMessageVariant = 'empty' | 'info' | 'warning' | 'error';
+export type StatusMessageVariant = 'empty' | 'info' | 'success' | 'warning' | 'error';
 
 export interface StatusMessageProps {
   variant?: StatusMessageVariant;
@@ -16,6 +23,7 @@ export interface StatusMessageProps {
 const DEFAULT_ICONS: Record<StatusMessageVariant, LucideIcon> = {
   empty: Inbox,
   info: Info,
+  success: CheckCircle2,
   warning: AlertTriangle,
   error: AlertCircle,
 };
@@ -23,6 +31,7 @@ const DEFAULT_ICONS: Record<StatusMessageVariant, LucideIcon> = {
 const ICON_COLOR_CLASSES: Record<StatusMessageVariant, string> = {
   empty: 'text-fg-muted',
   info: 'text-brand-ink',
+  success: 'text-success-ink',
   warning: 'text-warning-ink',
   error: 'text-error-ink',
 };

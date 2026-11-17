@@ -2,7 +2,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { type ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { clearSessionToken, getAccessToken, refreshSession } from '@/shared/api/client';
+import {
+  applySession,
+  clearSession,
+  clearSessionToken,
+  getAccessToken,
+  refreshSession,
+} from '@/shared/api/client';
 import { bindSessionSync, sessionKeys, useSession } from './useSession';
 
 function createWrapper(queryClient: QueryClient) {
@@ -121,5 +127,29 @@ describe('useSession & bindSessionSync', () => {
       await refreshSession();
     });
     expect(queryClient.getQueryData(sessionKeys.profile)).toBeUndefined();
+  });
+
+  it('applySession/clearSession sincronizan la caché y vacían datos al cambiar de usuario', () => {
+    const queryClient = new QueryClient();
+    bindSessionSync(queryClient);
+    const session = (id: string) => ({
+      access_token: `jwt-${id}`,
+      token_type: 'Bearer',
+      expires_in: 900,
+      user: { user_id: id, email: `${id}@mail.com`, full_name: id, email_verified: true },
+    });
+
+    applySession(session('a'));
+    expect(getAccessToken()).toBe('jwt-a');
+    queryClient.setQueryData(['itineraries'], ['de a']);
+
+    clearSession();
+    expect(getAccessToken()).toBeNull();
+    expect(queryClient.getQueryData(sessionKeys.current)).toBeNull();
+    expect(queryClient.getQueryData(['itineraries'])).toBeUndefined();
+
+    queryClient.setQueryData(['itineraries'], ['de a, aún montada']);
+    applySession(session('b'));
+    expect(queryClient.getQueryData(['itineraries'])).toBeUndefined();
   });
 });
