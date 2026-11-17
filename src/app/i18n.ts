@@ -4,6 +4,13 @@ import { initReactI18next } from 'react-i18next';
 import en from '@/locales/en.json';
 import es from '@/locales/es.json';
 
+function syncHtmlLang(lng?: string): void {
+  const resolved = i18n.resolvedLanguage ?? lng ?? 'es';
+  document.documentElement.setAttribute('lang', resolved.startsWith('en') ? 'en' : 'es');
+}
+
+i18n.on('languageChanged', syncHtmlLang);
+
 // Detección: ?lang= → localStorage → navegador (docs/navby-webapp-documentation.md §5).
 void i18n
   .use(LanguageDetector)
@@ -20,8 +27,9 @@ void i18n
       lookupLocalStorage: 'navby-lang',
       caches: ['localStorage'],
     },
+  })
+  .then(() => {
+    syncHtmlLang();
   });
-
-i18n.on('languageChanged', (lng) => document.documentElement.setAttribute('lang', lng));
 
 export default i18n;

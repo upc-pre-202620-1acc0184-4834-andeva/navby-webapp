@@ -27,7 +27,7 @@ están en [user-stories.md](user-stories.md); las reglas `RN-xx`/`RL-xx`, en
 | Plan | Qué construye | Historias | Estado |
 | :---: | :--- | :--- | :---: |
 | 0 | **Fundaciones:** Vite con `base: '/app/'`, tokens, DESIGN.md, AGENTS.md, i18n, sileo, boneyard, Vitest, Playwright + axe, skills. | — | ✅ |
-| 1 | **Armazón y cliente de API:** layout, componentes base, cliente fetch con sesión, despliegue. | US-06, US-31 (aviso), US-33 (enlaces) | ⬜ |
+| 1 | **Armazón y cliente de API:** layout, componentes base, cliente fetch con sesión, despliegue. | US-06, US-31 (aviso), US-33 (enlaces) | ✅ |
 | 2 | **Buscador y ruta en el mapa** (público, sin créditos). | US-11, US-12, US-14, US-34 | ⬜ |
 | 3 | **Cuenta y acceso.** | US-01 a US-05, US-07 a US-10 | ⬜ |
 | 4 | **Podio:** cotizar y recomendar. | US-13, US-15 a US-19, US-26, US-31 | ⬜ |

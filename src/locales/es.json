@@ -1,5 +1,89 @@
 {
   "home": {
+    "title": "Buscador de vuelos",
     "placeholder": "El mejor vuelo. Al mejor precio. El buscador llega pronto."
+  },
+  "common": {
+    "skipToContent": "Saltar al contenido principal",
+    "loading": "Cargando…",
+    "retry": "Reintentar",
+    "backHome": "Volver al inicio"
+  },
+  "nav": {
+    "homeAria": "Navby, ir al inicio",
+    "creditsPlaceholder": "— créditos",
+    "creditsAria": "Saldo de créditos disponible próximamente",
+    "accountMenu": "Menú de cuenta y preferencias",
+    "visitorLabel": "Cuenta",
+    "signIn": "Iniciar sesión",
+    "signUp": "Crear cuenta",
+    "itineraries": "Itinerarios",
+    "billing": "Créditos",
+    "account": "Mi cuenta",
+    "preferences": "Preferencias",
+    "themeLabel": "Tema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "languageLabel": "Idioma",
+    "langEs": "ES",
+    "langEn": "EN"
+  },
+  "footer": {
+    "copyright": "© 2026 Andeva. Todos los derechos reservados.",
+    "terms": "Términos y condiciones",
+    "privacy": "Política de privacidad",
+    "legalSoon": "Próximamente en navby.andeva.tech"
+  },
+  "legal": {
+    "priceDisclaimer": "Precio referencial obtenido de terceros; se confirma en el sitio del vendedor."
+  },
+  "errors": {
+    "UNAUTHENTICATED": "Inicia sesión para continuar.",
+    "NETWORK_ERROR": "No pudimos conectar con Navby. Revisa tu conexión e inténtalo de nuevo.",
+    "UNKNOWN": "Ocurrió un error inesperado. Inténtalo de nuevo.",
+    "sessionCheckTitle": "No pudimos verificar tu sesión"
+  },
+  "routes": {
+    "login": {
+      "title": "Iniciar sesión",
+      "description": "Necesitas una cuenta verificada para buscar y guardar vuelos. El formulario de acceso llega en el siguiente paso.",
+      "action": "Ir a crear cuenta"
+    },
+    "register": {
+      "title": "Crear cuenta",
+      "description": "El registro con correo y Google llega en el siguiente paso.",
+      "action": "Ir a iniciar sesión"
+    },
+    "verifyEmail": {
+      "title": "Verificar correo",
+      "description": "La verificación con código de 6 dígitos llega en el siguiente paso.",
+      "action": "Ir a iniciar sesión"
+    },
+    "forgotPassword": {
+      "title": "Recuperar contraseña",
+      "description": "La recuperación de contraseña llega en el siguiente paso.",
+      "action": "Ir a iniciar sesión"
+    },
+    "resetPassword": {
+      "title": "Restablecer contraseña",
+      "description": "El cambio de contraseña llega en el siguiente paso.",
+      "action": "Ir a iniciar sesión"
+    },
+    "itineraries": {
+      "title": "Itinerarios guardados",
+      "description": "Aquí verás los vuelos que guardes cuando esté disponible el podio."
+    },
+    "billing": {
+      "title": "Créditos y paquetes",
+      "description": "Aquí podrás ver tu saldo diario y comprar paquetes de créditos."
+    },
+    "account": {
+      "title": "Mi cuenta",
+      "description": "La gestión de tu perfil y eliminación de cuenta llega en el siguiente paso."
+    },
+    "notFound": {
+      "title": "Página no encontrada",
+      "description": "La ruta que buscas no existe o cambió de dirección."
+    }
   }
 }

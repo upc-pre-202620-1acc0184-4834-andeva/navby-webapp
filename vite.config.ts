@@ -2,7 +2,32 @@
 import { fileURLToPath, URL } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
+
+// Replica en local el rewrite `/app -> /app/index.html` de vercel.json para evitar 404 sin barra final.
+function vercelAppRewritePlugin(): Plugin {
+  const rewriteAppEntry = (req: { url?: string }) => {
+    if (req.url === '/app' || req.url?.startsWith('/app?')) {
+      req.url = req.url.replace(/^\/app/, '/app/');
+    }
+  };
+
+  return {
+    name: 'vercel-app-rewrite',
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        rewriteAppEntry(req);
+        next();
+      });
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        rewriteAppEntry(req);
+        next();
+      });
+    },
+  };
+}
 
 // La webapp vive en navby.andeva.tech/app: base /app/ y salida en dist/app para que
 // Vercel sirva /app/assets/* sin reescrituras extra (ver AGENTS.md §1).
@@ -11,7 +36,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: '/app/',
-    plugins: [react(), tailwindcss()],
+    plugins: [vercelAppRewritePlugin(), react(), tailwindcss()],
     resolve: {
       alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },
