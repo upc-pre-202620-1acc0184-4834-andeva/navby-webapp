@@ -3,6 +3,7 @@ import {
   ChevronDown,
   Coins,
   LogIn,
+  LogOut,
   Moon,
   Sun,
   User,
@@ -13,10 +14,12 @@ import {
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useSearchParams } from 'react-router';
+import { sileo } from 'sileo';
 import isologoPurple from '@/assets/brand/navby-isologo-purple.svg';
 import isologoWhite from '@/assets/brand/navby-isologo-white.svg';
 import { resolveAuthRedirectFrom } from '@/shared/auth/authRedirect';
-import { useSession } from '@/shared/auth/useSession';
+import { apiErrorMessage } from '@/shared/api/errorMessage';
+import { useLogout, useSession } from '@/shared/auth/useSession';
 import { buttonVariants } from '@/shared/ui/buttonVariants';
 import { cn } from '@/shared/ui/cn';
 import { useTheme } from '@/shared/ui/theme';
@@ -33,6 +36,7 @@ export function TopBar() {
   const { t, i18n } = useTranslation();
   const { user, isPending, isAuthenticated } = useSession();
   const { theme, setTheme } = useTheme();
+  const logout = useLogout();
   const [isOpen, setIsOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -209,6 +213,25 @@ export function TopBar() {
                       <UserCog className="h-4 w-4 text-fg-muted" aria-hidden="true" />
                       <span>{t('nav.account')}</span>
                     </Link>
+                    <button
+                      type="button"
+                      disabled={logout.isPending}
+                      aria-busy={logout.isPending || undefined}
+                      className={cn(MENU_ITEM_CLASS, 'disabled:opacity-50')}
+                      onClick={() =>
+                        logout.mutate(undefined, {
+                          onSuccess: () => setIsOpen(false),
+                          onError: (error) =>
+                            sileo.error({
+                              title: t('account.logoutFailed'),
+                              description: apiErrorMessage(t, error),
+                            }),
+                        })
+                      }
+                    >
+                      <LogOut className="h-4 w-4 text-fg-muted" aria-hidden="true" />
+                      <span>{t('nav.signOut')}</span>
+                    </button>
                   </>
                 ) : (
                   <>

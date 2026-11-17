@@ -52,8 +52,8 @@
     },
     "submit": "Buscar",
     "previewLoading": "Calculando ruta preliminar…",
-    "previewFastestOneWay": "Ruta física más rápida: ~{{hours}}\u00a0h",
-    "previewFastestRoundTrip": "Ruta física más rápida (ida y vuelta): ~{{hours}}\u00a0h",
+    "previewFastestOneWay": "Ruta física más rápida: ~{{hours}} h",
+    "previewFastestRoundTrip": "Ruta física más rápida (ida y vuelta): ~{{hours}} h",
     "previewPlan2Note": "Ruta preliminar lista. La cotización con tarifas reales llega en el siguiente paso.",
     "unreachableTitle": "Ruta no disponible",
     "unreachableDescription": "No hay rutas con 2 escalas o menos entre estas ciudades.",
@@ -85,7 +85,7 @@
     "tilesFallbackNote": "Mapa base sin conexión; se muestran los trazos y aeropuertos.",
     "legendHeading": "Detalle textual de la ruta preliminar",
     "legendEmpty": "Elige origen y destino y pulsa Buscar para ver la ruta preliminar.",
-    "legendSummary": "Tramos estimados: {{route}} ({{stops}}). Tiempo mínimo físico: ~{{hours}}\u00a0h.",
+    "legendSummary": "Tramos estimados: {{route}} ({{stops}}). Tiempo mínimo físico: ~{{hours}} h.",
     "stops_zero": "directo",
     "stops_one": "1 escala",
     "stops_other": "{{count}} escalas",
@@ -117,13 +117,11 @@
     "themeDark": "Oscuro",
     "languageLabel": "Idioma",
     "langEs": "ES",
-    "langEn": "EN"
+    "langEn": "EN",
+    "signOut": "Cerrar sesión"
   },
   "footer": {
-    "copyright": "© 2026 Andeva. Todos los derechos reservados.",
-    "terms": "Términos y condiciones",
-    "privacy": "Política de privacidad",
-    "legalSoon": "Próximamente en navby.andeva.tech"
+    "copyright": "© 2026 Andeva. Todos los derechos reservados."
   },
   "legal": {
     "priceDisclaimer": "Precio referencial obtenido de terceros; se confirma en el sitio del vendedor."
@@ -134,34 +132,20 @@
     "PROVIDER_UNAVAILABLE": "No pudimos comprobar la verificación. Inténtalo de nuevo.",
     "NETWORK_ERROR": "No pudimos conectar con Navby. Revisa tu conexión e inténtalo de nuevo.",
     "UNKNOWN": "Ocurrió un error inesperado. Inténtalo de nuevo.",
-    "sessionCheckTitle": "No pudimos verificar tu sesión"
+    "sessionCheckTitle": "No pudimos verificar tu sesión",
+    "INVALID_CREDENTIALS": "Correo o contraseña incorrectos.",
+    "EMAIL_NOT_VERIFIED": "Verifica tu correo para continuar.",
+    "EMAIL_ALREADY_REGISTERED": "Ya existe una cuenta con este correo.",
+    "DISPOSABLE_EMAIL": "No aceptamos correos temporales. Usa un correo personal o de trabajo.",
+    "TERMS_NOT_ACCEPTED": "Debes aceptar los Términos y condiciones y la Política de privacidad.",
+    "INVALID_GOOGLE_TOKEN": "Google no confirmó tu identidad. Vuelve a intentarlo.",
+    "INVALID_OTP": "El código no es válido o ya venció. Revísalo o pide uno nuevo.",
+    "OTP_ATTEMPTS_EXCEEDED": "Demasiados intentos con este código. Pide uno nuevo.",
+    "INVALID_RESET_TOKEN": "El enlace para cambiar la contraseña no es válido o ya venció.",
+    "RATE_LIMITED": "Demasiados intentos en poco tiempo. Espera un momento e inténtalo de nuevo.",
+    "VALIDATION_ERROR": "Revisa los datos e inténtalo de nuevo."
   },
   "routes": {
-    "login": {
-      "title": "Iniciar sesión",
-      "description": "Necesitas una cuenta verificada para buscar y guardar vuelos. El formulario de acceso llega en el siguiente paso.",
-      "action": "Ir a crear cuenta"
-    },
-    "register": {
-      "title": "Crear cuenta",
-      "description": "El registro con correo y Google llega en el siguiente paso.",
-      "action": "Ir a iniciar sesión"
-    },
-    "verifyEmail": {
-      "title": "Verificar correo",
-      "description": "La verificación con código de 6 dígitos llega en el siguiente paso.",
-      "action": "Ir a iniciar sesión"
-    },
-    "forgotPassword": {
-      "title": "Recuperar contraseña",
-      "description": "La recuperación de contraseña llega en el siguiente paso.",
-      "action": "Ir a iniciar sesión"
-    },
-    "resetPassword": {
-      "title": "Restablecer contraseña",
-      "description": "El cambio de contraseña llega en el siguiente paso.",
-      "action": "Ir a iniciar sesión"
-    },
     "itineraries": {
       "title": "Itinerarios guardados",
       "description": "Aquí verás los vuelos que guardes cuando esté disponible el podio."
@@ -170,13 +154,104 @@
       "title": "Créditos y paquetes",
       "description": "Aquí podrás ver tu saldo diario y comprar paquetes de créditos."
     },
-    "account": {
-      "title": "Mi cuenta",
-      "description": "La gestión de tu perfil y eliminación de cuenta llega en el siguiente paso."
-    },
     "notFound": {
       "title": "Página no encontrada",
       "description": "La ruta que buscas no existe o cambió de dirección."
+    }
+  },
+  "auth": {
+    "showPassword": "Mostrar contraseña",
+    "backToLogin": "Volver a iniciar sesión",
+    "fields": {
+      "email": "Correo",
+      "password": "Contraseña",
+      "newPassword": "Contraseña nueva",
+      "fullName": "Nombre completo",
+      "passwordHint": "De 8 a 72 caracteres, con letras y números.",
+      "code": "Código de verificación",
+      "codeHint": "6 dígitos. Vence en 10 minutos."
+    },
+    "errors": {
+      "emailRequired": "Escribe tu correo.",
+      "emailInvalid": "Escribe un correo válido.",
+      "passwordRequired": "Escribe tu contraseña.",
+      "passwordMin": "La contraseña debe tener al menos 8 caracteres.",
+      "passwordMax": "La contraseña puede tener como máximo 72 caracteres.",
+      "passwordComplexity": "La contraseña debe tener letras y números.",
+      "fullNameRequired": "Escribe tu nombre.",
+      "fullNameTooLong": "El nombre puede tener como máximo 100 caracteres.",
+      "termsRequired": "Acepta los Términos y condiciones y la Política de privacidad para continuar.",
+      "otpFormat": "El código tiene 6 dígitos.",
+      "captchaPending": "Espera a que termine la verificación de seguridad e inténtalo de nuevo."
+    },
+    "login": {
+      "title": "Iniciar sesión",
+      "subtitle": "Entra para buscar y guardar vuelos.",
+      "submit": "Ingresar",
+      "forgot": "¿Olvidaste tu contraseña?",
+      "noAccount": "¿No tienes cuenta?",
+      "toRegister": "Crear una cuenta"
+    },
+    "register": {
+      "title": "Crear cuenta",
+      "subtitle": "Recibirás un código en tu correo para activarla.",
+      "submit": "Registrarme",
+      "terms": "Acepto los Términos y condiciones y la Política de privacidad de Navby.",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "toLogin": "Inicia sesión",
+      "goLogin": "Ir a iniciar sesión",
+      "goVerify": "Verificar mi correo"
+    },
+    "verify": {
+      "title": "Verifica tu correo",
+      "subtitle": "Escribe el código de 6 dígitos que te enviamos.",
+      "submit": "Verificar",
+      "sent": "Te enviamos un código. Revisa también la carpeta de spam.",
+      "unverified": "Tu correo aún no está verificado. Escribe el código o pide uno nuevo.",
+      "resent": "Si el correo tiene una cuenta pendiente, te enviamos un código nuevo.",
+      "resend": "Reenviar código",
+      "resendIn": "Reenviar código en {{seconds}} s"
+    },
+    "forgot": {
+      "title": "Recuperar contraseña",
+      "subtitle": "Te enviaremos un enlace para crear una contraseña nueva.",
+      "submit": "Enviar enlace",
+      "sent": "Si el correo tiene una cuenta, recibirás un enlace válido por 30 minutos."
+    },
+    "reset": {
+      "title": "Nueva contraseña",
+      "subtitle": "Al cambiarla se cerrará la sesión en todos tus dispositivos.",
+      "submit": "Cambiar contraseña",
+      "done": "Listo. Tu contraseña cambió y cerramos tus sesiones abiertas.",
+      "goLogin": "Ir a iniciar sesión",
+      "requestNew": "Pedir un enlace nuevo"
+    },
+    "google": {
+      "divider": "o",
+      "consent": "Al continuar con Google aceptas los Términos y condiciones y la Política de privacidad de Navby.",
+      "loadFailed": "No pudimos cargar el acceso con Google."
+    }
+  },
+  "account": {
+    "title": "Mi cuenta",
+    "verified": "Correo verificado",
+    "unverified": "Correo sin verificar",
+    "methods": "Formas de acceso",
+    "methodPassword": "Contraseña",
+    "methodGoogle": "Google",
+    "createdAt": "Cuenta creada",
+    "logout": "Cerrar sesión",
+    "logoutFailed": "No pudimos cerrar la sesión",
+    "delete": {
+      "title": "Eliminar cuenta",
+      "description": "Es irreversible: anonimizamos tu nombre y correo, borramos tus itinerarios guardados y anulamos tus créditos. Conservamos las órdenes de compra por obligación legal y tributaria.",
+      "open": "Eliminar mi cuenta",
+      "keyword": "ELIMINAR",
+      "label": "Escribe {{keyword}} para confirmar",
+      "mismatch": "Escribe exactamente {{keyword}}, en mayúsculas.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar definitivamente",
+      "done": "Tu cuenta fue eliminada."
     }
   }
 }

@@ -52,8 +52,8 @@
     },
     "submit": "Search",
     "previewLoading": "Calculating preliminary route…",
-    "previewFastestOneWay": "Fastest physical route: ~{{hours}}\u00a0h",
-    "previewFastestRoundTrip": "Fastest physical route (round-trip): ~{{hours}}\u00a0h",
+    "previewFastestOneWay": "Fastest physical route: ~{{hours}} h",
+    "previewFastestRoundTrip": "Fastest physical route (round-trip): ~{{hours}} h",
     "previewPlan2Note": "Preliminary route ready. Live fare recommendations arrive in the next step.",
     "unreachableTitle": "Route unavailable",
     "unreachableDescription": "No routes with 2 stops or fewer exist between these cities.",
@@ -85,7 +85,7 @@
     "tilesFallbackNote": "Basemap offline; showing route lines and airports.",
     "legendHeading": "Textual summary of the preliminary route",
     "legendEmpty": "Select origin and destination and press Search to view the preliminary route.",
-    "legendSummary": "Estimated legs: {{route}} ({{stops}}). Minimum physical time: ~{{hours}}\u00a0h.",
+    "legendSummary": "Estimated legs: {{route}} ({{stops}}). Minimum physical time: ~{{hours}} h.",
     "stops_zero": "nonstop",
     "stops_one": "1 stop",
     "stops_other": "{{count}} stops",
@@ -117,13 +117,11 @@
     "themeDark": "Dark",
     "languageLabel": "Language",
     "langEs": "ES",
-    "langEn": "EN"
+    "langEn": "EN",
+    "signOut": "Sign out"
   },
   "footer": {
-    "copyright": "© 2026 Andeva. All rights reserved.",
-    "terms": "Terms and conditions",
-    "privacy": "Privacy policy",
-    "legalSoon": "Coming soon on navby.andeva.tech"
+    "copyright": "© 2026 Andeva. All rights reserved."
   },
   "legal": {
     "priceDisclaimer": "Reference price obtained from third parties; confirmed on the seller's site."
@@ -134,34 +132,20 @@
     "PROVIDER_UNAVAILABLE": "We could not check the verification. Please try again.",
     "NETWORK_ERROR": "We could not reach Navby. Check your connection and try again.",
     "UNKNOWN": "An unexpected error occurred. Please try again.",
-    "sessionCheckTitle": "Could not verify your session"
+    "sessionCheckTitle": "Could not verify your session",
+    "INVALID_CREDENTIALS": "Incorrect email or password.",
+    "EMAIL_NOT_VERIFIED": "Verify your email to continue.",
+    "EMAIL_ALREADY_REGISTERED": "An account with this email already exists.",
+    "DISPOSABLE_EMAIL": "We don't accept temporary emails. Use a personal or work email.",
+    "TERMS_NOT_ACCEPTED": "You must accept the Terms and Conditions and the Privacy Policy.",
+    "INVALID_GOOGLE_TOKEN": "Google couldn't confirm your identity. Try again.",
+    "INVALID_OTP": "The code is invalid or has expired. Check it or request a new one.",
+    "OTP_ATTEMPTS_EXCEEDED": "Too many attempts with this code. Request a new one.",
+    "INVALID_RESET_TOKEN": "The password reset link is invalid or has expired.",
+    "RATE_LIMITED": "Too many attempts in a short time. Wait a moment and try again.",
+    "VALIDATION_ERROR": "Check your details and try again."
   },
   "routes": {
-    "login": {
-      "title": "Sign in",
-      "description": "You need a verified account to search and save flights. Sign in arrives in the next step.",
-      "action": "Go to create account"
-    },
-    "register": {
-      "title": "Create account",
-      "description": "Email and Google registration arrives in the next step.",
-      "action": "Go to sign in"
-    },
-    "verifyEmail": {
-      "title": "Verify email",
-      "description": "6-digit email verification arrives in the next step.",
-      "action": "Go to sign in"
-    },
-    "forgotPassword": {
-      "title": "Reset your password",
-      "description": "Password recovery arrives in the next step.",
-      "action": "Go to sign in"
-    },
-    "resetPassword": {
-      "title": "Set a new password",
-      "description": "Password reset arrives in the next step.",
-      "action": "Go to sign in"
-    },
     "itineraries": {
       "title": "Saved itineraries",
       "description": "Your saved flights will appear here once the podium is available."
@@ -170,13 +154,104 @@
       "title": "Credits and packages",
       "description": "Your daily credit balance and prepaid packages will appear here."
     },
-    "account": {
-      "title": "My account",
-      "description": "Profile management and account deletion arrives in the next step."
-    },
     "notFound": {
       "title": "Page not found",
       "description": "The page you are looking for does not exist or moved."
+    }
+  },
+  "auth": {
+    "showPassword": "Show password",
+    "backToLogin": "Back to sign in",
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "newPassword": "New password",
+      "fullName": "Full name",
+      "passwordHint": "8 to 72 characters, with letters and numbers.",
+      "code": "Verification code",
+      "codeHint": "6 digits. Expires in 10 minutes."
+    },
+    "errors": {
+      "emailRequired": "Enter your email.",
+      "emailInvalid": "Enter a valid email.",
+      "passwordRequired": "Enter your password.",
+      "passwordMin": "The password must have at least 8 characters.",
+      "passwordMax": "The password can have at most 72 characters.",
+      "passwordComplexity": "The password must contain letters and numbers.",
+      "fullNameRequired": "Enter your name.",
+      "fullNameTooLong": "The name can have at most 100 characters.",
+      "termsRequired": "Accept the Terms and Conditions and the Privacy Policy to continue.",
+      "otpFormat": "The code has 6 digits.",
+      "captchaPending": "Wait for the security check to finish and try again."
+    },
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Sign in to search and save flights.",
+      "submit": "Continue",
+      "forgot": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "toRegister": "Create an account"
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "We'll email you a code to activate it.",
+      "submit": "Sign up",
+      "terms": "I accept Navby's Terms and Conditions and Privacy Policy.",
+      "hasAccount": "Already have an account?",
+      "toLogin": "Sign in here",
+      "goLogin": "Go to sign in",
+      "goVerify": "Verify my email"
+    },
+    "verify": {
+      "title": "Verify your email",
+      "subtitle": "Enter the 6-digit code we sent you.",
+      "submit": "Verify",
+      "sent": "We sent you a code. Check your spam folder too.",
+      "unverified": "Your email isn't verified yet. Enter the code or request a new one.",
+      "resent": "If the email has a pending account, we sent a new code.",
+      "resend": "Resend code",
+      "resendIn": "Resend code in {{seconds}} s"
+    },
+    "forgot": {
+      "title": "Recover password",
+      "subtitle": "We'll send you a link to create a new password.",
+      "submit": "Send link",
+      "sent": "If the email has an account, you'll receive a link valid for 30 minutes."
+    },
+    "reset": {
+      "title": "New password",
+      "subtitle": "Changing it signs you out on all your devices.",
+      "submit": "Change password",
+      "done": "Done. Your password changed and we closed your open sessions.",
+      "goLogin": "Go to sign in",
+      "requestNew": "Request a new link"
+    },
+    "google": {
+      "divider": "or",
+      "consent": "By continuing with Google you accept Navby's Terms and Conditions and Privacy Policy.",
+      "loadFailed": "We couldn't load Google sign-in."
+    }
+  },
+  "account": {
+    "title": "My account",
+    "verified": "Email verified",
+    "unverified": "Email not verified",
+    "methods": "Sign-in methods",
+    "methodPassword": "Password",
+    "methodGoogle": "Google",
+    "createdAt": "Account created",
+    "logout": "Sign out",
+    "logoutFailed": "We couldn't sign you out",
+    "delete": {
+      "title": "Delete account",
+      "description": "This is irreversible: we anonymize your name and email, delete your saved itineraries and void your credits. We keep purchase orders as required by law and tax rules.",
+      "open": "Delete my account",
+      "keyword": "DELETE",
+      "label": "Type {{keyword}} to confirm",
+      "mismatch": "Type exactly {{keyword}}, in capital letters.",
+      "cancel": "Cancel",
+      "confirm": "Delete permanently",
+      "done": "Your account was deleted."
     }
   }
 }
