@@ -210,12 +210,18 @@ export function TopBar() {
                   </>
                 ) : (
                   <>
-                    <Link to="/login" className={MENU_ITEM_CLASS} onClick={() => setIsOpen(false)}>
+                    <Link
+                      to="/login"
+                      state={{ from: location }}
+                      className={MENU_ITEM_CLASS}
+                      onClick={() => setIsOpen(false)}
+                    >
                       <LogIn className="h-4 w-4 text-brand-ink" aria-hidden="true" />
                       <span>{t('nav.signIn')}</span>
                     </Link>
                     <Link
                       to="/register"
+                      state={{ from: location }}
                       className={MENU_ITEM_CLASS}
                       onClick={() => setIsOpen(false)}
                     >

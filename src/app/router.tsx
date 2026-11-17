@@ -11,7 +11,11 @@ export const routes: RouteObject[] = [
       {
         element: <RequireAuth />,
         children: [
-          { index: true, element: <HomePage /> },
+          {
+            index: true,
+            handle: { layout: 'map' } satisfies RouteLayoutHandle,
+            element: <HomePage />,
+          },
           {
             path: 'itineraries',
             handle: { layout: 'contained' } satisfies RouteLayoutHandle,

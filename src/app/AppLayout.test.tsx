@@ -7,6 +7,10 @@ import { bindSessionSync } from '@/shared/auth/useSession';
 import { THEME_STORAGE_KEY } from '@/shared/ui/theme';
 import { routes } from './router';
 
+vi.mock('@/features/map/components/RouteMap', () => ({
+  default: () => <div data-testid="mock-route-map" />,
+}));
+
 const sessionPayload = {
   access_token: 'jwt-app',
   token_type: 'Bearer',
