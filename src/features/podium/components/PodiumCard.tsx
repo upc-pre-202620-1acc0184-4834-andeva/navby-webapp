@@ -1,5 +1,5 @@
 import { ExternalLink } from 'lucide-react';
-import { type FocusEvent, useId } from 'react';
+import { type FocusEvent, type ReactNode, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type Leg, type PodiumOffer } from '@/shared/api/schemas';
 import { type PodiumRank, usePodiumHighlight } from '@/shared/state/podiumHighlight';
@@ -9,7 +9,7 @@ import { buttonVariants } from '@/shared/ui/buttonVariants';
 import { Card } from '@/shared/ui/Card';
 import { cn } from '@/shared/ui/cn';
 import { PriceDisclaimer } from '@/shared/ui/PriceDisclaimer';
-import { formatDuration, formatExtra, formatPrice, formatStops } from '../format';
+import { formatDuration, formatExtra, formatPrice, formatStops } from '@/shared/format/flight';
 
 /** Borde del puesto con el color de su ruta en el mapa (el número da la señal sin color). */
 const RANK_RING: Record<PodiumRank, string> = {
@@ -21,6 +21,12 @@ const RANK_RING: Record<PodiumRank, string> = {
 export interface PodiumCardProps {
   offer: PodiumOffer;
   locale: string;
+  /** Acciones junto a Comprar (p. ej. Guardar); el podio no sabe de itinerarios. */
+  actions?: ReactNode;
+  /** Aviso de precio propio (itinerario guardado); por defecto el aviso RL-03 del idioma. */
+  disclaimer?: string;
+  /** Reemplaza puesto y afinidad (un itinerario guardado no tiene puesto en el podio de hoy). */
+  heading?: ReactNode;
 }
 
 function LegSummary({ leg, locale }: { leg: Leg; locale: string }) {
@@ -66,7 +72,7 @@ function LegSummary({ leg, locale }: { leg: Leg; locale: string }) {
 }
 
 /** Tarjeta del podio (DESIGN.md §Tarjeta): puesto y afinidad → precio → duración → aerolíneas → acción. */
-export function PodiumCard({ offer, locale }: PodiumCardProps) {
+export function PodiumCard({ offer, locale, actions, disclaimer, heading }: PodiumCardProps) {
   const { t } = useTranslation();
   const titleId = useId();
   const rank = offer.rank as PodiumRank;
@@ -91,21 +97,27 @@ export function PodiumCard({ offer, locale }: PodiumCardProps) {
       onBlur={handleBlur}
       className="flex flex-col gap-3 transition-colors duration-150 ease-(--ease-out)"
     >
-      <div className="flex items-center justify-between gap-3">
-        <h3 id={titleId} className="flex items-center gap-2 text-sm font-semibold text-fg">
-          <span
-            aria-hidden="true"
-            className={cn(
-              'inline-flex h-7 w-7 items-center justify-center rounded-full border-[3px] text-sm font-bold tabular-nums',
-              RANK_RING[rank],
-            )}
-          >
-            {rank}
-          </span>
-          {t('podium.rankLabel', { rank })}
-        </h3>
-        <Badge variant="affinity">{t('podium.affinity', { pct: offer.match_pct })}</Badge>
-      </div>
+      {heading !== undefined ? (
+        <p id={titleId} className="text-sm font-semibold text-fg">
+          {heading}
+        </p>
+      ) : (
+        <div className="flex items-center justify-between gap-3">
+          <h3 id={titleId} className="flex items-center gap-2 text-sm font-semibold text-fg">
+            <span
+              aria-hidden="true"
+              className={cn(
+                'inline-flex h-7 w-7 items-center justify-center rounded-full border-[3px] text-sm font-bold tabular-nums',
+                RANK_RING[rank],
+              )}
+            >
+              {rank}
+            </span>
+            {t('podium.rankLabel', { rank })}
+          </h3>
+          <Badge variant="affinity">{t('podium.affinity', { pct: offer.match_pct })}</Badge>
+        </div>
+      )}
 
       <div>
         <p className="text-3xl font-extrabold tracking-tight text-fg tabular-nums">
@@ -144,18 +156,28 @@ export function PodiumCard({ offer, locale }: PodiumCardProps) {
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <PriceDisclaimer className="sm:max-w-[60%]" />
-        <a
-          href={offer.deep_link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={buttonVariants({ variant: 'buy', className: 'shrink-0' })}
-        >
-          <ExternalLink className="h-4 w-4" aria-hidden="true" />
-          {t('podium.buy')}
-          <span className="sr-only">{t('podium.buyHint', { rank })}</span>
-        </a>
+      <div
+        className={cn(
+          'flex flex-col gap-3',
+          !actions && 'sm:flex-row sm:items-end sm:justify-between',
+        )}
+      >
+        <PriceDisclaimer text={disclaimer} className={cn(!actions && 'sm:max-w-[60%]')} />
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href={offer.deep_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={buttonVariants({ variant: 'buy', className: 'shrink-0' })}
+          >
+            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+            {t('podium.buy')}
+            <span className="sr-only">
+              {heading !== undefined ? t('podium.buyHintSaved') : t('podium.buyHint', { rank })}
+            </span>
+          </a>
+          {actions}
+        </div>
       </div>
     </Card>
   );

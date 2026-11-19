@@ -160,10 +160,14 @@ describe('/register → /verify-email (US-01, US-02, US-03)', () => {
     expect(screen.getByLabelText('Correo')).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('muestra el error del código ante 400 INVALID_OTP', async () => {
+  it('muestra el error del código ante 400 INVALID_OTP y 429 OTP_ATTEMPTS_EXCEEDED', async () => {
+    let calls = 0;
     mockApi({
       'POST /auth/refresh': noSession,
-      'POST /auth/verify-email': () => problem(400, 'INVALID_OTP'),
+      'POST /auth/verify-email': () => {
+        calls += 1;
+        return calls === 1 ? problem(400, 'INVALID_OTP') : problem(429, 'OTP_ATTEMPTS_EXCEEDED');
+      },
     });
     renderApp('/verify-email');
     const user = userEvent.setup();
@@ -173,6 +177,43 @@ describe('/register → /verify-email (US-01, US-02, US-03)', () => {
     await user.click(screen.getByRole('button', { name: 'Verificar' }));
 
     expect(await screen.findByText(/El código no es válido/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Verificar' }));
+    expect(await screen.findByText(/Demasiados intentos con este código/)).toBeInTheDocument();
+  });
+
+  it('reenvía el código con confirmación genérica (US-03)', async () => {
+    const fetchMock = mockApi({
+      'POST /auth/refresh': noSession,
+      'POST /auth/verify-email/resend': () => jsonResponse(202),
+    });
+    renderApp('/verify-email');
+    const user = userEvent.setup();
+
+    await user.type(await screen.findByLabelText('Correo'), 'nadie@mail.com');
+    await user.click(screen.getByRole('button', { name: 'Reenviar código' }));
+
+    expect(await screen.findByText(/Si el correo tiene una cuenta pendiente/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Reenviar código en \d+ s/ })).toBeDisabled();
+    const [, init] = fetchMock.mock.calls.find(([url]) =>
+      String(url).endsWith('/auth/verify-email/resend'),
+    )!;
+    expect(bodyOf(init)).toEqual({ email: 'nadie@mail.com' });
+  });
+
+  it('respeta 429 RATE_LIMITED al reenviar el código (US-03)', async () => {
+    mockApi({
+      'POST /auth/refresh': noSession,
+      'POST /auth/verify-email/resend': () => problem(429, 'RATE_LIMITED'),
+    });
+    renderApp('/verify-email');
+    const user = userEvent.setup();
+
+    await user.type(await screen.findByLabelText('Correo'), 'ana@mail.com');
+    await user.click(screen.getByRole('button', { name: 'Reenviar código' }));
+
+    expect(await screen.findByText(/Demasiados intentos en poco tiempo/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Reenviar código en \d+ s/ })).toBeDisabled();
   });
 });
 

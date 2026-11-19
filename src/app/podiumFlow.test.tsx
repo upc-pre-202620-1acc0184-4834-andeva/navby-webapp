@@ -1,86 +1,23 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { sileo } from 'sileo';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { formatPrice } from '@/features/podium/format';
-import { addDaysIso, getTodayInLima } from '@/features/search/searchCriteria';
-import { type City } from '@/shared/api/schemas';
+import { formatPrice } from '@/shared/format/flight';
 import { at, oneWayOffers, podiumResponse, roundTripOffer, wallet } from '@/test/fixtures/podium';
 import {
-  type ApiHandler,
-  jsonResponse,
-  mockApi,
-  problem,
-  renderApp,
-  verifiedSession,
-} from '@/test/renderApp';
+  callsTo,
+  findCards,
+  ONE_WAY_URL,
+  preview,
+  ROUND_TRIP_URL,
+  search,
+  setup,
+  SID,
+} from '@/test/podiumFlow';
+import { jsonResponse, mockApi, problem, renderApp } from '@/test/renderApp';
 
 vi.mock('@/features/map/components/RouteMap', () => ({
   default: () => <div data-testid="mock-route-map" />,
 }));
-
-const LIMA: City = {
-  city: 'Lima',
-  city_es: 'Lima',
-  country: 'Peru',
-  airports: [{ iata: 'LIM', name: 'Jorge Chávez Intl', lat: -12.02, lon: -77.11 }],
-};
-const MADRID: City = {
-  city: 'Madrid',
-  city_es: 'Madrid',
-  country: 'Spain',
-  airports: [{ iata: 'MAD', name: 'Barajas', lat: 40.47, lon: -3.56 }],
-};
-
-const preview = {
-  reachable: true,
-  pairs: [{ origin: 'LIM', destination: 'MAD', min_stops: 0, t_min_minutes: 360 }],
-  best_route: {
-    t_min_minutes: 360,
-    airports: [
-      { iata: 'LIM', lat: -12.02, lon: -77.11 },
-      { iata: 'MAD', lat: 40.47, lon: -3.56 },
-    ],
-  },
-  telemetry: { pairs_evaluated: 1, bfs_ms: 1, astar_ms: 1, astar_nodes_expanded: 2 },
-};
-
-const SID = podiumResponse().search_id;
-const dep = addDaysIso(getTodayInLima(), 20);
-const ret = addDaysIso(getTodayInLima(), 30);
-const ONE_WAY_URL = `/?trip=ONE_WAY&from=LIM&to=MAD&dep=${dep}&ad=1&ch=0&in=0&cabin=ECONOMY&cur=USD`;
-const ROUND_TRIP_URL = `/?trip=ROUND_TRIP&from=LIM&to=MAD&dep=${dep}&ret=${ret}&ad=1&ch=0&in=0&cabin=ECONOMY&cur=USD`;
-
-function setup(handlers: Record<string, ApiHandler>) {
-  return mockApi({
-    'POST /auth/refresh': () => jsonResponse(200, verifiedSession),
-    'GET /routing/cities': () => jsonResponse(200, { cities: [LIMA, MADRID] }),
-    'GET /routing/preview': () => jsonResponse(200, preview),
-    ...handlers,
-  });
-}
-
-function callsTo(fetchMock: ReturnType<typeof mockApi>, method: string, pathPart: string) {
-  return fetchMock.mock.calls.filter(
-    ([url, init]) => (init?.method ?? 'GET') === method && String(url).includes(pathPart),
-  );
-}
-
-async function search(url = ONE_WAY_URL) {
-  const result = renderApp(url);
-  const user = userEvent.setup();
-  const submit = await screen.findByRole('button', { name: 'Buscar' });
-  await waitFor(() => expect(submit).toBeEnabled());
-  await user.click(submit);
-  return { ...result, user };
-}
-
-async function findCards() {
-  const list = await screen.findByRole('list', {
-    name: 'Recomendaciones ordenadas de mejor a peor',
-  });
-  return Array.from(list.children) as HTMLElement[];
-}
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -334,7 +271,7 @@ describe('Casos especiales del podio (tabla §2)', () => {
 describe('Preferencias (US-20, US-21)', () => {
   type Weights = { price: number; duration: number; stops: number };
   const EXPIRED_TEXT =
-    'Las recomendaciones duran 30 minutos. Busca otra vez para cambiar tus preferencias.';
+    'Las recomendaciones duran 30 minutos. Busca otra vez para cambiar tus preferencias o guardar.';
 
   /** El mismo podio en orden inverso, como lo reordenaría otro perfil. */
   function reranked(profile: 'BALANCED' | 'SAVER' | 'FAST' | 'CUSTOM', weights: Weights) {

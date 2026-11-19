@@ -161,10 +161,6 @@
     "INVALID_WEIGHTS": "Las preferencias no son válidas. Inténtalo de nuevo."
   },
   "routes": {
-    "itineraries": {
-      "title": "Itinerarios guardados",
-      "description": "Aquí verás los vuelos que guardes cuando esté disponible el podio."
-    },
     "billing": {
       "title": "Créditos y paquetes",
       "description": "Aquí podrás ver tu saldo diario y comprar paquetes de créditos."
@@ -343,11 +339,66 @@
         "stops": "Escalas"
       },
       "reordered": "Recomendaciones ordenadas por {{profile}}. Sin costo.",
-      "expired": "Las recomendaciones duran 30 minutos. Busca otra vez para cambiar tus preferencias.",
+      "expired": "Las recomendaciones duran 30 minutos. Busca otra vez para cambiar tus preferencias o guardar.",
       "errors": {
         "title": "No pudimos reordenar",
         "invalidWeights": "Los pesos deben sumar 100 %. Tus recomendaciones no cambiaron."
       }
+    },
+    "buyHintSaved": ": se abre el sitio del vendedor en una pestaña nueva",
+    "save": {
+      "save": "Guardar",
+      "saved": "Guardado",
+      "savedAria": "Guardado. Ver itinerario",
+      "hint": ": opción {{rank}}",
+      "announce": "Guardado en tus itinerarios: {{name}}",
+      "limit": "Ya tienes 50 itinerarios. Elimina alguno para guardar otro",
+      "limitLink": "Ver mis itinerarios",
+      "error": "No pudimos guardarlo. Inténtalo de nuevo."
+    }
+  },
+  "itineraries": {
+    "title": "Mis itinerarios",
+    "count": "{{count}} de {{max}}",
+    "full": "Llegaste al máximo de 50. Elimina alguno para guardar otro",
+    "listLabel": "Itinerarios guardados",
+    "savedOn": "Guardado el {{date}}",
+    "dates": "{{departure}} – {{return}}",
+    "delete": "Eliminar",
+    "deleteAria": "Eliminar {{name}}",
+    "priceNote": "Los precios son del momento en que guardaste cada itinerario",
+    "deleted": "Itinerario eliminado",
+    "gone": "Ese itinerario ya no existe",
+    "empty": {
+      "title": "Aún no guardas itinerarios",
+      "description": "Guarda una recomendación del podio para revisarla cuando quieras",
+      "action": "Buscar vuelos"
+    },
+    "error": {
+      "title": "No pudimos cargar tus itinerarios"
+    },
+    "dialog": {
+      "title": "¿Eliminar este itinerario?",
+      "description": "Puedes volver a guardarlo mientras la búsqueda siga vigente.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar",
+      "error": "No pudimos eliminarlo. Inténtalo de nuevo."
+    },
+    "detail": {
+      "back": "Volver a mis itinerarios",
+      "profile": "Cotizado con el perfil {{profile}}",
+      "disclaimer": "Precio del {{date}}; puede haber cambiado. {{legal}}",
+      "loading": "Cargando itinerario…",
+      "notFound": {
+        "title": "Este itinerario no existe",
+        "description": "Revisa la lista de tus itinerarios guardados."
+      },
+      "error": {
+        "title": "No pudimos cargar el itinerario"
+      },
+      "legendHeading": "Tramos del itinerario guardado",
+      "routeLabel": "Ruta guardada:",
+      "mapLabel": "Mapa de la ruta guardada"
     }
   }
 }

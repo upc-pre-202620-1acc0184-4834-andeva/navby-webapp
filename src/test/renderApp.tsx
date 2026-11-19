@@ -4,6 +4,7 @@ import { createMemoryRouter, type InitialEntry, RouterProvider } from 'react-rou
 import { vi } from 'vitest';
 import { routes } from '@/app/router';
 import { bindSessionSync } from '@/shared/auth/useSession';
+import { itineraryPage } from '@/test/fixtures/itineraries';
 import { wallet } from '@/test/fixtures/podium';
 
 export type ApiHandler = (init: RequestInit | undefined) => Response | Promise<Response>;
@@ -32,6 +33,8 @@ export const verifiedSession = {
 /** Saldo por defecto de la barra superior; cada prueba puede sobrescribirlo. */
 const defaultHandlers: Record<string, ApiHandler> = {
   'GET /billing/wallet': () => jsonResponse(200, wallet),
+  // Sin guardados: la lista de itinerarios se pide al ver un podio (US-22).
+  'GET /itineraries': () => jsonResponse(200, itineraryPage([])),
 };
 
 /** Mock de `fetch` por "MÉTODO /ruta" (sin `/api/v1` ni query); lo no declarado falla. */

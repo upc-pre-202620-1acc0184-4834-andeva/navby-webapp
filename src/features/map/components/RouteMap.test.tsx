@@ -2,6 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import { type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { type RoutePreviewResponse } from '@/shared/api/schemas';
+import { at, oneWayOffers } from '@/test/fixtures/podium';
 import { MapErrorBoundary } from './MapErrorBoundary';
 import RouteMap from './RouteMap';
 import { RouteTextLegend } from './RouteTextLegend';
@@ -43,6 +44,7 @@ vi.mock('@deck.gl/mapbox', () => ({
 }));
 
 let triggerOnError: (() => void) | null = null;
+let lastInitialViewState: { fitBoundsOptions?: { padding?: { left: number } } } | undefined;
 let mockCanvas: HTMLCanvasElement | null = null;
 
 vi.mock('react-map-gl/maplibre', () => {
@@ -50,15 +52,18 @@ vi.mock('react-map-gl/maplibre', () => {
     Map: ({
       children,
       mapStyle,
+      initialViewState,
       onLoad,
       onError,
     }: {
       children?: ReactNode;
       mapStyle: unknown;
+      initialViewState?: typeof lastInitialViewState;
       onLoad?: (ev: { target: { getCanvas: () => HTMLCanvasElement } }) => void;
       onError?: () => void;
     }) => {
       triggerOnError = onError ?? null;
+      lastInitialViewState = initialViewState;
       const canvas = mockCanvas ?? document.createElement('canvas');
       mockCanvas = canvas;
       // Invoca onLoad sincrónicamente una vez por render si hace falta probar fitBounds.
@@ -184,6 +189,103 @@ describe('RouteMap y componentes accesibles del mapa', () => {
     expect(
       screen.getByText('Mapa base sin conexión; se muestran los trazos y aeropuertos.'),
     ).toBeInTheDocument();
+  });
+
+  describe('floatingPanel (el detalle de un itinerario no tiene panel flotante)', () => {
+    const podium = [at(oneWayOffers, 0)];
+
+    function useDesktopViewport() {
+      vi.spyOn(window, 'matchMedia').mockImplementation(
+        (query) =>
+          ({
+            matches: query === '(min-width: 1024px)',
+            media: query,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+          }) as unknown as MediaQueryList,
+      );
+    }
+
+    it('por defecto, en escritorio deja libre el espacio del panel (padding izquierdo 492)', () => {
+      useDesktopViewport();
+      render(
+        <RouteMap
+          preview={null}
+          podium={podium}
+          originAirports={[]}
+          destinationAirports={[]}
+          fitTrigger={0}
+        />,
+      );
+      expect(lastInitialViewState?.fitBoundsOptions?.padding?.left).toBe(492);
+    });
+
+    it('con floatingPanel={false} encuadra con 44 px en los cuatro lados', () => {
+      useDesktopViewport();
+      render(
+        <RouteMap
+          preview={null}
+          podium={podium}
+          originAirports={[]}
+          destinationAirports={[]}
+          fitTrigger={0}
+          floatingPanel={false}
+        />,
+      );
+      expect(lastInitialViewState?.fitBoundsOptions?.padding).toEqual({
+        top: 44,
+        right: 44,
+        bottom: 44,
+        left: 44,
+      });
+    });
+
+    it('sin panel, el fallback sin WebGL y la nota de teselas no reservan su espacio', () => {
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+      const { container, unmount } = render(
+        <RouteMap
+          preview={null}
+          podium={podium}
+          originAirports={[]}
+          destinationAirports={[]}
+          fitTrigger={0}
+        />,
+      );
+      expect(container.querySelector('[role="region"]')?.className).toContain('lg:pl-[460px]');
+      unmount();
+
+      const detail = render(
+        <RouteMap
+          preview={null}
+          podium={podium}
+          originAirports={[]}
+          destinationAirports={[]}
+          fitTrigger={0}
+          floatingPanel={false}
+        />,
+      );
+      expect(detail.container.querySelector('[role="region"]')?.className).not.toContain(
+        'lg:pl-[460px]',
+      );
+    });
+  });
+
+  it('RouteTextLegend con podio lista sus rutas aunque no haya ruta preliminar', () => {
+    render(
+      <RouteTextLegend
+        preview={null}
+        fastestHours={null}
+        hasActiveSearch={true}
+        forceVisible={true}
+        podium={[at(oneWayOffers, 1)]}
+        heading="Tramos del itinerario guardado"
+        routeLabel="Ruta guardada:"
+      />,
+    );
+    expect(screen.getByRole('heading', { name: 'Tramos del itinerario guardado' })).toBeVisible();
+    expect(screen.getByText('Ruta guardada:')).toBeInTheDocument();
+    expect(screen.getByText(/LIM → PTY → MAD/)).toBeInTheDocument();
+    expect(screen.queryByText(/Calculando|vacío/i)).not.toBeInTheDocument();
   });
 
   it('renderiza RouteTextLegend con secuencia de tramos, escalas y horas', () => {

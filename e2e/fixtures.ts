@@ -40,6 +40,14 @@ export const test = base.extend({
         body: JSON.stringify(E2E_WALLET),
       }),
     );
+    // Lista de itinerarios vacía por defecto (US-22 a US-24); cada spec la sobrescribe.
+    await page.route('**/api/v1/itineraries?*', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ items: [], page: 1, page_size: 50, total: 0 }),
+      }),
+    );
     await provide(page);
   },
 });

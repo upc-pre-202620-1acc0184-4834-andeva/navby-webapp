@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import { type DateRange, DayPicker } from 'react-day-picker';
 import { enUS, es } from 'react-day-picker/locale';
 import { useTranslation } from 'react-i18next';
+import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
 import { cn } from '@/shared/ui/cn';
 import { Field } from '@/shared/ui/Field';
 import { inputVariants } from '@/shared/ui/inputVariants';
@@ -27,10 +28,10 @@ export interface DateRangeFieldProps {
   onBlur?: () => void;
 }
 
-function formatDisplayDate(isoDate: string, lang: 'es' | 'en'): string {
+function formatDisplayDate(isoDate: string, locale: string): string {
   const date = isoToUtcDate(isoDate);
   if (!date) return '';
-  return new Intl.DateTimeFormat(lang === 'en' ? 'en-US' : 'es-PE', {
+  return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -49,6 +50,7 @@ export function DateRangeField({
   onBlur,
 }: DateRangeFieldProps) {
   const { t, i18n } = useTranslation();
+  const locale = useIntlLocale();
   const lang: 'es' | 'en' = (i18n.resolvedLanguage ?? i18n.language).startsWith('en') ? 'en' : 'es';
 
   const rowRef = useRef<HTMLDivElement>(null);
@@ -77,8 +79,8 @@ export function DateRangeField({
     onBlur?.();
   };
 
-  const formattedDeparture = formatDisplayDate(departureDate, lang);
-  const formattedReturn = returnDate ? formatDisplayDate(returnDate, lang) : '';
+  const formattedDeparture = formatDisplayDate(departureDate, locale);
+  const formattedReturn = returnDate ? formatDisplayDate(returnDate, locale) : '';
 
   return (
     <div

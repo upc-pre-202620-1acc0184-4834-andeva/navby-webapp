@@ -20,6 +20,7 @@ import isologoWhite from '@/assets/brand/navby-isologo-white.svg';
 import { formatResetTime, useWallet } from '@/features/billing/hooks/useWallet';
 import { resolveAuthRedirectFrom } from '@/shared/auth/authRedirect';
 import { apiErrorMessage } from '@/shared/api/errorMessage';
+import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
 import { useLogout, useSession } from '@/shared/auth/useSession';
 import { buttonVariants } from '@/shared/ui/buttonVariants';
 import { cn } from '@/shared/ui/cn';
@@ -56,16 +57,14 @@ export function TopBar() {
     }
   }
 
+  const locale = useIntlLocale();
   const currentLang = (i18n.resolvedLanguage ?? i18n.language).startsWith('en') ? 'en' : 'es';
   const redirectFrom = resolveAuthRedirectFrom(location);
   const walletLabel = wallet
     ? t('nav.creditsAria', {
         count: wallet.total_credits,
         searches: wallet.searches_available,
-        time: formatResetTime(
-          wallet.free_credits_reset_at,
-          currentLang === 'en' ? 'en-US' : 'es-PE',
-        ),
+        time: formatResetTime(wallet.free_credits_reset_at, locale),
       })
     : t('nav.creditsLoadingAria');
 

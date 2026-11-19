@@ -14,6 +14,17 @@ beforeAll(async () => {
       disconnect() {}
     };
   }
+  // jsdom no implementa <dialog>.showModal()/close(): se simula solo el atributo `open` y el evento.
+  if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
+    HTMLDialogElement.prototype.showModal = function showModal() {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function close() {
+      if (!this.hasAttribute('open')) return;
+      this.removeAttribute('open');
+      this.dispatchEvent(new Event('close'));
+    };
+  }
   if (typeof window.matchMedia !== 'function') {
     Object.defineProperty(window, 'matchMedia', {
       writable: true,

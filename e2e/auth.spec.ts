@@ -41,6 +41,31 @@ async function expectAccessible(page: Page) {
   expect(violations).toEqual([]);
 }
 
+async function settleAnimations(page: Page) {
+  await page.locator('html').evaluate((el) =>
+    Promise.all(
+      (
+        el as unknown as {
+          getAnimations(opts: { subtree: boolean }): { finished: Promise<unknown> }[];
+        }
+      )
+        .getAnimations({ subtree: true })
+        .map((a) => a.finished),
+    ),
+  );
+}
+
+async function expectAccessibleLightAndDark(page: Page) {
+  await page.locator('html').evaluate((el) => el.classList.remove('dark'));
+  await settleAnimations(page);
+  await expectAccessible(page);
+  await page.locator('html').evaluate((el) => el.classList.add('dark'));
+  await settleAnimations(page);
+  await expectAccessible(page);
+  await page.locator('html').evaluate((el) => el.classList.remove('dark'));
+  await settleAnimations(page);
+}
+
 test.describe('Acceso y cuenta (Plan 3)', () => {
   test('registro → código → vuelve a la ruta pedida (US-01, US-02, RL-01)', async ({ page }) => {
     await mockRefresh(page, false);
@@ -55,20 +80,20 @@ test.describe('Acceso y cuenta (Plan 3)', () => {
     await expect(page).toHaveURL(/\/app\/login$/);
     await expect(page.getByTestId('google-signin').getByRole('button')).toBeVisible();
     await expect(page.getByText(/Al continuar con Google aceptas/)).toBeVisible();
-    await expectAccessible(page);
+    await expectAccessibleLightAndDark(page);
 
     await page.getByRole('link', { name: 'Crear una cuenta' }).click();
     await page.getByLabel('Nombre completo').fill('Ana Torres');
     await page.getByLabel('Correo').fill('ana@mail.com');
     await page.getByLabel('Contraseña', { exact: true }).fill('Viajar2026');
     await page.getByRole('checkbox').check();
-    await expectAccessible(page);
+    await expectAccessibleLightAndDark(page);
     await page.getByRole('button', { name: 'Registrarme' }).click();
 
     await expect(page).toHaveURL(/\/app\/verify-email$/);
     await expect(page.getByRole('button', { name: /Reenviar código en \d+ s/ })).toBeDisabled();
     await page.getByLabel('Código de verificación').fill('849201');
-    await expectAccessible(page);
+    await expectAccessibleLightAndDark(page);
     await page.getByRole('button', { name: 'Verificar' }).click();
 
     await expect(page).toHaveURL(/\/app\/itineraries$/);
@@ -125,7 +150,7 @@ test.describe('Acceso y cuenta (Plan 3)', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Mi cuenta' })).toBeVisible();
     await expect(page.getByText('15 de marzo de 2026')).toBeVisible();
     await page.getByRole('button', { name: 'Eliminar mi cuenta' }).click();
-    await expectAccessible(page);
+    await expectAccessibleLightAndDark(page);
 
     const input = page.getByLabel('Escribe ELIMINAR para confirmar');
     await input.fill('borrar');

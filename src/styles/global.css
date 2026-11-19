@@ -82,7 +82,7 @@
   --brand-ink: #9d90ff;
   --accent-ink: #ff8a5c;
   --success-ink: #3ac530;
-  --error-ink: #ff6b6f;
+  --error-ink: #ff7a7e;
   --warning-ink: #f0b100;
   --ring: #9d90ff;
   --skeleton: #3a3a3a;
@@ -380,4 +380,44 @@
   box-shadow:
     0 0 0 1px var(--color-primary),
     0 0 0 4px var(--color-ring);
+}
+
+/* Diálogo de confirmación (<dialog> nativo): 200 ms ease-out, opacidad + escala ligera (DESIGN.md §Motion). */
+.navby-dialog {
+  opacity: 0;
+  transform: scale(0.97);
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out),
+    overlay 200ms allow-discrete,
+    display 200ms allow-discrete;
+}
+
+.navby-dialog[open] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.navby-dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+  opacity: 0;
+  transition:
+    opacity 200ms var(--ease-out),
+    overlay 200ms allow-discrete,
+    display 200ms allow-discrete;
+}
+
+.navby-dialog[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .navby-dialog[open] {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  .navby-dialog[open]::backdrop {
+    opacity: 0;
+  }
 }
