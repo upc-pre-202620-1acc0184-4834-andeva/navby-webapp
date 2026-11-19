@@ -317,3 +317,67 @@
   background-color: transparent !important;
   filter: invert(1);
 }
+
+/*
+ * Sliders de pesos (Plan 5). El estilo nativo con accent-color deja la pista vacía blanca en
+ * modo oscuro: pista line-strong, relleno primary hasta --value (0–100) y anillo ring al foco.
+ */
+.navby-range {
+  appearance: none;
+  background: transparent;
+  --range-track: linear-gradient(
+    to right,
+    var(--color-primary) calc(var(--value) * 1%),
+    var(--color-line-strong) calc(var(--value) * 1%)
+  );
+}
+
+.navby-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--range-track);
+}
+
+.navby-range::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--range-track);
+}
+
+.navby-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border: 2px solid var(--color-surface);
+  border-radius: 9999px;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+  transition: box-shadow 150ms var(--ease-out);
+}
+
+.navby-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-surface);
+  border-radius: 9999px;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+  transition: box-shadow 150ms var(--ease-out);
+}
+
+.navby-range:focus-visible {
+  outline: none;
+}
+
+.navby-range:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 1px var(--color-primary),
+    0 0 0 4px var(--color-ring);
+}
+
+.navby-range:focus-visible::-moz-range-thumb {
+  box-shadow:
+    0 0 0 1px var(--color-primary),
+    0 0 0 4px var(--color-ring);
+}

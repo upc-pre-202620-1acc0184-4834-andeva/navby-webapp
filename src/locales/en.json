@@ -1,7 +1,7 @@
 {
   "home": {
     "title": "Flight search",
-    "subtitle": "Pick your cities and inspect the preliminary route before quoting."
+    "subtitle": "Pick your cities and we recommend the 3 flights with the best balance of price, duration and stops."
   },
   "search": {
     "originLabel": "Origin",
@@ -54,7 +54,6 @@
     "previewLoading": "Calculating preliminary route…",
     "previewFastestOneWay": "Fastest physical route: ~{{hours}} h",
     "previewFastestRoundTrip": "Fastest physical route (round-trip): ~{{hours}} h",
-    "previewPlan2Note": "Preliminary route ready. Live fare recommendations arrive in the next step.",
     "unreachableTitle": "Route unavailable",
     "unreachableDescription": "No routes with 2 stops or fewer exist between these cities.",
     "previewErrorTitle": "Could not calculate route",
@@ -92,7 +91,14 @@
     "markerOrigin": "Origin: {{iata}}",
     "markerStop": "Stopover: {{iata}}",
     "markerDestination": "Destination: {{iata}}",
-    "markerSelected": "Selected airport: {{iata}}"
+    "markerSelected": "Selected airport: {{iata}}",
+    "duration": {
+      "hours": "{{hours}} h",
+      "minutes": "{{minutes}} min",
+      "hoursMinutes": "{{hours}} h {{minutes}} min"
+    },
+    "markerStopLayover": "Stop in {{iata}}, {{duration}} connection",
+    "legendPodiumRoute": "Option {{rank}} route:"
   },
   "common": {
     "skipToContent": "Skip to main content",
@@ -103,7 +109,6 @@
   "nav": {
     "homeAria": "Navby, go to home",
     "creditsPlaceholder": "— credits",
-    "creditsAria": "Credit balance coming soon",
     "accountMenu": "Account and preferences menu",
     "accountLabel": "Account",
     "signIn": "Sign in",
@@ -118,7 +123,12 @@
     "languageLabel": "Language",
     "langEs": "ES",
     "langEn": "EN",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "credits_one": "{{count}} credit",
+    "credits_other": "{{count}} credits",
+    "creditsAria_one": "Balance: {{count}} credit ({{searches}} searches). Free credits renew at {{time}}, Lima time.",
+    "creditsAria_other": "Balance: {{count}} credits ({{searches}} searches). Free credits renew at {{time}}, Lima time.",
+    "creditsLoadingAria": "Credit balance"
   },
   "footer": {
     "copyright": "© 2026 Andeva. All rights reserved."
@@ -143,7 +153,12 @@
     "OTP_ATTEMPTS_EXCEEDED": "Too many attempts with this code. Request a new one.",
     "INVALID_RESET_TOKEN": "The password reset link is invalid or has expired.",
     "RATE_LIMITED": "Too many attempts in a short time. Wait a moment and try again.",
-    "VALIDATION_ERROR": "Check your details and try again."
+    "VALIDATION_ERROR": "Check your details and try again.",
+    "INSUFFICIENT_CREDITS": "You do not have enough credits for this search.",
+    "SEARCH_IN_PROGRESS": "A search is already in progress. Wait for it to finish; you will not be charged twice.",
+    "SEARCH_NOT_FOUND": "These results expired or are not available.",
+    "ROUTE_NOT_REACHABLE": "There are no routes with 2 stops or fewer between these cities. You were not charged.",
+    "INVALID_WEIGHTS": "The preferences are not valid. Try again."
   },
   "routes": {
     "itineraries": {
@@ -252,6 +267,87 @@
       "cancel": "Cancel",
       "confirm": "Delete permanently",
       "done": "Your account was deleted."
+    }
+  },
+  "podium": {
+    "title": "Your top 3 picks",
+    "listLabel": "Recommendations from best to worst",
+    "rankLabel": "Option {{rank}}",
+    "affinity": "{{pct}}% match",
+    "direct": "Nonstop",
+    "stops_one": "{{count}} stop",
+    "stops_other": "{{count}} stops",
+    "atMinimum": "At the physical minimum",
+    "overMinimum": "+{{duration}} over the physical minimum",
+    "duration": {
+      "hours": "{{hours}} h",
+      "minutes": "{{minutes}} min",
+      "hoursMinutes": "{{hours}} h {{minutes}} min"
+    },
+    "outbound": "Outbound",
+    "inbound": "Return",
+    "to": "to",
+    "nextDay_one": "+{{count}} day",
+    "nextDay_other": "+{{count}} days",
+    "layover": "{{duration}} layover in {{iata}}",
+    "airlines": "Airlines",
+    "buy": "Buy",
+    "buyHint": ": option {{rank}}, opens the seller site in a new tab",
+    "freeResult": "Recent result: no charge",
+    "status": {
+      "searching": "Searching flights…",
+      "ready_one": "{{count}} recommendation ready",
+      "ready_other": "{{count}} recommendations ready"
+    },
+    "empty": {
+      "title": "No flights available for that date",
+      "description": "You were not charged. Try another date or other airports."
+    },
+    "partial": {
+      "title": "Some airports did not respond",
+      "description": "These recommendations come from the airports that did respond."
+    },
+    "stale": {
+      "title": "Your search changed",
+      "description": "Press Search to see fares for these airports."
+    },
+    "expired": {
+      "title": "These results expired",
+      "description": "Recommendations last 30 minutes. Search again to see current fares.",
+      "action": "Search again"
+    },
+    "errors": {
+      "title": "We could not show recommendations",
+      "inProgressTitle": "Search in progress",
+      "retry": "Try again",
+      "insufficientTitle": "Not enough credits",
+      "insufficient": "Each search costs 5 credits. Buy a pack or wait for the daily refill.",
+      "insufficientWithReset": "Each search costs 5 credits. Buy a pack or wait for the free refill at {{time}} (Lima time).",
+      "viewCredits": "View credits",
+      "providerTitle": "We could not check fares",
+      "providerUnavailable": "We could not check fares. You were not charged."
+    },
+    "preferences": {
+      "legend": "What matters most to you?",
+      "profiles": {
+        "BALANCED": "Balanced",
+        "SAVER": "Saver",
+        "FAST": "Fastest",
+        "CUSTOM": "Custom"
+      },
+      "customLabel": "Your weights",
+      "customHint": "Moving one adjusts the other two so they add up to 100%.",
+      "weights": {
+        "price": "Price",
+        "duration": "Duration",
+        "stops": "Stops"
+      },
+      "reordered": "Recommendations sorted by {{profile}}. No charge.",
+      "expired": "Recommendations last 30 minutes. Search again to change your preferences.",
+      "errors": {
+        "title": "We couldn't re-sort",
+        "invalidWeights": "Weights must add up to 100%. Your recommendations didn't change."
+      }
     }
   }
 }

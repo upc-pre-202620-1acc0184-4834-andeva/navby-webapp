@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { configureBoneyard } from 'boneyard-js/react';
+import '@/bones/registry';
 import { RouterProvider } from 'react-router/dom';
 import { isApiError } from '@/shared/api/errors';
 import { bindSessionSync } from '@/shared/auth/useSession';

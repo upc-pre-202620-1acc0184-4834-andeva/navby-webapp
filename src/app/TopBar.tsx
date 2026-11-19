@@ -17,6 +17,7 @@ import { Link, useLocation, useSearchParams } from 'react-router';
 import { sileo } from 'sileo';
 import isologoPurple from '@/assets/brand/navby-isologo-purple.svg';
 import isologoWhite from '@/assets/brand/navby-isologo-white.svg';
+import { formatResetTime, useWallet } from '@/features/billing/hooks/useWallet';
 import { resolveAuthRedirectFrom } from '@/shared/auth/authRedirect';
 import { apiErrorMessage } from '@/shared/api/errorMessage';
 import { useLogout, useSession } from '@/shared/auth/useSession';
@@ -37,6 +38,7 @@ export function TopBar() {
   const { user, isPending, isAuthenticated } = useSession();
   const { theme, setTheme } = useTheme();
   const logout = useLogout();
+  const { data: wallet } = useWallet(user?.email_verified === true);
   const [isOpen, setIsOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -56,6 +58,16 @@ export function TopBar() {
 
   const currentLang = (i18n.resolvedLanguage ?? i18n.language).startsWith('en') ? 'en' : 'es';
   const redirectFrom = resolveAuthRedirectFrom(location);
+  const walletLabel = wallet
+    ? t('nav.creditsAria', {
+        count: wallet.total_credits,
+        searches: wallet.searches_available,
+        time: formatResetTime(
+          wallet.free_credits_reset_at,
+          currentLang === 'en' ? 'en-US' : 'es-PE',
+        ),
+      })
+    : t('nav.creditsLoadingAria');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -116,14 +128,19 @@ export function TopBar() {
           {isAuthenticated ? (
             <Link
               to="/billing"
-              aria-label={t('nav.creditsAria')}
+              aria-label={walletLabel}
+              title={walletLabel}
               className={cn(
                 buttonVariants({ variant: 'secondary', size: 'md' }),
                 'rounded-full px-3 text-xs tabular-nums',
               )}
             >
               <Coins className="h-4 w-4 text-brand-ink" aria-hidden="true" />
-              <span>{t('nav.creditsPlaceholder')}</span>
+              <span aria-hidden="true">
+                {wallet
+                  ? t('nav.credits', { count: wallet.total_credits })
+                  : t('nav.creditsPlaceholder')}
+              </span>
             </Link>
           ) : null}
 
