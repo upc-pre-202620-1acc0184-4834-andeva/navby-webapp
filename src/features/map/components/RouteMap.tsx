@@ -1,17 +1,22 @@
 import '../maplibreWorker';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
+import { type Layer, type PickingInfo } from '@deck.gl/core';
 import { ArcLayer } from '@deck.gl/layers';
 import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
 import { type IControl, type Map as MaplibreMap, type StyleSpecification } from 'maplibre-gl';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { type TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { Map, Marker, NavigationControl, useControl, type MapRef } from 'react-map-gl/maplibre';
 import {
   type CityAirport,
+  type PodiumOffer,
   type RouteAirportPoint,
   type RoutePreviewResponse,
 } from '@/shared/api/schemas';
+import { type PodiumRank, usePodiumHighlight } from '@/shared/state/podiumHighlight';
+import { splitMinutes } from '@/shared/time/flightTime';
 import { Badge } from '@/shared/ui/Badge';
 import { cn } from '@/shared/ui/cn';
 import { StatusMessage } from '@/shared/ui/StatusMessage';
@@ -23,6 +28,7 @@ import {
   type DashedArcSegment,
   type RgbTuple,
 } from '../greatCircleDashes';
+import { buildPodiumArcs, buildPodiumStops, type PodiumArc } from '../podiumRoutes';
 
 const LIGHT_STYLE_URL = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 const DARK_STYLE_URL = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
@@ -34,15 +40,39 @@ const FALLBACK_BLANK_STYLE: StyleSpecification = {
 };
 
 const DEFAULT_ROUTE_RGB: RgbTuple = [138, 138, 147];
+const DEFAULT_PODIUM_RGB: Record<PodiumRank, RgbTuple> = {
+  1: [96, 74, 255],
+  2: [255, 107, 53],
+  3: [102, 102, 110],
+};
+const RANKS: PodiumRank[] = [1, 2, 3];
+/** DESIGN.md §Motion: la preliminar se desvanece en 200 ms y los arcos entran escalonados 60 ms. */
+const PREVIEW_FADE_MS = 200;
+const ARC_STAGGER_MS = 60;
+const ARC_FADE_MS = 200;
+const OPAQUE = 230;
+const DIMMED = Math.round(255 * 0.3);
 
 type MarkerRole = 'origin' | 'stop' | 'destination' | 'selected';
 
 interface MapMarkerPoint extends RouteAirportPoint {
   markerRole: MarkerRole;
+  /** Conexión en una escala del podio (la de la opción mejor ubicada que pasa por ahí). */
+  layoverMinutes?: number;
+}
+
+function formatLayover(t: TFunction, totalMinutes: number): string {
+  const { hours, minutes } = splitMinutes(totalMinutes);
+  if (hours === 0) return t('map.duration.minutes', { minutes });
+  return minutes === 0
+    ? t('map.duration.hours', { hours })
+    : t('map.duration.hoursMinutes', { hours, minutes });
 }
 
 export interface RouteMapProps {
   preview: RoutePreviewResponse | null | undefined;
+  /** Podio vigente: reemplaza la ruta preliminar por 3 rutas (`route-1..3`). */
+  podium?: PodiumOffer[];
   originAirports: CityAirport[];
   destinationAirports: CityAirport[];
   fitTrigger: number;
@@ -140,13 +170,13 @@ function createPulseOverlayControl(initialProps: MapboxOverlayProps): OverlayCon
 }
 
 function DeckArcOverlay({
-  segments,
-  color,
+  layers,
   pulsing,
+  onHover,
 }: {
-  segments: DashedArcSegment[];
-  color: RgbTuple;
+  layers: Layer[];
   pulsing: boolean;
+  onHover: (info: PickingInfo) => void;
 }) {
   const control = useControl<OverlayControlHandle>(
     () =>
@@ -157,34 +187,22 @@ function DeckArcOverlay({
   );
 
   useEffect(() => {
-    const [r, g, b] = color;
-    const rgba: [number, number, number, number] = [r, g, b, 230];
-
-    control.setProps({
-      layers: [
-        new ArcLayer<DashedArcSegment>({
-          id: 'navby-preliminary-route-arcs',
-          data: segments,
-          greatCircle: true,
-          numSegments: 16,
-          widthUnits: 'pixels',
-          getWidth: 3,
-          getHeight: 0,
-          getSourcePosition: (d) => d.source,
-          getTargetPosition: (d) => d.target,
-          getSourceColor: rgba,
-          getTargetColor: rgba,
-        }),
-      ],
-    });
-    control.setPulsing(pulsing && segments.length > 0);
-  }, [control, segments, color, pulsing]);
+    control.setProps({ layers, onHover });
+    control.setPulsing(pulsing);
+  }, [control, layers, pulsing, onHover]);
 
   return null;
 }
 
+type Rgba = [number, number, number, number];
+
+function withAlpha([r, g, b]: RgbTuple, alpha: number): Rgba {
+  return [r, g, b, alpha];
+}
+
 export default function RouteMap({
   preview,
+  podium,
   originAirports,
   destinationAirports,
   fitTrigger,
@@ -241,7 +259,36 @@ export default function RouteMap({
     [routeAirports],
   );
 
+  const hasPodium = podium !== undefined && podium.length > 0;
+  const podiumArcs = useMemo(() => (hasPodium ? buildPodiumArcs(podium) : []), [hasPodium, podium]);
+  const podiumStops = useMemo(
+    () => (hasPodium ? buildPodiumStops(podium) : []),
+    [hasPodium, podium],
+  );
+  const highlightedRank = usePodiumHighlight((state) => state.highlightedRank);
+  const setHighlightedRank = usePodiumHighlight((state) => state.setHighlightedRank);
+
+  // Entrada escalonada de las 3 rutas al llegar un podio nuevo.
+  const podiumKey = hasPodium ? podium.map((offer) => offer.offer_id).join('|') : '';
+  const [revealed, setRevealed] = useState({ key: '', count: 0 });
+  useEffect(() => {
+    if (!podiumKey || prefersReducedMotion) return;
+    const timers = RANKS.map((rank, index) =>
+      window.setTimeout(
+        () => setRevealed({ key: podiumKey, count: rank }),
+        PREVIEW_FADE_MS / 2 + index * ARC_STAGGER_MS,
+      ),
+    );
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [podiumKey, prefersReducedMotion]);
+  const revealedCount = prefersReducedMotion
+    ? RANKS.length
+    : revealed.key === podiumKey
+      ? revealed.count
+      : 0;
+
   const markers = useMemo<MapMarkerPoint[]>(() => {
+    if (podiumStops.length >= 2) return podiumStops;
     if (routeAirports.length >= 2) {
       return routeAirports.map((pt, idx) => ({
         ...pt,
@@ -263,7 +310,7 @@ export default function RouteMap({
       });
     }
     return combined;
-  }, [routeAirports, originAirports, destinationAirports]);
+  }, [podiumStops, routeAirports, originAirports, destinationAirports]);
 
   const activePointsKey = useMemo(
     () => markers.map((m) => `${m.iata}:${m.lat.toFixed(3)},${m.lon.toFixed(3)}`).join('|'),
@@ -275,6 +322,98 @@ export default function RouteMap({
     // `theme` fuerza la relectura cuando cambia .dark en <html>.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [theme],
+  );
+
+  const podiumColors = useMemo(
+    () =>
+      Object.fromEntries(
+        RANKS.map((rank) => [rank, readCssRgbTuple(`--route-${rank}`, DEFAULT_PODIUM_RGB[rank])]),
+      ) as Record<PodiumRank, RgbTuple>,
+    // `theme` fuerza la relectura cuando cambia .dark en <html>.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [theme],
+  );
+
+  const layers = useMemo<Layer[]>(() => {
+    const transition = (duration: number) => (prefersReducedMotion ? 0 : duration);
+    const previewColor = withAlpha(routeColor, hasPodium ? 0 : OPAQUE);
+    const result: Layer[] = [
+      new ArcLayer<DashedArcSegment>({
+        id: 'navby-preliminary-route-arcs',
+        data: dashedSegments,
+        greatCircle: true,
+        numSegments: 16,
+        widthUnits: 'pixels',
+        getWidth: 3,
+        getHeight: 0,
+        getSourcePosition: (d) => d.source,
+        getTargetPosition: (d) => d.target,
+        getSourceColor: previewColor,
+        getTargetColor: previewColor,
+        transitions: {
+          getSourceColor: transition(PREVIEW_FADE_MS),
+          getTargetColor: transition(PREVIEW_FADE_MS),
+        },
+      }),
+    ];
+
+    // Las rutas peores se dibujan primero: el Top 1 queda encima.
+    for (const rank of [...RANKS].reverse()) {
+      const color = podiumColors[rank];
+      const isVisible = rank <= revealedCount;
+      const isDimmed = highlightedRank !== null && highlightedRank !== rank;
+      const alpha = !isVisible ? 0 : isDimmed ? DIMMED : OPAQUE;
+      const rgba = withAlpha(color, alpha);
+      result.push(
+        new ArcLayer<PodiumArc>({
+          id: `route-${rank}`,
+          data: podiumArcs.filter((arc) => arc.rank === rank),
+          greatCircle: true,
+          numSegments: 48,
+          widthUnits: 'pixels',
+          getWidth: highlightedRank === rank ? 5 : 3,
+          getHeight: 0,
+          pickable: isVisible,
+          autoHighlight: false,
+          getSourcePosition: (d) => d.source,
+          getTargetPosition: (d) => d.target,
+          getSourceColor: rgba,
+          getTargetColor: rgba,
+          updateTriggers: { getSourceColor: rgba, getTargetColor: rgba },
+          transitions: {
+            getSourceColor: transition(ARC_FADE_MS),
+            getTargetColor: transition(ARC_FADE_MS),
+            getWidth: transition(150),
+          },
+        }),
+      );
+    }
+    return result;
+  }, [
+    dashedSegments,
+    hasPodium,
+    highlightedRank,
+    podiumArcs,
+    podiumColors,
+    prefersReducedMotion,
+    revealedCount,
+    routeColor,
+  ]);
+
+  // Ruta bajo el cursor ↔ tarjeta; solo limpia lo que el propio mapa resaltó.
+  const hoverFromMapRef = useRef(false);
+  const handleArcHover = useMemo(
+    () => (info: PickingInfo) => {
+      const arc = info.object as PodiumArc | undefined;
+      if (arc) {
+        hoverFromMapRef.current = true;
+        setHighlightedRank(arc.rank);
+      } else if (hoverFromMapRef.current) {
+        hoverFromMapRef.current = false;
+        setHighlightedRank(null);
+      }
+    },
+    [setHighlightedRank],
   );
 
   const initialBounds = useMemo(() => computeRouteBounds(markers), [markers]);
@@ -336,7 +475,12 @@ export default function RouteMap({
       case 'destination':
         return t('map.markerDestination', { iata: marker.iata });
       case 'stop':
-        return t('map.markerStop', { iata: marker.iata });
+        return marker.layoverMinutes !== undefined
+          ? t('map.markerStopLayover', {
+              iata: marker.iata,
+              duration: formatLayover(t, marker.layoverMinutes),
+            })
+          : t('map.markerStop', { iata: marker.iata });
       default:
         return t('map.markerSelected', { iata: marker.iata });
     }
@@ -384,9 +528,9 @@ export default function RouteMap({
         <NavigationControl position="top-right" showCompass={false} />
 
         <DeckArcOverlay
-          segments={dashedSegments}
-          color={routeColor}
-          pulsing={!prefersReducedMotion}
+          layers={layers}
+          pulsing={!prefersReducedMotion && !hasPodium && dashedSegments.length > 0}
+          onHover={handleArcHover}
         />
 
         {markers.map((marker) => {
@@ -411,6 +555,12 @@ export default function RouteMap({
                 <span aria-hidden="true">
                   <Badge variant="neutral" className="shadow-xs">
                     {marker.iata}
+                    {marker.layoverMinutes !== undefined ? (
+                      <span className="font-medium text-fg-muted">
+                        {' · '}
+                        {formatLayover(t, marker.layoverMinutes)}
+                      </span>
+                    ) : null}
                   </Badge>
                 </span>
               </div>
