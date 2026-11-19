@@ -6,6 +6,8 @@ import { HomePage } from './HomePage';
 import {
   AccountPage,
   ForgotPasswordPage,
+  ItinerariesPage,
+  ItineraryDetailPage,
   LoginPage,
   RegisterPage,
   ResetPasswordPage,
@@ -15,6 +17,11 @@ import { RoutePlaceholderPage } from './RoutePlaceholderPage';
 
 // Solo en desarrollo: captura de skeletons sin sesión (`pnpm bones`); no entra al build.
 const BonesCapturePage = import.meta.env.DEV ? lazy(() => import('./BonesCapturePage')) : null;
+const BonesItinerariesPage = import.meta.env.DEV
+  ? lazy(() =>
+      import('./BonesCapturePage').then((m) => ({ default: m.BonesItinerariesCapturePage })),
+    )
+  : null;
 
 export const routes: RouteObject[] = [
   {
@@ -31,26 +38,12 @@ export const routes: RouteObject[] = [
           {
             path: 'itineraries',
             handle: { layout: 'contained' } satisfies RouteLayoutHandle,
-            element: (
-              <RoutePlaceholderPage
-                titleKey="routes.itineraries.title"
-                descriptionKey="routes.itineraries.description"
-                actionTo="/"
-                actionLabelKey="common.backHome"
-              />
-            ),
+            element: <ItinerariesPage />,
           },
           {
             path: 'itineraries/:id',
             handle: { layout: 'contained' } satisfies RouteLayoutHandle,
-            element: (
-              <RoutePlaceholderPage
-                titleKey="routes.itineraries.title"
-                descriptionKey="routes.itineraries.description"
-                actionTo="/"
-                actionLabelKey="common.backHome"
-              />
-            ),
+            element: <ItineraryDetailPage />,
           },
           {
             path: 'billing',
@@ -110,6 +103,9 @@ export const routes: RouteObject[] = [
       },
       ...(BonesCapturePage
         ? [{ path: '__bones/podium', element: <BonesCapturePage /> } satisfies RouteObject]
+        : []),
+      ...(BonesItinerariesPage
+        ? [{ path: '__bones/itineraries', element: <BonesItinerariesPage /> } satisfies RouteObject]
         : []),
       {
         path: 'reset-password',

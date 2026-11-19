@@ -7,3 +7,6 @@ export const VerifyEmailPage = lazy(() => import('@/features/auth/pages/VerifyEm
 export const ForgotPasswordPage = lazy(() => import('@/features/auth/pages/ForgotPasswordPage'));
 export const ResetPasswordPage = lazy(() => import('@/features/auth/pages/ResetPasswordPage'));
 export const AccountPage = lazy(() => import('@/features/account/pages/AccountPage'));
+// Plan 6: guardados (US-22 a US-24).
+export const ItinerariesPage = lazy(() => import('@/features/itineraries/pages/ItinerariesPage'));
+export const ItineraryDetailPage = lazy(() => import('./ItineraryDetailPage'));

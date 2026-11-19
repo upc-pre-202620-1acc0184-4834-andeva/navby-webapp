@@ -161,6 +161,14 @@ export const PodiumOfferSchema = z.object({
 
 export type PodiumOffer = z.infer<typeof PodiumOfferSchema>;
 
+/** Un perfil futuro del backend no rompe la respuesta: se lee como Equilibrado. */
+const PreferenceProfileSchema = z.enum(['BALANCED', 'SAVER', 'FAST', 'CUSTOM']).catch('BALANCED');
+const PreferenceWeightsSchema = z.object({
+  price: z.number(),
+  duration: z.number(),
+  stops: z.number(),
+});
+
 export const PodiumResponseSchema = z.object({
   search_id: z.string(),
   expires_at: z.string(),
@@ -172,9 +180,8 @@ export const PodiumResponseSchema = z.object({
   offers_received: z.number().int(),
   pareto_size: z.number().int(),
   preferences: z.object({
-    // Un perfil futuro del backend no rompe la respuesta: se lee como Equilibrado.
-    profile: z.enum(['BALANCED', 'SAVER', 'FAST', 'CUSTOM']).catch('BALANCED'),
-    weights: z.object({ price: z.number(), duration: z.number(), stops: z.number() }),
+    profile: PreferenceProfileSchema,
+    weights: PreferenceWeightsSchema,
   }),
   price_disclaimer: z.string(),
   podium: z.array(PodiumOfferSchema).max(3),
@@ -191,3 +198,49 @@ export const WalletSchema = z.object({
 });
 
 export type Wallet = z.infer<typeof WalletSchema>;
+
+/**
+ * El backend guarda la oferta sin alias: los tramos traen `from_iata` / `to_iata` en lugar de
+ * `from` / `to`. Se normaliza aquí para reutilizar el mapa y la tarjeta del podio.
+ */
+const SavedSegmentSchema = z.preprocess((raw) => {
+  if (typeof raw !== 'object' || raw === null) return raw;
+  const { from_iata, to_iata, ...rest } = raw as Record<string, unknown>;
+  const segment = rest as { from?: unknown; to?: unknown };
+  return { ...rest, from: segment.from ?? from_iata, to: segment.to ?? to_iata };
+}, SegmentSchema);
+
+/** Oferta congelada al guardar: el `rank` salió de los pesos de la búsqueda y puede ser > 3. */
+export const SavedOfferSchema = PodiumOfferSchema.omit({ rank: true, legs: true }).extend({
+  rank: z.number().int().min(1),
+  legs: z.array(LegSchema.extend({ segments: z.array(SavedSegmentSchema).min(1) })).min(1),
+  profile: PreferenceProfileSchema,
+  weights: PreferenceWeightsSchema,
+  quoted_at: z.string(),
+});
+
+export type SavedOffer = z.infer<typeof SavedOfferSchema>;
+
+export const ItinerarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  trip_type: z.enum(['ONE_WAY', 'ROUND_TRIP']),
+  origin: z.string(),
+  destination: z.string(),
+  departure_date: z.string(),
+  return_date: z.string().nullable(),
+  price_disclaimer: z.string(),
+  offer: SavedOfferSchema,
+  created_at: z.string(),
+});
+
+export type Itinerary = z.infer<typeof ItinerarySchema>;
+
+export const ItineraryPageSchema = z.object({
+  items: z.array(ItinerarySchema),
+  page: z.number().int(),
+  page_size: z.number().int(),
+  total: z.number().int(),
+});
+
+export type ItineraryPage = z.infer<typeof ItineraryPageSchema>;

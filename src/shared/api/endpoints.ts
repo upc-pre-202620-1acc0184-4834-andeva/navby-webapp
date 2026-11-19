@@ -4,6 +4,10 @@ import {
   CitiesResponseSchema,
   type HealthStatus,
   HealthSchema,
+  type Itinerary,
+  ItinerarySchema,
+  type ItineraryPage,
+  ItineraryPageSchema,
   type PodiumResponse,
   PodiumResponseSchema,
   type RegisterResponse,
@@ -236,5 +240,43 @@ export function getWallet(signal?: AbortSignal): Promise<Wallet> {
     signal,
     auth: 'required',
     schema: WalletSchema,
+  });
+}
+
+/** Guarda una oferta del podio vigente (gratis, RN-13). `200` si ya estaba guardada, `201` si es nueva. */
+export function saveItinerary(payload: {
+  search_id: string;
+  offer_id: string;
+}): Promise<Itinerary> {
+  return apiFetch('/itineraries', {
+    method: 'POST',
+    auth: 'required',
+    body: payload,
+    schema: ItinerarySchema,
+  });
+}
+
+/** El tope es 50 (RN-13) y `page_size` admite 50: una sola página trae todo, la más reciente primero. */
+export function listItineraries(signal?: AbortSignal): Promise<ItineraryPage> {
+  return apiFetch('/itineraries?page=1&page_size=50', {
+    signal,
+    auth: 'required',
+    schema: ItineraryPageSchema,
+  });
+}
+
+export function getItinerary(id: string, signal?: AbortSignal): Promise<Itinerary> {
+  return apiFetch(`/itineraries/${encodeURIComponent(id)}`, {
+    signal,
+    auth: 'required',
+    schema: ItinerarySchema,
+  });
+}
+
+export function deleteItinerary(id: string): Promise<void> {
+  return apiFetch(`/itineraries/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    auth: 'required',
+    parseVoid: true,
   });
 }

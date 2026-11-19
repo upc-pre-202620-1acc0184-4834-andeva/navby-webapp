@@ -4,7 +4,7 @@ import { type ReactNode, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isApiError } from '@/shared/api/errors';
 import { HANDLED_ELSEWHERE } from '../quoteErrors';
-import { type PodiumResponse } from '@/shared/api/schemas';
+import { type PodiumOffer, type PodiumResponse } from '@/shared/api/schemas';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/ui/cn';
@@ -37,6 +37,8 @@ export interface PodiumPanelProps {
   isReranking?: boolean;
   /** Anuncio tras reordenar («Ordenadas por Ahorro»); reemplaza el de «listas». */
   rerankAnnouncement?: string;
+  /** Acciones de cada tarjeta (Guardar, US-22); el podio no conoce los itinerarios. */
+  renderOfferActions?: (offer: PodiumOffer) => ReactNode;
 }
 
 function quoteErrorDescription(t: (key: string) => string, error: unknown): string {
@@ -77,6 +79,7 @@ export function PodiumPanel({
   preferences,
   isReranking = false,
   rerankAnnouncement,
+  renderOfferActions,
 }: PodiumPanelProps) {
   const { t } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
@@ -216,8 +219,13 @@ export function PodiumPanel({
                 )}
               >
                 {offers.map((offer) => (
-                  <li key={offer.offer_id}>
-                    <PodiumCard offer={offer} locale={locale} />
+                  // El estado de cada tarjeta (p. ej. Guardar) no se hereda entre búsquedas.
+                  <li key={`${podium.search_id}:${offer.offer_id}`}>
+                    <PodiumCard
+                      offer={offer}
+                      locale={locale}
+                      actions={renderOfferActions?.(offer)}
+                    />
                   </li>
                 ))}
               </ol>

@@ -328,6 +328,11 @@ test.describe('Buscador y mapa preliminar (Plan 2)', () => {
     await expect(page.getByLabel(/Haneda Airport/)).toBeDisabled();
 
     await expect.poll(() => new URL(page.url()).searchParams.get('to')).toBe('HND');
+    await expect
+      .poll(() => counters.previewCalls.some((qs) => qs.includes('destinations=HND')))
+      .toBe(true);
+    await expect(page.getByRole('button', { name: 'Buscar' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Buscar' })).toHaveCSS('opacity', '1');
 
     const overflow = await page.locator('html').evaluate((el) => el.scrollWidth > el.clientWidth);
     expect(overflow).toBe(false);

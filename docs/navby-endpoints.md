@@ -310,10 +310,13 @@ Cuerpo emitido por Mercado Pago (`{ "type": "payment", "data": { "id": "123" } }
 ```json
 { "id": "uuid", "name": "Japón 2026", "trip_type": "ROUND_TRIP", "origin": "LIM", "destination": "HND",
   "departure_date": "2026-11-01", "return_date": "2026-11-15",
-  "offer": { "...": "elemento de podium congelado, más profile, weights y quoted_at" },
+  "offer": { "...": "oferta congelada (tramos con from_iata/to_iata, rank >= 1, profile, weights y quoted_at)" },
   "price_disclaimer": "Precio del 2026-10-15; puede haber cambiado.",
   "created_at": "..." }
 ```
+
+- La idempotencia (`200` si esa `offer_id` ya estaba guardada para el usuario) se evalúa antes que el tope de 50 itinerarios (RN-13).
+- A diferencia de `/quotes/*`, los segmentos dentro de `offer.legs[].segments[]` se serializan sin alias (`from_iata` y `to_iata` en lugar de `from` y `to`), y `offer.rank` refleja la posición obtenida con esos pesos (puede ser `> 3`).
 
 Errores: `404 SEARCH_NOT_FOUND`, `404 OFFER_NOT_FOUND` y `409 ITINERARY_LIMIT_REACHED`.
 
@@ -323,11 +326,11 @@ Errores: `404 SEARCH_NOT_FOUND`, `404 OFFER_NOT_FOUND` y `409 ITINERARY_LIMIT_RE
 
 ### `GET /itineraries/{id}`
 
-`200 Itinerary`. Error: `404 ITINERARY_NOT_FOUND`.
+`200 Itinerary`. `id` es un UUID. Errores: `404 ITINERARY_NOT_FOUND` (no existe o pertenece a otro usuario) y `422 VALIDATION_ERROR` (UUID inválido).
 
 ### `DELETE /itineraries/{id}`
 
-`204`. Error: `404 ITINERARY_NOT_FOUND`.
+`204`. `id` es un UUID. Errores: `404 ITINERARY_NOT_FOUND` y `422 VALIDATION_ERROR` (UUID inválido).
 
 ## 7. Sistema
 

@@ -4,9 +4,11 @@ import { registerBones } from 'boneyard-js'
 import { configureBoneyard } from 'boneyard-js/react'
 
 import _podium_panel from './podium-panel.bones.json'
+import _itineraries_list from './itineraries-list.bones.json'
 
 configureBoneyard({"animate":"pulse"})
 
 registerBones({
   "podium-panel": _podium_panel,
+  "itineraries-list": _itineraries_list,
 })

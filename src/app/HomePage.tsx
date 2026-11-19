@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
 import { sileo } from 'sileo';
 import { formatResetTime, walletKeys } from '@/features/billing/hooks/useWallet';
+import { SaveItineraryButton } from '@/features/itineraries/components/SaveItineraryButton';
+import { useSavedOfferIds } from '@/features/itineraries/hooks/useItineraries';
 import { MapErrorBoundary } from '@/features/map/components/MapErrorBoundary';
 import { PodiumPanel } from '@/features/podium/components/PodiumPanel';
 import { PreferenceSelector } from '@/features/podium/components/PreferenceSelector';
@@ -27,7 +29,14 @@ import {
   type SearchCriteria,
 } from '@/features/search/searchCriteria';
 import { isApiError } from '@/shared/api/errors';
-import { type City, type CityAirport, type UserSummary, type Wallet } from '@/shared/api/schemas';
+import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
+import {
+  type City,
+  type CityAirport,
+  type PodiumOffer,
+  type UserSummary,
+  type Wallet,
+} from '@/shared/api/schemas';
 import { sessionKeys } from '@/shared/auth/useSession';
 import { usePodiumHighlight } from '@/shared/state/podiumHighlight';
 import { Button } from '@/shared/ui/Button';
@@ -57,12 +66,12 @@ function filterCityAirports(city: City | null, selectedIatas: string[]): CityAir
 }
 
 export function HomePage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
-  const locale = (i18n.resolvedLanguage ?? i18n.language).startsWith('en') ? 'en-US' : 'es-PE';
+  const locale = useIntlLocale();
 
   const { hasSearchQuery, criteria } = useMemo(
     () => parseSearchParams(searchParams),
@@ -300,6 +309,32 @@ export function HomePage() {
 
   const isRankExpired = searchId !== null && expiredSid === searchId;
   const activePendingRank = pendingRank?.sid === searchId ? pendingRank : null;
+  const isReranking = activePendingRank !== null;
+
+  // US-22: guardar es gratis; la lista (≤ 50) dice qué ofertas ya están guardadas.
+  const savedOfferIds = useSavedOfferIds(searchId !== null && (podium?.podium.length ?? 0) > 0);
+  const renderOfferActions = useCallback(
+    (offer: PodiumOffer) =>
+      podium && searchId ? (
+        <SaveItineraryButton
+          searchId={searchId}
+          expiresAt={podium.expires_at}
+          offer={offer}
+          savedItineraryId={savedOfferIds.get(offer.offer_id)}
+          isExpired={isRankExpired}
+          isReranking={isReranking}
+          onExpired={() => setExpiredSid(searchId)}
+          onSaved={(name) =>
+            setRankAnnouncement({
+              sid: searchId,
+              key: selectionKey,
+              text: t('podium.save.announce', { name }),
+            })
+          }
+        />
+      ) : null,
+    [isRankExpired, isReranking, podium, savedOfferIds, searchId, selectionKey, t],
+  );
   const activeRankFailure = rankFailure?.sid === searchId ? rankFailure : null;
   const rankFailureCode = isApiError(activeRankFailure?.error)
     ? activeRankFailure.error.code
@@ -364,7 +399,8 @@ export function HomePage() {
       onRetry={handleRetryQuote}
       locale={locale}
       scrollIntoViewOnResult={isDesktop}
-      isReranking={activePendingRank !== null}
+      isReranking={isReranking}
+      renderOfferActions={renderOfferActions}
       rerankAnnouncement={
         rankAnnouncement?.sid === searchId && rankAnnouncement.key === selectionKey
           ? rankAnnouncement.text
