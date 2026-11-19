@@ -237,7 +237,8 @@ Para texto, siempre el `*-ink` del tema. Nunca el color como única señal: acom
   con su propio scroll; el mapa ocupa todo el fondo. `fitBounds` deja libre el ancho del
   panel (padding izquierdo).
 - **Pantallas angostas (< 1024 px):** el buscador arriba, el mapa a ancho completo con
-  alto fijo (~40 dvh) y el podio debajo, en flujo normal de la página. Sin hojas
+  alto fijo (~40 dvh) y el podio debajo (con el selector de perfil sobre las tarjetas), en
+  flujo normal de la página. Sin hojas
   arrastrables ni gestos nativos.
 - Pantallas de cuenta, itinerarios y billing: columna centrada `max-w-3xl`, sin mapa.
 - Acceso (login, registro, verificación, recuperación): tarjeta centrada `max-w-sm`.
@@ -312,6 +313,15 @@ Orden de lectura: puesto y afinidad → precio → duración y escalas → aerol
 Control segmentado _Equilibrado / Ahorro / Rapidez / Personalizado_. _Personalizado_
 despliega tres sliders que siempre suman 100 % (al mover uno, los otros dos se reparten la
 diferencia proporcionalmente) con el valor en `tabular-nums` al lado.
+
+- Radios nativos en un `<fieldset>` con leyenda «¿Qué te importa más?», rejilla 2 × 2 sobre
+  `surface-sunken` (como el selector de tipo de viaje); el activo con `bg-surface` y borde
+  `primary`. Alto 44 px en táctil, 36 px desde `sm`.
+- Sliders con paso de 5 % y la clase `navby-range`: pista `line-strong`, relleno `primary`,
+  pulgar `primary` con borde `surface` y anillo `ring` al foco (no `accent-color`, que deja la
+  pista blanca en oscuro).
+- Mientras reordena, las tarjetas quedan al 60 % de opacidad (150 ms `ease-out`); no se
+  mueven ni escalan.
 
 ### Skeletons, toasts y estados
 

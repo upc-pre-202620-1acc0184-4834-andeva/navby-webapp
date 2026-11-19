@@ -10,7 +10,12 @@ export function AppToaster() {
     <Toaster
       position="top-center"
       theme={theme}
-      options={{ fill: 'var(--color-surface)', duration: 4000 }}
+      options={{
+        fill: 'var(--color-surface)',
+        duration: 4000,
+        // sileo capitaliza el título y tiñe la descripción para un relleno oscuro: se alinean al tema.
+        styles: { title: 'normal-case!', description: 'text-fg-muted!' },
+      }}
     />
   );
 }

@@ -34,6 +34,8 @@ export interface SearchPanelProps {
   isPreviewLoading: boolean;
   isPreviewFetching: boolean;
   isRateLimitCooldown: boolean;
+  /** Cotización en curso: Buscar queda deshabilitado (US-18, el 409 no debería verse). */
+  isQuoting?: boolean;
   onRetryPreview: () => void;
   onSubmitCriteria: (criteria: SearchCriteria) => void;
   onAirportsDebouncedChange: (criteria: SearchCriteria) => void;
@@ -51,6 +53,7 @@ export function SearchPanel({
   isPreviewLoading,
   isPreviewFetching,
   isRateLimitCooldown,
+  isQuoting = false,
   onRetryPreview,
   onSubmitCriteria,
   onAirportsDebouncedChange,
@@ -436,7 +439,13 @@ export function SearchPanel({
           </Field>
         </div>
 
-        <Button type="submit" variant="primary" loading={isPreviewFetching} className="mt-1 w-full">
+        <Button
+          type="submit"
+          variant="primary"
+          loading={isQuoting || isPreviewFetching}
+          disabled={isQuoting}
+          className="mt-1 w-full"
+        >
           {t('search.submit')}
         </Button>
       </form>
@@ -466,7 +475,6 @@ export function SearchPanel({
                   : t('search.previewFastestOneWay', { hours: fastestHours })}
               </span>
             </div>
-            <p className="text-xs text-fg-muted">{t('search.previewPlan2Note')}</p>
           </div>
         ) : null}
       </div>

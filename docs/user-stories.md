@@ -561,8 +561,14 @@ Escenario: Pesos válidos
   Entonces las recomendaciones se reordenan con esos pesos
   Y no se descuenta ningún crédito
 
-Escenario: Pesos que no suman 100%
-  Cuando el viajero define 50% precio, 40% duración y 20% escalas
+Escenario: Los pesos siempre suman 100%
+  Cuando el viajero sube el precio a 60%
+  Entonces la duración y las escalas se reparten el 40% restante en proporción
+  Y los tres pesos siguen sumando 100%
+
+Escenario: Pesos rechazados por el servidor
+  Dado que el servidor rechaza los pesos enviados
+  Cuando el viajero define pesos propios
   Entonces las recomendaciones no cambian
   Y se le indica que los pesos deben sumar 100%
 

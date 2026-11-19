@@ -4,6 +4,8 @@ import {
   CitiesResponseSchema,
   type HealthStatus,
   HealthSchema,
+  type PodiumResponse,
+  PodiumResponseSchema,
   type RegisterResponse,
   RegisterResponseSchema,
   type RoutePreviewResponse,
@@ -13,6 +15,8 @@ import {
   type UserProfile,
   UserProfileSchema,
   type UserSummary,
+  type Wallet,
+  WalletSchema,
 } from './schemas';
 
 export async function bootstrapSession(): Promise<UserSummary | null> {
@@ -179,5 +183,58 @@ export function getRoutePreview(
     signal,
     auth: 'required',
     schema: RoutePreviewResponseSchema,
+  });
+}
+
+/** Perfil de preferencias; `weights` (fracciones que suman 1) solo con `CUSTOM`. */
+export interface ApiPreferences {
+  profile: string;
+  weights?: { price: number; duration: number; stops: number };
+}
+
+export interface QuoteSearchPayload {
+  trip_type: 'ONE_WAY' | 'ROUND_TRIP';
+  origins: string[];
+  destinations: string[];
+  departure_date: string;
+  return_date: string | null;
+  passengers: { adults: number; children: number; infants: number };
+  cabin: string;
+  currency: string;
+  preferences: ApiPreferences;
+}
+
+export function searchQuotes(payload: QuoteSearchPayload): Promise<PodiumResponse> {
+  return apiFetch('/quotes/search', {
+    method: 'POST',
+    auth: 'required',
+    body: payload,
+    schema: PodiumResponseSchema,
+  });
+}
+
+/**
+ * Reordena un podio vigente con otro perfil (gratis, RN-11). También sirve para leerlo al
+ * recargar: `404 SEARCH_NOT_FOUND` si venció o es de otro usuario (US-19).
+ */
+export function rankQuotes(
+  searchId: string,
+  preferences: ApiPreferences,
+  signal?: AbortSignal,
+): Promise<PodiumResponse> {
+  return apiFetch(`/quotes/${encodeURIComponent(searchId)}/rank`, {
+    method: 'POST',
+    signal,
+    auth: 'required',
+    body: preferences,
+    schema: PodiumResponseSchema,
+  });
+}
+
+export function getWallet(signal?: AbortSignal): Promise<Wallet> {
+  return apiFetch('/billing/wallet', {
+    signal,
+    auth: 'required',
+    schema: WalletSchema,
   });
 }

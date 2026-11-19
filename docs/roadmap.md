@@ -30,8 +30,8 @@ están en [user-stories.md](user-stories.md); las reglas `RN-xx`/`RL-xx`, en
 | 1 | **Armazón y cliente de API:** layout, componentes base, cliente fetch con sesión, despliegue. | US-06, US-31 (aviso), US-33 (enlaces) | ✅ |
 | 2 | **Buscador y ruta en el mapa** (autenticado). | US-11, US-12, US-14, US-34 | ✅ |
 | 3 | **Cuenta y acceso.** | US-01 a US-05, US-07 a US-10 | ⬜ |
-| 4 | **Podio:** cotizar y recomendar. | US-13, US-15 a US-19, US-26, US-31 | ⬜ |
-| 5 | **Preferencias:** reordenar el podio. | US-20, US-21 | ⬜ |
+| 4 | **Podio:** cotizar y recomendar. | US-13, US-15 a US-19, US-26, US-31 | ✅ |
+| 5 | **Preferencias:** reordenar el podio. | US-20, US-21 | ✅ |
 | 6 | **Itinerarios guardados.** | US-22, US-23, US-24 | ⬜ |
 | 7 | **Créditos y pagos** (Mercado Pago sandbox). | US-25, US-27 a US-30 | ⬜ |
 | 8 | **Cierre de calidad y lanzamiento.** | Transversal | ⬜ |
@@ -133,7 +133,7 @@ la ruta preliminar en milisegundos.
 - **Hecho cuando:** cada código de error tiene prueba (MSW o `page.route`); e2e buscar →
   podio → comprar con el mock de FlightAPI del backend; `pnpm bones` generado para el
   panel de resultados.
-- **Decidir antes:** dónde se guarda el `search_id` vigente (URL o memoria) para US-19.
+- **Cerrado:** `search_id` en la URL (`?sid=`); nunca se cotiza al abrir una URL; 409 con aviso en línea; pruebas con `mockApi` (Vitest) y `page.route` (Playwright) en lugar de MSW, más smoke en vivo contra navby-platform con el mock de FlightAPI (ver Decisiones del Plan 4).
 
 ## Plan 5 · Preferencias
 
@@ -143,6 +143,10 @@ la ruta preliminar en milisegundos.
   reparto proporcional y redondeo).
 - Búsqueda vencida (> 30 min, RN-10/RN-11) → aviso y opción de buscar otra vez.
 - **Hecho cuando:** escenarios de US-20 y US-21 probados; reordenar no cambia el saldo.
+- **Cerrado:** perfil en la URL (`profile`, y `w=40,40,20` con *Personalizado*); el podio se
+  lee siempre con `POST /quotes/{sid}/rank` (también al recargar) y la URL cambia solo cuando
+  `/rank` responde bien; sliders con paso de 5 %; búsqueda vencida conserva las tarjetas (ver
+  Decisiones del Plan 5).
 
 ## Plan 6 · Itinerarios guardados
 

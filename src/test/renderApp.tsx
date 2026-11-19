@@ -4,6 +4,7 @@ import { createMemoryRouter, type InitialEntry, RouterProvider } from 'react-rou
 import { vi } from 'vitest';
 import { routes } from '@/app/router';
 import { bindSessionSync } from '@/shared/auth/useSession';
+import { wallet } from '@/test/fixtures/podium';
 
 export type ApiHandler = (init: RequestInit | undefined) => Response | Promise<Response>;
 
@@ -28,8 +29,14 @@ export const verifiedSession = {
   user: { user_id: 'usr-1', email: 'ana@mail.com', full_name: 'Ana Torres', email_verified: true },
 };
 
+/** Saldo por defecto de la barra superior; cada prueba puede sobrescribirlo. */
+const defaultHandlers: Record<string, ApiHandler> = {
+  'GET /billing/wallet': () => jsonResponse(200, wallet),
+};
+
 /** Mock de `fetch` por "MÉTODO /ruta" (sin `/api/v1` ni query); lo no declarado falla. */
-export function mockApi(handlers: Record<string, ApiHandler>) {
+export function mockApi(overrides: Record<string, ApiHandler>) {
+  const handlers = { ...defaultHandlers, ...overrides };
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const path = String(input).replace('/api/v1', '').split('?')[0];
     const key = `${init?.method ?? 'GET'} ${path}`;

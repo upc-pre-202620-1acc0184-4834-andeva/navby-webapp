@@ -56,7 +56,7 @@ test.describe('Armazón de navegación, sesión y paridad /app', () => {
     await page.goto('/app/');
     await expect(page).toHaveURL(/\/app\/login$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Iniciar sesión' })).toBeVisible();
-    await expect(page.getByText('— créditos')).toBeHidden();
+    await expect(page.getByRole('link', { name: /Saldo/ })).toBeHidden();
 
     const hasHorizontalOverflow = await page
       .locator('html')
@@ -79,7 +79,7 @@ test.describe('Armazón de navegación, sesión y paridad /app', () => {
     );
 
     await page.goto('/app/');
-    await expect(page.getByRole('link', { name: /Saldo de créditos/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Saldo/ })).toBeVisible();
 
     const trigger = page.getByRole('button', { name: 'Menú de cuenta y preferencias' });
     await trigger.click();

@@ -18,7 +18,7 @@ Todas las rutas cuelgan de `https://navby.andeva.tech/app` (Vite con `base: "/ap
 
 Los enlaces a los Términos y la Política de Privacidad del website se añadirán cuando `navby-website` publique esas páginas; mientras tanto el pie solo muestra el copyright (ver Decisiones del Plan 3). Toda tarifa muestra el aviso `price_disclaimer` (RL-03).
 
-La búsqueda vive en la URL (`/app/?trip=ROUND_TRIP&from=LIM&to=HND,NRT&dep=2026-11-01&ret=2026-11-15&ad=2&ch=1&in=0&cabin=ECONOMY&cur=USD&profile=BALANCED`) para poder compartirla y recargarla.
+La búsqueda vive en la URL (`/app/?trip=ROUND_TRIP&from=LIM&to=HND,NRT&dep=2026-11-01&ret=2026-11-15&ad=2&ch=1&in=0&cabin=ECONOMY&cur=USD&profile=BALANCED&sid=srch_01J9Z…`) para poder compartirla y recargarla. `sid` es el `search_id` vigente (US-19): al recargar se lee el podio con `POST /quotes/{sid}/rank` y el perfil de la URL, sin costo; nunca se cotiza solo por abrir una URL. `profile` se omite si es `BALANCED`; con `CUSTOM` va `w=40,40,20` (precio, duración, escalas en múltiplos de 5 que suman 100).
 
 ## 2. Flujo de búsqueda
 
@@ -36,14 +36,19 @@ Casos especiales:
 | Respuesta | Interfaz |
 | :--- | :--- |
 | `preview.reachable = false` o `422 ROUTE_NOT_REACHABLE` | Aviso «No hay rutas con 2 escalas o menos entre estas ciudades». No se cobra. |
-| `409 SEARCH_IN_PROGRESS` | Se ignora: ya hay una búsqueda en curso y el botón **Buscar** está deshabilitado mientras tanto. |
+| `409 SEARCH_IN_PROGRESS` | **Buscar** está deshabilitado mientras se cotiza; si igual llega (otra pestaña), aviso en línea «Ya hay una búsqueda en curso» (US-18). |
 | `402 INSUFFICIENT_CREDITS` | Toast con enlace a `/billing`. |
 | `403 EMAIL_NOT_VERIFIED` | Redirección a `/verify-email`. |
 | `400 CAPTCHA_INVALID` (registro, login, recuperación) | Se reinicia el widget de Turnstile y se pide repetir la verificación. Si es `503 PROVIDER_UNAVAILABLE` en esos formularios: «No pudimos comprobar la verificación. Inténtalo de nuevo». |
 | `503 PROVIDER_UNAVAILABLE` | Toast «No pudimos consultar precios. No se te cobró». |
 | `partial: true` | Aviso discreto «Algunos aeropuertos no respondieron». |
 | `podium: []` | «No hay vuelos disponibles para esa fecha. No se te cobró». |
-| `credits_charged: 0` | Indicador «Resultado reciente: sin costo». |
+| `credits_charged: 0` | Indicador «Resultado reciente: sin costo» (solo en la respuesta de `POST /quotes/search` con podio; el `GET` siempre trae `0`). |
+| `422 VALIDATION_ERROR` / `INVALID_WEIGHTS`, `404 AIRPORT_NOT_FOUND`, `429 RATE_LIMITED` (cotizar) | Aviso en línea en el panel del podio. |
+| `404 SEARCH_NOT_FOUND` al recargar (`POST /quotes/{sid}/rank`) | «Estos resultados vencieron» con **Buscar otra vez** (cubre también una búsqueda ajena, US-19). |
+| Cambiar de perfil con la búsqueda vencida (`expires_at` pasado o `404`) | Aviso en línea bajo el selector con **Buscar otra vez**; selector deshabilitado; las tarjetas siguen (US-20, US-21). |
+| `422 INVALID_WEIGHTS` o error de red al reordenar | Aviso en línea bajo el selector; el podio y el perfil anteriores no cambian (con red: **Reintentar**). |
+| Error de red o `5xx` al cotizar | Aviso en línea con **Reintentar**. |
 
 ## 3. Mapa
 
@@ -165,3 +170,33 @@ Las decisiones adoptadas al cerrar el Plan 3 (cuenta y acceso, US-01 a US-05 y U
 - **Cerrar sesión** está en el menú de la barra superior y en la tarjeta de perfil de `/account`.
 - **`/account` sin skeleton de boneyard:** nombre, correo y verificación salen de la sesión al instante; métodos de acceso y fecha de alta muestran «Cargando…» en línea hasta que responde `GET /users/me`.
 - **E2E con Google simulado:** Playwright levanta su propio `pnpm dev --port 5174` con un `VITE_GOOGLE_CLIENT_ID` falso y `e2e/fixtures.ts` sustituye `accounts.google.com/gsi/client` por un stub en todas las pruebas.
+
+## 11. Decisiones del Plan 4
+
+Las decisiones adoptadas al cerrar el Plan 4 (podio, US-13, US-15 a US-19, US-26 y US-31):
+
+- **`search_id` en la URL (`?sid=`):** se escribe tras el `200` de `POST /quotes/search` (con `replace`) y se quita al pulsar **Buscar** o al cambiar aeropuertos. Si el usuario cambia la búsqueda mientras se cotiza, el resultado se descarta.
+- **Cotizar solo con Buscar:** cargar o compartir una URL corre el preview, nunca `POST /quotes/search` (cuesta 5 créditos). Cambiar aeropuertos con la búsqueda activa deja el aviso «Los criterios cambiaron. Pulsa Buscar para ver precios».
+- **TanStack Query:** cotizar es una mutación (`useQuoteSearch`) que siembra la query del podio `['quotes', search_id, 'BALANCED']`; `usePodium(sid)` la lee sin otra petición o, al recargar, desde la API (desde el Plan 5, con `POST /quotes/{sid}/rank`).
+- **Saldo en la barra (US-26):** `GET /billing/wallet` (`features/billing/hooks/useWallet.ts`) muestra el total; el `aria-label`/`title` añade las búsquedas disponibles y la hora de recarga (00:00, hora de Lima). Se invalida solo cuando `credits_charged > 0` o ante un `402`.
+- **402:** toast con la hora de recarga y la acción «Ver créditos» (`/billing`, placeholder hasta el Plan 7). **503:** toast «No pudimos consultar precios. No se te cobró» con su propia clave (`errors.PROVIDER_UNAVAILABLE` es la del captcha). **403:** se marca la sesión como no verificada y `RequireAuth` lleva a `/verify-email`.
+- **Aviso RL-03 desde los locales** (`legal.priceDisclaimer`, es/en), no el `price_disclaimer` en español de la API.
+- **Horas:** el backend entrega la hora de pared de cada aeropuerto sin offset; se formatea tal cual (24 h, `Intl` con `timeZone: 'UTC'`) y la conexión de una escala es la resta directa (mismo aeropuerto, misma zona).
+- **Layout:** en escritorio el podio vive en el panel flotante bajo el buscador y el panel se desplaza hasta él al llegar resultados; en < 1024 px va bajo el mapa. Una sola instancia montada (`useMediaQuery`), con el orden del DOM igual al visual.
+- **Mapa:** un `ArcLayer` por puesto (`route-1..3`), un arco por segmento (la vuelta no repite el trazo); la preliminar se desvanece en 200 ms y las rutas entran escalonadas 60 ms (sin animación con `prefers-reduced-motion`). El resaltado vive en Zustand (`shared/state/podiumHighlight.ts`): la ruta activa pasa a 5 px y las demás a 30 % de opacidad, en ambos sentidos tarjeta ↔ ruta. Las escalas muestran su tiempo de conexión. Si falta un aeropuerto en `airports[]`, se omite ese arco y la leyenda textual conserva la ruta.
+- **Skeleton:** `<Skeleton name="podium-panel">` con huesos de `src/bones`. `pnpm bones` captura la ruta solo de desarrollo `/__bones/podium` (el CLI no tiene sesión).
+- **Pruebas:** Vitest cubre cada fila de la tabla §2 y los escenarios del plan (`src/app/podiumFlow.test.tsx`); Playwright (`e2e/podium.spec.ts`) simula la API con `page.route` en 1440 y 390 px, con axe en claro y oscuro. El smoke en vivo se hizo contra navby-platform local con el mock de FlightAPI. No se usa MSW.
+
+## 12. Decisiones del Plan 5
+
+Las decisiones adoptadas al cerrar el Plan 5 (preferencias, US-20 y US-21). El plan pasó por revisión Goldfish (Elephant-Goldfish):
+
+- **Perfil en la URL:** `profile` (`SAVER`, `FAST`, `CUSTOM`; ausente = `BALANCED`) y, con `CUSTOM`, `w=40,40,20`. Un `w` que no sean tres múltiplos de 5 que sumen 100 se lee como 50/30/20. **Buscar** conserva el perfil y lo envía en `preferences` de `POST /quotes/search`.
+- **Query key `['quotes', sid, preferenceKey]`** (`SAVER` o `CUSTOM:40-40-20`). Cotizar siembra la clave del perfil cotizado; volver a un perfil ya visto sale de caché sin red.
+- **Leer siempre con `POST /quotes/{sid}/rank`:** también al recargar (gratis, una petición con el perfil de la URL). La webapp dejó de usar `GET /quotes/{sid}`. El servidor guarda los últimos pesos, lo que no afecta a la webapp porque la URL manda.
+- **La URL cambia solo cuando `/rank` responde bien** (`fetchQuery` de la clave nueva y luego `setSearchParams` funcional con `replace`). Mientras tanto el selector ya muestra el perfil pedido, las tarjetas actuales siguen al 60 % de opacidad con `aria-busy`, y un error deja todo como estaba: `422 INVALID_WEIGHTS` con aviso en línea; red/5xx con **Reintentar**. Las respuestas de pedidos superados se descartan.
+- **Vencimiento:** al cambiar de perfil se compara `expires_at` con el reloj (orientativo) y el `404 SEARCH_NOT_FOUND` del servidor es la verdad. Vencida: aviso en línea con **Buscar otra vez** (cotiza de nuevo), selector deshabilitado y las tarjetas siguen a la vista. Al recargar con `404` no hay datos que mostrar: se mantiene el aviso del Plan 4 sin tarjetas.
+- **Selector:** `<fieldset>` con cuatro radios nativos en rejilla 2 × 2 (en el panel de 371 px «Personalizado» no cabe en una fila), dentro del panel del podio, entre el título y las tarjetas. *Personalizado* arranca con los pesos del perfil activo y reordena al instante; los sliders (`<input type="range">`, paso 5 %, `aria-valuetext`, pista con tokens `navby-range` en `global.css`) se ven en cada movimiento y reordenan 300 ms después del último. El reparto (`redistributeWeights`) es proporcional con redondeo por mayor resto; un peso en 0 se queda en 0 mientras el otro tenga valor.
+- **Anuncios:** la región `aria-live` calla mientras se reordena y luego dice «Recomendaciones ordenadas por Ahorro. Sin costo.». Cambiar de perfil borra la ruta resaltada.
+- **Saldo:** reordenar nunca invalida `GET /billing/wallet` (prueba explícita).
+- **Pruebas:** `src/features/podium/preferences.test.ts` (reparto, URL y conversión con la API) y el bloque «Preferencias» de `src/app/podiumFlow.test.tsx` (un caso por escenario de US-20 y US-21, más caché, recarga y error de red); e2e en `e2e/podium.spec.ts` con axe en claro y oscuro. Smoke en vivo contra navby-platform local (mock de FlightAPI) en 1440 y 390 px.

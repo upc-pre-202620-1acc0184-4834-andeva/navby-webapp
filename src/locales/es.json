@@ -1,7 +1,7 @@
 {
   "home": {
     "title": "Buscador de vuelos",
-    "subtitle": "Elige tus ciudades y revisa la ruta preliminar antes de cotizar."
+    "subtitle": "Elige tus ciudades y te recomendamos los 3 vuelos con mejor equilibrio entre precio, duración y escalas."
   },
   "search": {
     "originLabel": "Origen",
@@ -54,7 +54,6 @@
     "previewLoading": "Calculando ruta preliminar…",
     "previewFastestOneWay": "Ruta física más rápida: ~{{hours}} h",
     "previewFastestRoundTrip": "Ruta física más rápida (ida y vuelta): ~{{hours}} h",
-    "previewPlan2Note": "Ruta preliminar lista. La cotización con tarifas reales llega en el siguiente paso.",
     "unreachableTitle": "Ruta no disponible",
     "unreachableDescription": "No hay rutas con 2 escalas o menos entre estas ciudades.",
     "previewErrorTitle": "No pudimos calcular la ruta",
@@ -92,7 +91,14 @@
     "markerOrigin": "Origen: {{iata}}",
     "markerStop": "Escala: {{iata}}",
     "markerDestination": "Destino: {{iata}}",
-    "markerSelected": "Aeropuerto seleccionado: {{iata}}"
+    "markerSelected": "Aeropuerto seleccionado: {{iata}}",
+    "duration": {
+      "hours": "{{hours}} h",
+      "minutes": "{{minutes}} min",
+      "hoursMinutes": "{{hours}} h {{minutes}} min"
+    },
+    "markerStopLayover": "Escala en {{iata}}, conexión de {{duration}}",
+    "legendPodiumRoute": "Ruta de la opción {{rank}}:"
   },
   "common": {
     "skipToContent": "Saltar al contenido principal",
@@ -103,7 +109,6 @@
   "nav": {
     "homeAria": "Navby, ir al inicio",
     "creditsPlaceholder": "— créditos",
-    "creditsAria": "Saldo de créditos disponible próximamente",
     "accountMenu": "Menú de cuenta y preferencias",
     "accountLabel": "Cuenta",
     "signIn": "Iniciar sesión",
@@ -118,7 +123,12 @@
     "languageLabel": "Idioma",
     "langEs": "ES",
     "langEn": "EN",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "credits_one": "{{count}} crédito",
+    "credits_other": "{{count}} créditos",
+    "creditsAria_one": "Saldo: {{count}} crédito ({{searches}} búsquedas). Los gratuitos se renuevan a las {{time}}, hora de Lima.",
+    "creditsAria_other": "Saldo: {{count}} créditos ({{searches}} búsquedas). Los gratuitos se renuevan a las {{time}}, hora de Lima.",
+    "creditsLoadingAria": "Saldo de créditos"
   },
   "footer": {
     "copyright": "© 2026 Andeva. Todos los derechos reservados."
@@ -143,7 +153,12 @@
     "OTP_ATTEMPTS_EXCEEDED": "Demasiados intentos con este código. Pide uno nuevo.",
     "INVALID_RESET_TOKEN": "El enlace para cambiar la contraseña no es válido o ya venció.",
     "RATE_LIMITED": "Demasiados intentos en poco tiempo. Espera un momento e inténtalo de nuevo.",
-    "VALIDATION_ERROR": "Revisa los datos e inténtalo de nuevo."
+    "VALIDATION_ERROR": "Revisa los datos e inténtalo de nuevo.",
+    "INSUFFICIENT_CREDITS": "No tienes créditos suficientes para esta búsqueda.",
+    "SEARCH_IN_PROGRESS": "Ya hay una búsqueda en curso. Espera a que termine; no se te cobrará dos veces.",
+    "SEARCH_NOT_FOUND": "Estos resultados vencieron o no están disponibles.",
+    "ROUTE_NOT_REACHABLE": "No hay rutas con 2 escalas o menos entre estas ciudades. No se te cobró.",
+    "INVALID_WEIGHTS": "Las preferencias no son válidas. Inténtalo de nuevo."
   },
   "routes": {
     "itineraries": {
@@ -252,6 +267,87 @@
       "cancel": "Cancelar",
       "confirm": "Eliminar definitivamente",
       "done": "Tu cuenta fue eliminada."
+    }
+  },
+  "podium": {
+    "title": "Tus 3 recomendaciones",
+    "listLabel": "Recomendaciones ordenadas de mejor a peor",
+    "rankLabel": "Opción {{rank}}",
+    "affinity": "{{pct}} % afinidad",
+    "direct": "Directo",
+    "stops_one": "{{count}} escala",
+    "stops_other": "{{count}} escalas",
+    "atMinimum": "En el mínimo físico",
+    "overMinimum": "+{{duration}} sobre el mínimo físico",
+    "duration": {
+      "hours": "{{hours}} h",
+      "minutes": "{{minutes}} min",
+      "hoursMinutes": "{{hours}} h {{minutes}} min"
+    },
+    "outbound": "Ida",
+    "inbound": "Vuelta",
+    "to": "a",
+    "nextDay_one": "+{{count}} día",
+    "nextDay_other": "+{{count}} días",
+    "layover": "escala en {{iata}} de {{duration}}",
+    "airlines": "Aerolíneas",
+    "buy": "Comprar",
+    "buyHint": ": opción {{rank}}, se abre el sitio del vendedor en una pestaña nueva",
+    "freeResult": "Resultado reciente: sin costo",
+    "status": {
+      "searching": "Buscando vuelos…",
+      "ready_one": "{{count}} recomendación lista",
+      "ready_other": "{{count}} recomendaciones listas"
+    },
+    "empty": {
+      "title": "No hay vuelos disponibles para esa fecha",
+      "description": "No se te cobró. Prueba con otra fecha u otros aeropuertos."
+    },
+    "partial": {
+      "title": "Algunos aeropuertos no respondieron",
+      "description": "Te mostramos las recomendaciones de los aeropuertos que sí respondieron."
+    },
+    "stale": {
+      "title": "Los criterios cambiaron",
+      "description": "Pulsa Buscar para ver precios de estos aeropuertos."
+    },
+    "expired": {
+      "title": "Estos resultados vencieron",
+      "description": "Las recomendaciones duran 30 minutos. Busca otra vez para ver precios actuales.",
+      "action": "Buscar otra vez"
+    },
+    "errors": {
+      "title": "No pudimos mostrar recomendaciones",
+      "inProgressTitle": "Búsqueda en curso",
+      "retry": "Reintentar",
+      "insufficientTitle": "No tienes créditos suficientes",
+      "insufficient": "Cada búsqueda cuesta 5 créditos. Compra un paquete o espera la recarga diaria.",
+      "insufficientWithReset": "Cada búsqueda cuesta 5 créditos. Compra un paquete o espera la recarga gratuita a las {{time}} (hora de Lima).",
+      "viewCredits": "Ver créditos",
+      "providerTitle": "No pudimos consultar precios",
+      "providerUnavailable": "No pudimos consultar precios. No se te cobró."
+    },
+    "preferences": {
+      "legend": "¿Qué te importa más?",
+      "profiles": {
+        "BALANCED": "Equilibrado",
+        "SAVER": "Ahorro",
+        "FAST": "Rapidez",
+        "CUSTOM": "Personalizado"
+      },
+      "customLabel": "Tus pesos",
+      "customHint": "Al mover uno, los otros dos se ajustan para sumar 100 %.",
+      "weights": {
+        "price": "Precio",
+        "duration": "Duración",
+        "stops": "Escalas"
+      },
+      "reordered": "Recomendaciones ordenadas por {{profile}}. Sin costo.",
+      "expired": "Las recomendaciones duran 30 minutos. Busca otra vez para cambiar tus preferencias.",
+      "errors": {
+        "title": "No pudimos reordenar",
+        "invalidWeights": "Los pesos deben sumar 100 %. Tus recomendaciones no cambiaron."
+      }
     }
   }
 }
