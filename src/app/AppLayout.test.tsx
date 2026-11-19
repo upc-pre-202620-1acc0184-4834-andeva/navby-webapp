@@ -5,6 +5,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { bindSessionSync } from '@/shared/auth/useSession';
 import { THEME_STORAGE_KEY } from '@/shared/ui/theme';
+import { wallet } from '@/test/fixtures/podium';
 import { routes } from './router';
 
 vi.mock('@/features/map/components/RouteMap', () => ({
@@ -86,15 +87,15 @@ describe('AppLayout & shell', () => {
     expect(trigger).toHaveFocus();
   });
 
-  it('usuario autenticado ve HomePage, saldo placeholder, menú de cuenta y puede cambiar tema e idioma', async () => {
+  it('usuario autenticado ve HomePage, saldo, menú de cuenta y puede cambiar tema e idioma', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(
-        async () =>
-          new Response(JSON.stringify(sessionPayload), {
-            status: 200,
-            headers: { 'content-type': 'application/json' },
-          }),
+        async (input: RequestInfo | URL) =>
+          new Response(
+            JSON.stringify(String(input).includes('/billing/wallet') ? wallet : sessionPayload),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
       ),
     );
 
@@ -106,9 +107,12 @@ describe('AppLayout & shell', () => {
       ).toBeInTheDocument(),
     );
 
-    const creditsLink = screen.getByRole('link', { name: /Saldo de créditos/ });
+    // US-26: total, búsquedas disponibles y hora de recarga (00:00 Lima).
+    const creditsLink = await screen.findByRole('link', {
+      name: 'Saldo: 50 créditos (10 búsquedas). Los gratuitos se renuevan a las 00:00, hora de Lima.',
+    });
     expect(creditsLink).toHaveAttribute('href', '/billing');
-    expect(creditsLink).toHaveTextContent('— créditos');
+    expect(creditsLink).toHaveTextContent('50 créditos');
 
     const user = userEvent.setup();
     const trigger = screen.getByRole('button', { name: 'Menú de cuenta y preferencias' });

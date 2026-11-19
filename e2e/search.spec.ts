@@ -133,6 +133,28 @@ async function setupAuthenticatedMocks(
     });
   });
 
+  // Buscar también cotiza (Plan 4); aquí basta un podio vacío para no salir a la API real.
+  await page.route('**/api/v1/quotes/search', (route: Route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        search_id: 'srch_01JE2ESEARCHSPEC000000000000',
+        expires_at: '2026-11-17T23:30:00Z',
+        credits_charged: 0,
+        credits_remaining: 10,
+        partial: false,
+        pairs_quoted: [],
+        t_min_minutes: 0,
+        offers_received: 0,
+        pareto_size: 0,
+        preferences: { profile: 'BALANCED', weights: { price: 0.5, duration: 0.3, stops: 0.2 } },
+        price_disclaimer: '',
+        podium: [],
+      }),
+    }),
+  );
+
   await page.route('**/api/v1/routing/preview*', (route: Route) => {
     if (route.request().headers().authorization !== `Bearer ${MOCK_SESSION.access_token}`) {
       return route.fulfill({

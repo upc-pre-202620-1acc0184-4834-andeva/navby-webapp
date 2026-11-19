@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { type RoutePreviewResponse } from '@/shared/api/schemas';
+import { type PodiumOffer, type RoutePreviewResponse } from '@/shared/api/schemas';
 import { Card } from '@/shared/ui/Card';
 import { cn } from '@/shared/ui/cn';
 
@@ -8,6 +8,14 @@ export interface RouteTextLegendProps {
   fastestHours: number | null;
   hasActiveSearch: boolean;
   forceVisible?: boolean;
+  /** Rutas del podio: equivalente textual de los 3 arcos (tramos y escalas). */
+  podium?: PodiumOffer[];
+}
+
+function legChain(offer: PodiumOffer): string[] {
+  return offer.legs.map((leg) =>
+    [leg.segments[0]?.from, ...leg.segments.map((segment) => segment.to)].join(' → '),
+  );
 }
 
 /**
@@ -19,6 +27,7 @@ export function RouteTextLegend({
   fastestHours,
   hasActiveSearch,
   forceVisible = false,
+  podium,
 }: RouteTextLegendProps) {
   const { t } = useTranslation();
 
@@ -51,6 +60,18 @@ export function RouteTextLegend({
         ) : (
           <p className="mt-1.5 text-sm text-fg-muted">{t('search.previewLoading')}</p>
         )}
+        {hasActiveSearch && podium && podium.length > 0 ? (
+          <ol className="mt-2 flex flex-col gap-1 text-sm text-fg-muted tabular-nums">
+            {podium.map((offer) => (
+              <li key={offer.offer_id}>
+                <span className="font-semibold text-fg">
+                  {t('map.legendPodiumRoute', { rank: offer.rank })}
+                </span>{' '}
+                {legChain(offer).join(' · ')}
+              </li>
+            ))}
+          </ol>
+        ) : null}
       </Card>
     </section>
   );

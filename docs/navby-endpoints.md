@@ -235,8 +235,10 @@ Si ningún par tiene ruta: `200` con `"reachable": false`, `pairs: []` y `best_r
 Errores:
 - `402 INSUFFICIENT_CREDITS`;
 - `403 EMAIL_NOT_VERIFIED`;
+- `404 AIRPORT_NOT_FOUND` (un código IATA que no está en la red de rutas);
 - `409 SEARCH_IN_PROGRESS`;
 - `422 ROUTE_NOT_REACHABLE`, `422 VALIDATION_ERROR`, `422 INVALID_WEIGHTS`;
+- `429 RATE_LIMITED` (10 por minuto por usuario, con cabecera `Retry-After`);
 - `503 PROVIDER_UNAVAILABLE`.
 
 ### `POST /quotes/{search_id}/rank`

@@ -78,16 +78,16 @@ react-hook-form + Zod 4 · react-day-picker · boneyard-js · sileo · i18next �
 Versiones exactas en `package.json`. Usa **pnpm** (nunca npm/yarn) y Context7 para APIs de
 librerías.
 
-| Comando                             | Qué hace                                                          |
-| :---------------------------------- | :---------------------------------------------------------------- |
-| `pnpm dev`                          | Servidor en `http://localhost:5173/app/` con proxy `/api`.        |
-| `pnpm build` / `pnpm preview`       | Compila a `dist/app` y lo sirve.                                  |
-| `pnpm check`                        | Tipos (`tsc -b`).                                                 |
-| `pnpm lint` / `pnpm lint:fix`       | ESLint (typescript-eslint, react-hooks, jsx-a11y).                |
-| `pnpm format` / `pnpm format:check` | Prettier + orden de clases Tailwind.                              |
-| `pnpm test` / `pnpm test:watch`     | Vitest + Testing Library (jsdom).                                 |
-| `pnpm test:e2e`                     | Playwright (1440 y 390 px) + axe. Levanta `pnpm dev` solo.        |
-| `pnpm bones`                        | Regenera los skeletons de boneyard-js (con `pnpm dev` corriendo). |
+| Comando                             | Qué hace                                                                                                                  |
+| :---------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm dev`                          | Servidor en `http://localhost:5173/app/` con proxy `/api`.                                                                |
+| `pnpm build` / `pnpm preview`       | Compila a `dist/app` y lo sirve.                                                                                          |
+| `pnpm check`                        | Tipos (`tsc -b`).                                                                                                         |
+| `pnpm lint` / `pnpm lint:fix`       | ESLint (typescript-eslint, react-hooks, jsx-a11y).                                                                        |
+| `pnpm format` / `pnpm format:check` | Prettier + orden de clases Tailwind.                                                                                      |
+| `pnpm test` / `pnpm test:watch`     | Vitest + Testing Library (jsdom).                                                                                         |
+| `pnpm test:e2e`                     | Playwright (1440 y 390 px) + axe. Levanta `pnpm dev` solo.                                                                |
+| `pnpm bones`                        | Regenera los skeletons de boneyard-js (con `pnpm dev` corriendo; captura `/app/__bones/podium`, ruta solo de desarrollo). |
 
 Backend local: en `../navby-platform`, `docker compose -f docker-compose.dev.yml up -d` y
 la API en el puerto 8000 (ver su README). Sin backend, la webapp carga pero las llamadas

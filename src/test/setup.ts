@@ -6,6 +6,14 @@ import { resetApiClientForTests } from '@/shared/api/client';
 
 beforeAll(async () => {
   await i18n.changeLanguage('es');
+  // jsdom no trae ResizeObserver; boneyard-js lo usa para medir el skeleton.
+  if (typeof window.ResizeObserver !== 'function') {
+    window.ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+  }
   if (typeof window.matchMedia !== 'function') {
     Object.defineProperty(window, 'matchMedia', {
       writable: true,

@@ -1,3 +1,4 @@
+import { lazy } from 'react';
 import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RedirectIfAuthenticated, RequireAuth } from '@/shared/auth/RouteGuards';
 import { AppLayout, type RouteLayoutHandle } from './AppLayout';
@@ -11,6 +12,9 @@ import {
   VerifyEmailPage,
 } from './lazyPages';
 import { RoutePlaceholderPage } from './RoutePlaceholderPage';
+
+// Solo en desarrollo: captura de skeletons sin sesión (`pnpm bones`); no entra al build.
+const BonesCapturePage = import.meta.env.DEV ? lazy(() => import('./BonesCapturePage')) : null;
 
 export const routes: RouteObject[] = [
   {
@@ -104,6 +108,9 @@ export const routes: RouteObject[] = [
           },
         ],
       },
+      ...(BonesCapturePage
+        ? [{ path: '__bones/podium', element: <BonesCapturePage /> } satisfies RouteObject]
+        : []),
       {
         path: 'reset-password',
         handle: { layout: 'auth' } satisfies RouteLayoutHandle,

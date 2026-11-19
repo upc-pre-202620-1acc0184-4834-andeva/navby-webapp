@@ -19,10 +19,26 @@ window.google = { accounts: { id: {
   },
 } } };`;
 
+export const E2E_WALLET = {
+  free_credits: 10,
+  paid_credits: 0,
+  total_credits: 10,
+  searches_available: 2,
+  free_credits_reset_at: '2026-11-18T05:00:00Z',
+};
+
 export const test = base.extend({
   page: async ({ page }, provide) => {
     await page.route('https://accounts.google.com/gsi/client**', (route) =>
       route.fulfill({ status: 200, contentType: 'text/javascript', body: GIS_STUB }),
+    );
+    // Saldo de la barra superior (US-26); cada spec puede sobrescribirlo con su propio route.
+    await page.route('**/api/v1/billing/wallet', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(E2E_WALLET),
+      }),
     );
     await provide(page);
   },
