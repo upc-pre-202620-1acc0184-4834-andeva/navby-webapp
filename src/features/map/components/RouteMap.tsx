@@ -77,6 +77,10 @@ export interface RouteMapProps {
   destinationAirports: CityAirport[];
   fitTrigger: number;
   onUnavailableChange?: (unavailable: boolean) => void;
+  /** Escritorio: hay un panel flotante a la izquierda y el mapa deja ese espacio libre. */
+  floatingPanel?: boolean;
+  /** Etiqueta accesible del mapa (p. ej. mapa de ruta guardada en el detalle). */
+  regionLabel?: string;
 }
 
 function subscribeReducedMotion(onChange: () => void): () => void {
@@ -207,6 +211,8 @@ export default function RouteMap({
   destinationAirports,
   fitTrigger,
   onUnavailableChange,
+  floatingPanel = true,
+  regionLabel,
 }: RouteMapProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -417,7 +423,8 @@ export default function RouteMap({
   );
 
   const initialBounds = useMemo(() => computeRouteBounds(markers), [markers]);
-  const initialPadding = isDesktop
+  const hasSidePanel = isDesktop && floatingPanel;
+  const initialPadding = hasSidePanel
     ? { top: 64, right: 80, bottom: 56, left: 492 }
     : { top: 44, right: 44, bottom: 44, left: 44 };
 
@@ -427,7 +434,7 @@ export default function RouteMap({
     const bounds = computeRouteBounds(markers);
     if (!bounds) return;
 
-    const padding = isDesktop
+    const padding = hasSidePanel
       ? { top: 64, right: 80, bottom: 56, left: 492 }
       : { top: 44, right: 44, bottom: 44, left: 44 };
 
@@ -444,14 +451,17 @@ export default function RouteMap({
     } catch {
       // Ignora tamaños transitorios insuficientes durante redimensionamientos extremos.
     }
-  }, [mapReady, activePointsKey, markers, fitTrigger, isDesktop, prefersReducedMotion]);
+  }, [mapReady, activePointsKey, markers, fitTrigger, hasSidePanel, prefersReducedMotion]);
 
   if (isUnavailable) {
     return (
       <div
         role="region"
         aria-label={t('map.regionLabel')}
-        className="flex h-full w-full items-center justify-center bg-surface-sunken p-4 lg:pl-[460px]"
+        className={cn(
+          'flex h-full w-full items-center justify-center bg-surface-sunken p-4',
+          floatingPanel && 'lg:pl-[460px]',
+        )}
       >
         <StatusMessage
           variant="info"
@@ -489,7 +499,7 @@ export default function RouteMap({
   return (
     <div
       role="region"
-      aria-label={t('map.regionLabel')}
+      aria-label={regionLabel ?? t('map.regionLabel')}
       className="relative h-full w-full overflow-hidden bg-surface-sunken"
     >
       <Map
@@ -570,7 +580,12 @@ export default function RouteMap({
       </Map>
 
       {tilesFallback ? (
-        <div className="pointer-events-none absolute bottom-3 left-3 z-10 lg:left-[444px]">
+        <div
+          className={cn(
+            'pointer-events-none absolute bottom-3 left-3 z-10',
+            floatingPanel && 'lg:left-[444px]',
+          )}
+        >
           <Badge variant="neutral" className="shadow-xs">
             {t('map.tilesFallbackNote')}
           </Badge>

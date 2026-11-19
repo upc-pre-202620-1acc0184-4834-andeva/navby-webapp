@@ -10,6 +10,10 @@ export interface RouteTextLegendProps {
   forceVisible?: boolean;
   /** Rutas del podio: equivalente textual de los 3 arcos (tramos y escalas). */
   podium?: PodiumOffer[];
+  /** Título propio (el detalle de un itinerario no es una ruta «preliminar»). */
+  heading?: string;
+  /** Rótulo único de cada ruta del podio en lugar de «Ruta de la opción N:». */
+  routeLabel?: string;
 }
 
 function legChain(offer: PodiumOffer): string[] {
@@ -28,6 +32,8 @@ export function RouteTextLegend({
   hasActiveSearch,
   forceVisible = false,
   podium,
+  heading,
+  routeLabel,
 }: RouteTextLegendProps) {
   const { t } = useTranslation();
 
@@ -35,14 +41,15 @@ export function RouteTextLegend({
   const hasRoute = routeAirports.length >= 2 && fastestHours !== null;
   const stopsCount = Math.max(0, routeAirports.length - 2);
   const routeChain = routeAirports.map((a) => a.iata).join(' → ');
+  const hasPodium = hasActiveSearch && podium !== undefined && podium.length > 0;
 
   return (
     <section
-      aria-label={t('map.legendHeading')}
+      aria-label={heading ?? t('map.legendHeading')}
       className={cn(forceVisible ? 'block' : 'lg:sr-only')}
     >
       <Card padding="md">
-        <h2 className="text-sm font-semibold text-fg">{t('map.legendHeading')}</h2>
+        <h2 className="text-sm font-semibold text-fg">{heading ?? t('map.legendHeading')}</h2>
         {!hasActiveSearch ? (
           <p className="mt-1.5 text-sm text-fg-muted">{t('map.legendEmpty')}</p>
         ) : preview && !preview.reachable ? (
@@ -57,15 +64,15 @@ export function RouteTextLegend({
               hours: fastestHours,
             })}
           </p>
-        ) : (
+        ) : hasPodium ? null : (
           <p className="mt-1.5 text-sm text-fg-muted">{t('search.previewLoading')}</p>
         )}
-        {hasActiveSearch && podium && podium.length > 0 ? (
+        {hasPodium ? (
           <ol className="mt-2 flex flex-col gap-1 text-sm text-fg-muted tabular-nums">
             {podium.map((offer) => (
               <li key={offer.offer_id}>
                 <span className="font-semibold text-fg">
-                  {t('map.legendPodiumRoute', { rank: offer.rank })}
+                  {routeLabel ?? t('map.legendPodiumRoute', { rank: offer.rank })}
                 </span>{' '}
                 {legChain(offer).join(' · ')}
               </li>

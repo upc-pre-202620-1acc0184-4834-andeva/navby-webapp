@@ -161,10 +161,6 @@
     "INVALID_WEIGHTS": "The preferences are not valid. Try again."
   },
   "routes": {
-    "itineraries": {
-      "title": "Saved itineraries",
-      "description": "Your saved flights will appear here once the podium is available."
-    },
     "billing": {
       "title": "Credits and packages",
       "description": "Your daily credit balance and prepaid packages will appear here."
@@ -343,11 +339,66 @@
         "stops": "Stops"
       },
       "reordered": "Recommendations sorted by {{profile}}. No charge.",
-      "expired": "Recommendations last 30 minutes. Search again to change your preferences.",
+      "expired": "Recommendations last 30 minutes. Search again to change your preferences or save.",
       "errors": {
         "title": "We couldn't re-sort",
         "invalidWeights": "Weights must add up to 100%. Your recommendations didn't change."
       }
+    },
+    "buyHintSaved": ": opens the seller site in a new tab",
+    "save": {
+      "save": "Save",
+      "saved": "Saved",
+      "savedAria": "Saved. View itinerary",
+      "hint": ": option {{rank}}",
+      "announce": "Saved to your itineraries: {{name}}",
+      "limit": "You already have 50 itineraries. Delete one to save another",
+      "limitLink": "View my itineraries",
+      "error": "We couldn't save it. Please try again."
+    }
+  },
+  "itineraries": {
+    "title": "My itineraries",
+    "count": "{{count}} of {{max}}",
+    "full": "You've reached the limit of 50. Delete one to save another",
+    "listLabel": "Saved itineraries",
+    "savedOn": "Saved on {{date}}",
+    "dates": "{{departure}} – {{return}}",
+    "delete": "Delete",
+    "deleteAria": "Delete {{name}}",
+    "priceNote": "Prices are from the moment you saved each itinerary",
+    "deleted": "Itinerary deleted",
+    "gone": "That itinerary no longer exists",
+    "empty": {
+      "title": "You haven't saved any itineraries yet",
+      "description": "Save a recommendation from the podium to review it whenever you like",
+      "action": "Search flights"
+    },
+    "error": {
+      "title": "We couldn't load your itineraries"
+    },
+    "dialog": {
+      "title": "Delete this itinerary?",
+      "description": "You can save it again while the search is still valid.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "error": "We couldn't delete it. Please try again."
+    },
+    "detail": {
+      "back": "Back to my itineraries",
+      "profile": "Quoted with the {{profile}} profile",
+      "disclaimer": "Price from {{date}}; it may have changed. {{legal}}",
+      "loading": "Loading itinerary…",
+      "notFound": {
+        "title": "This itinerary doesn't exist",
+        "description": "Check your list of saved itineraries."
+      },
+      "error": {
+        "title": "We couldn't load the itinerary"
+      },
+      "legendHeading": "Legs of the saved itinerary",
+      "routeLabel": "Saved route:",
+      "mapLabel": "Map of the saved route"
     }
   }
 }
