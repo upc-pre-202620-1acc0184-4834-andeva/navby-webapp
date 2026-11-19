@@ -27,7 +27,7 @@ colors:
   success-ink-light: '#1E7B18'
   error: '#FB2C36'
   error-ink-light: '#D1121C'
-  error-ink-dark: '#FF6B6F'
+  error-ink-dark: '#FF7A7E'
   warning: '#F0B100'
   warning-ink-light: '#8A6100'
 typography:
@@ -277,7 +277,7 @@ Bordes de 1 px. Radios anidados: el interior es el exterior menos el padding.
 | Comprar    | Solo el deep link de una oferta | `bg-accent text-on-accent hover:bg-accent/90`, ícono `ExternalLink`                                       |
 | Secundario | Acciones de apoyo               | `bg-surface border border-line-strong text-fg`                                                            |
 | Fantasma   | Acciones terciarias, íconos     | sin fondo, `hover:bg-surface-sunken`                                                                      |
-| Peligro    | Eliminar cuenta                 | `bg-surface border border-error-ink text-error-ink` (contorno: el rojo de relleno no da 4.5:1 con blanco) |
+| Peligro    | Eliminar cuenta o itinerario    | `bg-surface border border-error-ink text-error-ink` (contorno: el rojo de relleno no da 4.5:1 con blanco) |
 
 Alto 40 px (44 px en táctil), `font-semibold text-sm`, ícono de 16 px a la izquierda.
 Estado de carga: el botón conserva su ancho y muestra un spinner; se deshabilita mientras
@@ -305,8 +305,33 @@ Orden de lectura: puesto y afinidad → precio → duración y escalas → aerol
 - Línea de metadatos `fg-muted`: duración · escalas · «+X h sobre el mínimo físico».
 - Aviso RL-03 siempre visible en `text-xs fg-muted`: «Precio referencial obtenido de
   terceros; se confirma en el sitio del vendedor».
-- Acciones: **Comprar** (acento) y **Guardar** (secundario).
+- Acciones: **Comprar** (acento) y **Guardar** (secundario con ícono `Bookmark`); si ya está
+  guardada pasa a un enlace **Guardado** (`variant="secondary"`, ícono `BookmarkCheck` en
+  `success-ink`) que lleva a `/itineraries/:id`. Al límite de 50 o ante un fallo muestra un
+  aviso en línea bajo las acciones (`role="status"`): enlace a `/itineraries` o botón
+  `ghost` **Reintentar** alineado junto al mensaje.
 - Hover/foco de la tarjeta = resalta su ruta en el mapa, y viceversa.
+
+### Itinerarios guardados
+
+- **Fila (`/itineraries`):** `Card` `relative flex items-center gap-3` con enlace extendido
+  (`after:absolute after:inset-0 after:rounded-xl`) sobre toda la fila hacia el detalle,
+  borde `hover:border-line-strong` (150 ms `ease-out`). Orden de lectura: nombre truncado →
+  fechas → precio `font-semibold` + duración y escalas → «Guardado el …». A la derecha,
+  botón `ghost` `size="icon"` (`Trash2`, `z-10 shrink-0`) para eliminar sin activar el enlace.
+- **Detalle (`/itineraries/:id`):** columna `max-w-3xl` con enlace **Volver a mis itinerarios**,
+  título, mapa del detalle, `PodiumCard` sin puesto ni afinidad (encabezado «Cotizado con
+  el perfil …» y aviso con la fecha de `quoted_at` + RL-03) y botón **Eliminar** (`danger`).
+
+### Diálogo de confirmación
+
+`<dialog>` nativo con `showModal()` (`max-w-md rounded-xl border border-line bg-surface p-6
+shadow-lg`), backdrop `rgb(0 0 0 / 0.5)` y animación `.navby-dialog` de 200 ms `ease-out`
+(opacidad + escala `0.97 → 1`, `@starting-style` y `allow-discrete`).
+
+- El foco inicial va a **Cancelar** (`secondary`); al confirmar muestra spinner en el botón
+  **Eliminar** (`danger`), impide cerrar con `Esc` o **Cancelar** mientras espera respuesta
+  del servidor y mantiene el diálogo abierto con el error en `error-ink` si falla.
 
 ### Selector de perfil
 
@@ -348,6 +373,11 @@ diferencia proporcionalmente) con el valor en `tabular-nums` al lado.
 - Los colores de deck.gl son arrays RGB: léelos de las variables CSS al montar y al cambiar
   de tema; nunca dupliques los hex en el código del mapa.
 - El mapa no es interactivo para elegir aeropuertos ni dibuja el grafo completo.
+- **Mapa del detalle (`/itineraries/:id`):** contenedor encuadrado dentro de `max-w-3xl`
+  (`h-60 lg:h-80 rounded-xl border border-line bg-surface-sunken`) sin panel flotante, con una
+  sola ruta en `route-1`, etiqueta accesible propia (`regionLabel`) y la leyenda textual
+  inmediatamente debajo (visible en `< 1024 px` o si WebGL falla, `lg:sr-only` en
+  escritorio).
 
 ## Motion
 

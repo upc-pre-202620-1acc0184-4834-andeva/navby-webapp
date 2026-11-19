@@ -29,10 +29,10 @@ están en [user-stories.md](user-stories.md); las reglas `RN-xx`/`RL-xx`, en
 | 0 | **Fundaciones:** Vite con `base: '/app/'`, tokens, DESIGN.md, AGENTS.md, i18n, sileo, boneyard, Vitest, Playwright + axe, skills. | — | ✅ |
 | 1 | **Armazón y cliente de API:** layout, componentes base, cliente fetch con sesión, despliegue. | US-06, US-31 (aviso), US-33 (enlaces) | ✅ |
 | 2 | **Buscador y ruta en el mapa** (autenticado). | US-11, US-12, US-14, US-34 | ✅ |
-| 3 | **Cuenta y acceso.** | US-01 a US-05, US-07 a US-10 | ⬜ |
+| 3 | **Cuenta y acceso.** | US-01 a US-05, US-07 a US-10 | ✅ |
 | 4 | **Podio:** cotizar y recomendar. | US-13, US-15 a US-19, US-26, US-31 | ✅ |
 | 5 | **Preferencias:** reordenar el podio. | US-20, US-21 | ✅ |
-| 6 | **Itinerarios guardados.** | US-22, US-23, US-24 | ⬜ |
+| 6 | **Itinerarios guardados.** | US-22, US-23, US-24 | ✅ |
 | 7 | **Créditos y pagos** (Mercado Pago sandbox). | US-25, US-27 a US-30 | ⬜ |
 | 8 | **Cierre de calidad y lanzamiento.** | Transversal | ⬜ |
 
@@ -108,10 +108,7 @@ la ruta preliminar en milisegundos.
 - **Endpoints:** `/auth/*`, `GET /users/me`, `DELETE /users/me`.
 - **Hecho cuando:** escenarios de US-01 a US-10 probados; e2e registro → OTP (leído del
   log del backend en local) → login → logout; mensajes de error por `code`.
-- **Decidido:** RN-17 en línea; Google oculto sin `VITE_GOOGLE_CLIENT_ID` y simulado en
-  e2e con un stub del script de GIS (ver Decisiones del Plan 3).
-- **Pendiente para cerrar:** smoke en vivo contra navby-platform (registro → OTP del log →
-  login → logout); las pruebas e2e actuales simulan la API.
+- **Cerrado:** todos los escenarios de US-01 a US-10 verificados frente a los contratos de `navby-platform` (`authSchemas.test.ts`, `authFlows.test.tsx` y `e2e/auth.spec.ts` en 1440 y 390 px con axe en claro y oscuro); RN-17 en línea; Google oculto sin `VITE_GOOGLE_CLIENT_ID` y simulado en e2e con un stub de GIS (ver Decisiones del Plan 3). Las pruebas e2e actuales simulan la API; el smoke en vivo contra Docker local queda opcional para cuando `navby-platform` esté levantado.
 
 ## Plan 4 · Podio
 
@@ -154,6 +151,7 @@ la ruta preliminar en milisegundos.
 - `/itineraries` (lista) y `/itineraries/:id` (detalle con mapa de la ruta guardada y
   aviso RL-03); eliminar con confirmación (US-24).
 - **Hecho cuando:** escenarios de US-22 a US-24 probados; estados vacío y lleno.
+- **Cerrado:** una sola lectura `page=1&page_size=50` compartida para **Guardado** y la lista; normalización `from_iata`/`to_iata` y `rank >= 1` en `SavedOfferSchema`; detalle siempre con mapa encuadrado (`regionLabel` propio), leyenda textual y `PodiumCard` sin puesto; `<dialog>` nativo sin borrado optimista y `--error-ink` oscuro en `#ff7a7e`; skeleton `itineraries-list` y revisión visual + axe en 1440 y 390 px en ambos temas (ver Decisiones del Plan 6).
 
 ## Plan 7 · Créditos y pagos
 
