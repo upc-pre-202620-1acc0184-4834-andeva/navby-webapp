@@ -112,3 +112,82 @@ export const RoutePreviewResponseSchema = z.object({
 });
 
 export type RoutePreviewResponse = z.infer<typeof RoutePreviewResponseSchema>;
+
+export const SegmentSchema = z.object({
+  from: z.string(),
+  to: z.string(),
+  departure: z.string(),
+  arrival: z.string(),
+  flight_number: z.string(),
+  airline: z.string(),
+});
+
+export type Segment = z.infer<typeof SegmentSchema>;
+
+export const LegSchema = z.object({
+  direction: z.enum(['OUTBOUND', 'INBOUND']),
+  departure: z.string(),
+  arrival: z.string(),
+  duration_minutes: z.number().int(),
+  stops: z.number().int(),
+  segments: z.array(SegmentSchema).min(1),
+});
+
+export type Leg = z.infer<typeof LegSchema>;
+
+export const PodiumAirportSchema = z.object({
+  iata: z.string(),
+  lat: z.number(),
+  lon: z.number(),
+  timezone: z.string(),
+});
+
+export type PodiumAirport = z.infer<typeof PodiumAirportSchema>;
+
+export const PodiumOfferSchema = z.object({
+  rank: z.number().int().min(1).max(3),
+  offer_id: z.string(),
+  score: z.number(),
+  match_pct: z.number().int(),
+  price: z.object({ amount: z.string(), currency: z.string() }),
+  duration_minutes: z.number().int(),
+  extra_minutes_vs_t_min: z.number().int(),
+  stops: z.number().int(),
+  airlines: z.array(z.object({ iata: z.string(), name: z.string(), logo: z.string() })),
+  legs: z.array(LegSchema).min(1),
+  airports: z.array(PodiumAirportSchema),
+  deep_link: z.string(),
+});
+
+export type PodiumOffer = z.infer<typeof PodiumOfferSchema>;
+
+export const PodiumResponseSchema = z.object({
+  search_id: z.string(),
+  expires_at: z.string(),
+  credits_charged: z.number().int(),
+  credits_remaining: z.number().int(),
+  partial: z.boolean(),
+  pairs_quoted: z.array(z.object({ origin: z.string(), destination: z.string() })),
+  t_min_minutes: z.number().int(),
+  offers_received: z.number().int(),
+  pareto_size: z.number().int(),
+  preferences: z.object({
+    // Un perfil futuro del backend no rompe la respuesta: se lee como Equilibrado.
+    profile: z.enum(['BALANCED', 'SAVER', 'FAST', 'CUSTOM']).catch('BALANCED'),
+    weights: z.object({ price: z.number(), duration: z.number(), stops: z.number() }),
+  }),
+  price_disclaimer: z.string(),
+  podium: z.array(PodiumOfferSchema).max(3),
+});
+
+export type PodiumResponse = z.infer<typeof PodiumResponseSchema>;
+
+export const WalletSchema = z.object({
+  free_credits: z.number().int(),
+  paid_credits: z.number().int(),
+  total_credits: z.number().int(),
+  searches_available: z.number().int(),
+  free_credits_reset_at: z.string(),
+});
+
+export type Wallet = z.infer<typeof WalletSchema>;
