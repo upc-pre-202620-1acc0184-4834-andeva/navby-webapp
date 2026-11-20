@@ -34,7 +34,7 @@ están en [user-stories.md](user-stories.md); las reglas `RN-xx`/`RL-xx`, en
 | 5 | **Preferencias:** reordenar el podio. | US-20, US-21 | ✅ |
 | 6 | **Itinerarios guardados.** | US-22, US-23, US-24 | ✅ |
 | 7 | **Créditos y pagos** (Mercado Pago sandbox). | US-25 a US-30 | ✅ |
-| 8 | **Cierre de calidad y lanzamiento.** | Transversal | ⬜ |
+| 8 | **Cierre de calidad y lanzamiento.** | Transversal | ✅ |
 
 US-32 y US-33 (contenido) son del website; aquí solo se enlazan.
 
@@ -171,6 +171,7 @@ la ruta preliminar en milisegundos.
 - Rendimiento: división de código por ruta, peso del bundle de mapa, Lighthouse.
 - `pnpm bones` final, revisión de textos es/en y de la lista de `DESIGN.md`.
 - Release SemVer en `main` y verificación en `https://navby.andeva.tech/app`.
+- **Cerrado:** auditorías de accesibilidad, diseño web, movimiento (`review-animations`) e `impeccable detect` en 390 y 1440 px en claro y oscuro; división de código con `HomePage` lazy, `initBoneyard` diferido a las rutas con skeleton y `codeSplitting` de Vite 8 / Rolldown (`includeDependenciesRecursively: false`) sacando el mapa del arranque inicial; `document.title` dinámico por ruta, `meta description`, `scroll-margin-top`, `aria-current="page"`, `spellCheck={false}` en correo/OTP, dimensiones del isologo, `prefers-reduced-motion` preservando fundidos breves de opacidad/color, cabeceras de caché/seguridad en `vercel.json`, regeneración final de los 5 skeletons con `pnpm bones`, paridad de 417 claves es/en sin jerga y release `1.0.0` en `main` (ver Decisiones del Plan 8).
 
 ---
 
