@@ -30,14 +30,8 @@ import {
 } from '@/features/search/searchCriteria';
 import { isApiError } from '@/shared/api/errors';
 import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
-import {
-  type City,
-  type CityAirport,
-  type PodiumOffer,
-  type UserSummary,
-  type Wallet,
-} from '@/shared/api/schemas';
-import { sessionKeys } from '@/shared/auth/useSession';
+import { type City, type CityAirport, type PodiumOffer, type Wallet } from '@/shared/api/schemas';
+import { markEmailUnverified } from '@/shared/auth/useSession';
 import { usePodiumHighlight } from '@/shared/state/podiumHighlight';
 import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/ui/cn';
@@ -161,9 +155,7 @@ export function HomePage() {
         });
       } else if (error.code === 'EMAIL_NOT_VERIFIED') {
         // RequireAuth lleva a /verify-email con el estado que esa pantalla espera.
-        queryClient.setQueryData<UserSummary | null>(sessionKeys.current, (user) =>
-          user ? { ...user, email_verified: false } : user,
-        );
+        markEmailUnverified(queryClient);
       }
     },
     [locale, navigate, queryClient, t],
