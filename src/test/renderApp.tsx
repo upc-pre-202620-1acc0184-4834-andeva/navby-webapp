@@ -2,6 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 import { createMemoryRouter, type InitialEntry, RouterProvider } from 'react-router';
 import { vi } from 'vitest';
+// Precalienta la ruta principal lazy durante la carga del módulo para evitar timeouts en el primer test.
+import '@/app/HomePage';
 import { routes } from '@/app/router';
 import { bindSessionSync } from '@/shared/auth/useSession';
 import { packagesResponse, transactionsPage } from '@/test/fixtures/billing';

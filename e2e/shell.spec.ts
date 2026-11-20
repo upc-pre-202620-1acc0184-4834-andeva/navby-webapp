@@ -30,11 +30,14 @@ test.describe('Armazón de navegación, sesión y paridad /app', () => {
     const appNoSlash = await page.goto('/app');
     expect(appNoSlash?.status()).toBe(200);
     await expect(page.getByRole('heading', { level: 1, name: 'Buscador de vuelos' })).toBeVisible();
+    await expect(page).toHaveTitle('Buscar vuelos · Navby');
 
     await page.goto('/app/billing');
     await expect(
       page.getByRole('heading', { level: 1, name: 'Créditos y paquetes' }),
     ).toBeVisible();
+    await expect(page).toHaveTitle('Créditos y paquetes · Navby');
+    await expect(page.getByRole('link', { name: /Saldo/ })).toHaveAttribute('aria-current', 'page');
   });
 
   test('usuario sin sesión es redirigido a /app/login preservando layout y pasa axe en claro y oscuro', async ({
@@ -56,6 +59,7 @@ test.describe('Armazón de navegación, sesión y paridad /app', () => {
     await page.goto('/app/');
     await expect(page).toHaveURL(/\/app\/login$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Iniciar sesión' })).toBeVisible();
+    await expect(page).toHaveTitle('Iniciar sesión · Navby');
     await expect(page.getByRole('link', { name: /Saldo/ })).toBeHidden();
 
     const hasHorizontalOverflow = await page
@@ -96,6 +100,7 @@ test.describe('Armazón de navegación, sesión y paridad /app', () => {
     await page.getByRole('button', { name: 'English', exact: true }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.getByRole('heading', { level: 1, name: 'Flight search' })).toBeVisible();
+    await expect(page).toHaveTitle('Search flights · Navby');
 
     // Cerrar con Escape y verificar retorno de foco (ahora con etiqueta traducida al inglés).
     const englishTrigger = page.getByRole('button', { name: 'Account and preferences menu' });
@@ -115,5 +120,38 @@ test.describe('Armazón de navegación, sesión y paridad /app', () => {
 
     const darkEnAxe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
     expect(darkEnAxe.violations).toEqual([]);
+  });
+
+  test('ruta inexistente (404) actualiza el título y pasa axe en claro y oscuro', async ({
+    page,
+  }) => {
+    await page.route('**/api/v1/auth/refresh', (route) =>
+      route.fulfill({
+        status: 401,
+        contentType: 'application/problem+json',
+        body: JSON.stringify({
+          title: 'Sin sesión',
+          status: 401,
+          detail: 'Sesión expirada',
+          code: 'INVALID_REFRESH_TOKEN',
+        }),
+      }),
+    );
+
+    await page.goto('/app/ruta-que-no-existe');
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Página no encontrada' }),
+    ).toBeVisible();
+    await expect(page).toHaveTitle('Página no encontrada · Navby');
+
+    const overflow = await page.locator('html').evaluate((el) => el.scrollWidth > el.clientWidth);
+    expect(overflow).toBe(false);
+
+    const lightAxe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+    expect(lightAxe.violations).toEqual([]);
+
+    await page.locator('html').evaluate((el) => el.classList.add('dark'));
+    const darkAxe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+    expect(darkAxe.violations).toEqual([]);
   });
 });

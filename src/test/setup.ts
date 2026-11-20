@@ -1,8 +1,11 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach, beforeAll, vi } from 'vitest';
 import i18n from '@/app/i18n';
 import { resetApiClientForTests } from '@/shared/api/client';
+
+// Las rutas lazy con Suspense bajo workers paralelos de Vitest pueden superar los 1000 ms por defecto.
+configure({ asyncUtilTimeout: 8000 });
 
 beforeAll(async () => {
   await i18n.changeLanguage('es');

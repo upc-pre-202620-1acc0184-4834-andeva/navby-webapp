@@ -131,7 +131,8 @@ test.describe('Podio (Plan 4)', () => {
 
     await expect(page.getByText('No tienes créditos suficientes')).toBeVisible();
     // sileo despliega la descripción y la acción al pasar el cursor por el toast.
-    await page.locator('[data-sileo-toast]').hover();
+    const toast = page.locator('[data-sileo-toast]');
+    await toast.hover();
     await expect(page.getByText(/recarga gratuita a las 00:00/)).toBeVisible();
     await page.locator('[data-sileo-button]').click();
     await expect(page).toHaveURL(/\/app\/billing$/);
