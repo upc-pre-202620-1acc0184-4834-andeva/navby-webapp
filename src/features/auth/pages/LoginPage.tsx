@@ -86,7 +86,15 @@ export default function LoginPage() {
           label={t('auth.fields.email')}
           error={errors.email?.message && t(errors.email.message)}
         >
-          {(aria) => <Input {...aria} type="email" autoComplete="email" {...register('email')} />}
+          {(aria) => (
+            <Input
+              {...aria}
+              type="email"
+              autoComplete="email"
+              spellCheck={false}
+              {...register('email')}
+            />
+          )}
         </Field>
         <Field
           label={t('auth.fields.password')}

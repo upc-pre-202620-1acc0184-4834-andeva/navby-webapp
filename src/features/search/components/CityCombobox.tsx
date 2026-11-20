@@ -265,7 +265,7 @@ export function CityCombobox({
             </span>
             <ChevronDown
               className={cn(
-                'h-4 w-4 text-fg-muted transition-transform duration-150 ease-(--ease-out)',
+                'h-4 w-4 text-fg-muted transition-transform duration-150 ease-(--ease-out) motion-reduce:transition-none',
                 airportsOpen && 'rotate-180',
               )}
               aria-hidden="true"

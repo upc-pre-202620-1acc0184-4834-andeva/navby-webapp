@@ -110,9 +110,9 @@ export function AnchoredPopover({
     <div
       ref={popoverRef}
       className={cn(
-        'fixed z-20 rounded-xl border border-line bg-surface shadow-lg',
-        'scale-100 opacity-100 transition-[opacity,transform] duration-150 ease-(--ease-out)',
-        'starting:scale-[0.97] starting:opacity-0',
+        'fixed z-20 overscroll-contain rounded-xl border border-line bg-surface shadow-lg',
+        'scale-100 opacity-100 transition-[opacity,transform] duration-150 ease-(--ease-out) motion-reduce:transition-opacity',
+        'starting:scale-[0.97] starting:opacity-0 motion-reduce:starting:scale-100',
         className,
       )}
     >

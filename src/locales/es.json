@@ -163,6 +163,21 @@
     "ORDER_NOT_FOUND": "No encontramos esa orden de compra."
   },
   "routes": {
+    "titleTemplate": "{{title}} · Navby",
+    "titles": {
+      "home": "Buscar vuelos",
+      "login": "Iniciar sesión",
+      "register": "Crear cuenta",
+      "verifyEmail": "Verificar correo",
+      "forgotPassword": "Recuperar contraseña",
+      "resetPassword": "Nueva contraseña",
+      "account": "Mi cuenta",
+      "itineraries": "Itinerarios guardados",
+      "itineraryDetail": "Detalle del itinerario",
+      "billing": "Créditos y paquetes",
+      "billingResult": "Resultado del pago",
+      "notFound": "Página no encontrada"
+    },
     "notFound": {
       "title": "Página no encontrada",
       "description": "La ruta que buscas no existe o cambió de dirección."

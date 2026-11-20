@@ -145,7 +145,26 @@ export async function mockApi(page: Page, quote: (route: Route) => Promise<void>
   await page.route('**/api/v1/quotes/search', quote);
 }
 
+interface BrowserAnimation {
+  effect?: { getComputedTiming(): { iterations?: number } } | null;
+  finished: Promise<unknown>;
+}
+
+/** Espera a que terminen las transiciones CSS finitas (p. ej. cambio de tema) antes de auditar contraste. */
+export async function settleTransitions(page: Page) {
+  await page.locator('html').evaluate((el) => {
+    const doc = el.ownerDocument as unknown as { getAnimations(): BrowserAnimation[] };
+    return Promise.all(
+      doc
+        .getAnimations()
+        .filter((anim) => anim.effect?.getComputedTiming().iterations !== Infinity)
+        .map((anim) => anim.finished.catch(() => undefined)),
+    );
+  });
+}
+
 export async function expectNoAxeViolations(page: Page) {
+  await settleTransitions(page);
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(violations).toEqual([]);
 }

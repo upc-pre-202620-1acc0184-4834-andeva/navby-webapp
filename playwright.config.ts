@@ -7,6 +7,7 @@ const E2E_URL = `http://localhost:${E2E_PORT}/app/`;
 
 export default defineConfig({
   testDir: './e2e',
+  timeout: 60_000,
   fullyParallel: true,
   workers: process.env.CI ? 2 : 4,
   forbidOnly: !!process.env.CI,

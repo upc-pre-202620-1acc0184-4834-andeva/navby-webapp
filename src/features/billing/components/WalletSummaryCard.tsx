@@ -77,7 +77,7 @@ export function WalletSummaryBody({ wallet, locale }: { wallet: Wallet; locale: 
             className="h-1.5 w-full overflow-hidden rounded-full bg-line"
           >
             <div
-              className="h-full w-full origin-left rounded-full bg-primary transition-transform duration-200 ease-(--ease-out)"
+              className="h-full w-full origin-left rounded-full bg-primary transition-transform duration-200 ease-(--ease-out) motion-reduce:transition-none"
               style={{ transform: `scaleX(${freeCredits / DAILY_FREE_CREDITS_CAP})` }}
             />
           </div>

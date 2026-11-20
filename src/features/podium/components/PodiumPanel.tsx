@@ -2,6 +2,7 @@ import { Skeleton } from 'boneyard-js/react';
 import { BadgeCheck } from 'lucide-react';
 import { type ReactNode, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import '@/shared/ui/initBoneyard';
 import { isApiError } from '@/shared/api/errors';
 import { HANDLED_ELSEWHERE } from '../quoteErrors';
 import { type PodiumOffer, type PodiumResponse } from '@/shared/api/schemas';

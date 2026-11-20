@@ -4,6 +4,7 @@ import { Bookmark, Info } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
+import '@/shared/ui/initBoneyard';
 import { isApiError } from '@/shared/api/errors';
 import { type Itinerary } from '@/shared/api/schemas';
 import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
@@ -132,33 +133,35 @@ export default function ItinerariesPage() {
           transition={150}
           fallback={<ItinerariesFallback label={t('common.loading')} />}
         >
-          {items.length === 0 ? (
-            <StatusMessage
-              variant="empty"
-              icon={Bookmark}
-              title={t('itineraries.empty.title')}
-              description={t('itineraries.empty.description')}
-              action={
-                <Link to="/" className={buttonVariants({ variant: 'primary' })}>
-                  {t('itineraries.empty.action')}
-                </Link>
-              }
-            />
-          ) : (
-            <>
-              <ul aria-label={t('itineraries.listLabel')} className="flex flex-col gap-3">
-                {items.map((itinerary) => (
-                  <li key={itinerary.id}>
-                    <ItineraryRow itinerary={itinerary} locale={locale} onDelete={setToDelete} />
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-col gap-1">
-                <PriceDisclaimer />
-                <p className="pl-5.5 text-xs text-fg-muted">{t('itineraries.priceNote')}</p>
-              </div>
-            </>
-          )}
+          {data ? (
+            items.length === 0 ? (
+              <StatusMessage
+                variant="empty"
+                icon={Bookmark}
+                title={t('itineraries.empty.title')}
+                description={t('itineraries.empty.description')}
+                action={
+                  <Link to="/" className={buttonVariants({ variant: 'primary' })}>
+                    {t('itineraries.empty.action')}
+                  </Link>
+                }
+              />
+            ) : (
+              <>
+                <ul aria-label={t('itineraries.listLabel')} className="flex flex-col gap-3">
+                  {items.map((itinerary) => (
+                    <li key={itinerary.id}>
+                      <ItineraryRow itinerary={itinerary} locale={locale} onDelete={setToDelete} />
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex flex-col gap-1">
+                  <PriceDisclaimer />
+                  <p className="pl-5.5 text-xs text-fg-muted">{t('itineraries.priceNote')}</p>
+                </div>
+              </>
+            )
+          ) : null}
         </Skeleton>
       )}
 

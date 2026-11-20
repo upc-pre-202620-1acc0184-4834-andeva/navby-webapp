@@ -38,13 +38,7 @@
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-@font-face {
-  font-family: 'Raptor V3';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('../assets/fonts/RaptorV3-Bold.woff2') format('woff2');
-}
+/* Nota: el isologo usa los SVG de src/assets/brand/; Raptor V3 no se carga como fuente web. */
 
 /* =============================================================================
    2. Tokens de rol por tema (valores crudos; @theme inline los expone como utilidades)
@@ -173,6 +167,21 @@
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
+    scroll-margin-top: 5rem;
+    scroll-margin-bottom: 1.5rem;
+  }
+
+  :target {
+    scroll-margin-top: 5rem;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  summary,
+  [role='button'] {
+    touch-action: manipulation;
   }
 
   h1,
@@ -194,17 +203,6 @@
   --sileo-state-info: var(--fg);
   --sileo-state-loading: var(--fg-muted);
   --sileo-state-action: var(--brand-ink);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 }
 
 /* Calendario react-day-picker v10 con tokens y curva de DESIGN.md */
@@ -384,6 +382,7 @@
 
 /* Diálogo de confirmación (<dialog> nativo): 200 ms ease-out, opacidad + escala ligera (DESIGN.md §Motion). */
 .navby-dialog {
+  overscroll-behavior: contain;
   opacity: 0;
   transform: scale(0.97);
   transition:
@@ -419,5 +418,36 @@
 
   .navby-dialog[open]::backdrop {
     opacity: 0;
+  }
+}
+
+/* Movimiento reducido: suprime movimiento espacial, pulsos y escalados conservando fundidos breves de opacidad y color. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .navby-preview-pulse,
+  .animate-pulse {
+    animation: none !important;
+  }
+
+  .navby-calendar.rdp-root {
+    --rdp-animation_duration: 0ms;
+  }
+
+  .navby-dialog {
+    transform: none;
+    transition:
+      opacity 150ms var(--ease-out),
+      overlay 150ms allow-discrete,
+      display 150ms allow-discrete;
+  }
+
+  @starting-style {
+    .navby-dialog[open] {
+      opacity: 0;
+      transform: none;
+    }
   }
 }
