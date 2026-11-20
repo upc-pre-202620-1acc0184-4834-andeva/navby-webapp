@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { resetPassword } from '@/shared/api/endpoints';
@@ -11,7 +11,9 @@ import { Button } from '@/shared/ui/Button';
 import { buttonVariants } from '@/shared/ui/buttonVariants';
 import { Field } from '@/shared/ui/Field';
 import { type ResetPasswordValues, resetPasswordSchema } from '../authSchemas';
-import { AUTH_LINK_CLASS, AuthCard, FormNotice } from '../components/AuthCard';
+import { AUTH_LINK_CLASS, FormNotice } from '../components/AuthCard';
+import { AuthLayout } from '../components/AuthLayout';
+import { PasswordChecklist } from '../components/PasswordChecklist';
 import { PasswordInput } from '../components/PasswordInput';
 
 /**
@@ -27,6 +29,7 @@ export default function ResetPasswordPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<ResetPasswordValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -34,6 +37,8 @@ export default function ResetPasswordPage() {
     reValidateMode: 'onBlur',
     defaultValues: { new_password: '' },
   });
+
+  const newPasswordValue = useWatch({ control, name: 'new_password', defaultValue: '' });
 
   const mutation = useMutation({
     mutationFn: (values: ResetPasswordValues) => resetPassword({ token, ...values }),
@@ -59,47 +64,48 @@ export default function ResetPasswordPage() {
 
   if (mutation.isSuccess) {
     return (
-      <AuthCard title={t('auth.reset.title')}>
+      <AuthLayout variant="recovery" title={t('auth.reset.title')}>
         <FormNotice tone="info">{t('auth.reset.done')}</FormNotice>
         <Link to="/login" className={buttonVariants({ className: 'w-full' })}>
           {t('auth.reset.goLogin')}
         </Link>
-      </AuthCard>
+      </AuthLayout>
     );
   }
 
   if (tokenInvalid) {
     return (
-      <AuthCard title={t('auth.reset.title')} footer={backToLogin}>
+      <AuthLayout variant="recovery" title={t('auth.reset.title')} headerAction={backToLogin}>
         <FormNotice>{t('errors.INVALID_RESET_TOKEN')}</FormNotice>
         <Link to="/forgot-password" className={buttonVariants({ className: 'w-full' })}>
           {t('auth.reset.requestNew')}
         </Link>
-      </AuthCard>
+      </AuthLayout>
     );
   }
 
   return (
-    <AuthCard
+    <AuthLayout
+      variant="recovery"
       title={t('auth.reset.title')}
       subtitle={t('auth.reset.subtitle')}
-      footer={backToLogin}
+      headerAction={backToLogin}
     >
       <form noValidate onSubmit={(e) => void onSubmit(e)} className="flex flex-col gap-4">
         <Field
           label={t('auth.fields.newPassword')}
-          hint={t('auth.fields.passwordHint')}
           error={errors.new_password?.message && t(errors.new_password.message)}
         >
           {(aria) => (
             <PasswordInput {...aria} autoComplete="new-password" {...register('new_password')} />
           )}
         </Field>
+        <PasswordChecklist value={newPasswordValue} />
         {formError ? <FormNotice>{formError}</FormNotice> : null}
         <Button type="submit" loading={mutation.isPending} className="w-full">
           {t('auth.reset.submit')}
         </Button>
       </form>
-    </AuthCard>
+    </AuthLayout>
   );
 }

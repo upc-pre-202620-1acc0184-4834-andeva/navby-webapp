@@ -134,7 +134,10 @@
     "copyright": "© 2026 Andeva. Todos los derechos reservados."
   },
   "legal": {
-    "priceDisclaimer": "Precio referencial obtenido de terceros; se confirma en el sitio del vendedor."
+    "terms": "Términos y condiciones",
+    "privacy": "Política de privacidad",
+    "termsShort": "Términos",
+    "privacyShort": "Privacidad"
   },
   "errors": {
     "UNAUTHENTICATED": "Inicia sesión para continuar.",
@@ -224,7 +227,8 @@
       "hasAccount": "¿Ya tienes cuenta?",
       "toLogin": "Inicia sesión",
       "goLogin": "Ir a iniciar sesión",
-      "goVerify": "Verificar mi correo"
+      "goVerify": "Verificar mi correo",
+      "termsRich": "Acepto los <terms>Términos y condiciones</terms> y la <privacy>Política de privacidad</privacy> de Navby."
     },
     "verify": {
       "title": "Verifica tu correo",
@@ -251,10 +255,70 @@
       "requestNew": "Pedir un enlace nuevo"
     },
     "google": {
-      "divider": "o",
+      "divider": "o con tu correo",
       "consent": "Al continuar con Google aceptas los Términos y condiciones y la Política de privacidad de Navby.",
-      "loadFailed": "No pudimos cargar el acceso con Google."
-    }
+      "loadFailed": "No pudimos cargar el acceso con Google.",
+      "consentRich": "Al continuar con Google aceptas los <terms>Términos y condiciones</terms> y la <privacy>Política de privacidad</privacy> de Navby.",
+      "continue": "Continuar con Google"
+    },
+    "passwordRules": {
+      "title": "Requisitos de contraseña",
+      "length": "Entre 8 y 72 caracteres",
+      "letter": "Al menos una letra",
+      "number": "Al menos un número"
+    },
+    "showcase": {
+      "brandTagline": "Navby · Buscador de vuelos de Andeva",
+      "login": {
+        "headline": "Planea tu próximo vuelo",
+        "description": "Vuelve a tu mapa, revisa tus créditos diarios y retoma tus itinerarios guardados.",
+        "previewRoute": "Lima → Tokio",
+        "previewMeta": "Ida y vuelta · 1 pasajero · Podio listo",
+        "top1Badge": "Top 1 · Mejor balance",
+        "top1Price": "$940",
+        "top1Details": "22 h 15 m · 1 escala · Aeroméxico",
+        "top2Badge": "Top 2 · Más rápido",
+        "top2Price": "$1,180",
+        "top2Details": "19 h 40 m · 1 escala",
+        "top3Badge": "Top 3 · Menor precio",
+        "top3Price": "$875",
+        "top3Details": "26 h 10 m · 2 escalas"
+      },
+      "register": {
+        "headline": "Elige tu vuelo ideal sin abrir veinte pestañas.",
+        "description": "Compara precio, duración y escalas en un solo podio.",
+        "features": [
+          {
+            "title": "Podio de 3 recomendaciones",
+            "detail": "Ordenamos los mejores vuelos por puntaje real, sin listas interminables."
+          },
+          {
+            "title": "10 créditos gratis cada día",
+            "detail": "Busca rutas al instante y recarga cuando necesites más."
+          },
+          {
+            "title": "Mapa interactivo de rutas",
+            "detail": "Visualiza trayectos y escalas directamente sobre el mapa."
+          },
+          {
+            "title": "Itinerarios y compra directa",
+            "detail": "Guarda tus opciones favoritas y compra directo en la aerolínea."
+          }
+        ],
+        "whatsIncluded": "Ver qué incluye"
+      },
+      "verify": {
+        "headline": "Un paso rápido antes de despegar.",
+        "description": "Confirmamos tu correo para proteger tu cuenta y activar tus 10 créditos diarios.",
+        "badge": "Código de 6 dígitos · Válido por 10 min"
+      },
+      "recovery": {
+        "headline": "Recupera el acceso a tu cuenta.",
+        "description": "Te enviamos un enlace seguro de un solo uso para definir una contraseña nueva.",
+        "badge": "Enlace seguro · Cierra sesiones anteriores"
+      }
+    },
+    "lastUsed": "Último usado"
   },
   "account": {
     "title": "Mi cuenta",

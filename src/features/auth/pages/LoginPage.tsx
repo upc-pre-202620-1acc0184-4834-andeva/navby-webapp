@@ -13,9 +13,11 @@ import { Field } from '@/shared/ui/Field';
 import { Input } from '@/shared/ui/Input';
 import { TurnstileField } from '@/shared/ui/TurnstileField';
 import { type LoginValues, loginSchema } from '../authSchemas';
-import { AUTH_LINK_CLASS, AuthCard, FormNotice } from '../components/AuthCard';
+import { AUTH_LINK_CLASS, FormNotice } from '../components/AuthCard';
+import { AuthLayout } from '../components/AuthLayout';
 import { GoogleSignIn } from '../components/GoogleSignIn';
 import { PasswordInput } from '../components/PasswordInput';
+import { getLastAuthMethod, setLastAuthMethod } from '../lastAuthMethod';
 import { useCaptcha } from '../useCaptcha';
 
 /** /login (US-04, US-05). Al abrir sesión, RedirectIfAuthenticated vuelve a `from`. */
@@ -43,6 +45,7 @@ export default function LoginPage() {
 
   const mutation = useMutation({
     mutationFn: (values: LoginValues) => login(values, captcha.token),
+    onSuccess: () => setLastAuthMethod('password'),
     onError: (error, values) => {
       captcha.renew();
       if (isApiError(error) && error.code === 'EMAIL_NOT_VERIFIED') {
@@ -68,19 +71,34 @@ export default function LoginPage() {
     mutation.mutate(values);
   });
 
+  const preloadRegister = () => {
+    void import('./RegisterPage');
+  };
+
+  const switchToRegister = (
+    <>
+      {t('auth.login.noAccount')}{' '}
+      <Link
+        to="/register"
+        state={linkState}
+        onPointerEnter={preloadRegister}
+        onFocus={preloadRegister}
+        className={AUTH_LINK_CLASS}
+      >
+        {t('auth.login.toRegister')}
+      </Link>
+    </>
+  );
+
   return (
-    <AuthCard
+    <AuthLayout
+      variant="login"
       title={t('auth.login.title')}
       subtitle={t('auth.login.subtitle')}
-      footer={
-        <>
-          {t('auth.login.noAccount')}{' '}
-          <Link to="/register" state={linkState} className={AUTH_LINK_CLASS}>
-            {t('auth.login.toRegister')}
-          </Link>
-        </>
-      }
+      headerAction={switchToRegister}
     >
+      <GoogleSignIn />
+
       <form noValidate onSubmit={(e) => void onSubmit(e)} className="flex flex-col gap-4">
         <Field
           label={t('auth.fields.email')}
@@ -96,6 +114,7 @@ export default function LoginPage() {
             />
           )}
         </Field>
+
         <Field
           label={t('auth.fields.password')}
           error={errors.password?.message && t(errors.password.message)}
@@ -104,10 +123,11 @@ export default function LoginPage() {
             <PasswordInput {...aria} autoComplete="current-password" {...register('password')} />
           )}
         </Field>
+
         <Link
           to="/forgot-password"
           state={linkState}
-          className={`${AUTH_LINK_CLASS} -mt-1 self-start text-sm`}
+          className={`${AUTH_LINK_CLASS} -mt-1 self-end text-xs sm:text-sm`}
         >
           {t('auth.login.forgot')}
         </Link>
@@ -118,12 +138,17 @@ export default function LoginPage() {
           action="login"
         />
         {formError ? <FormNotice>{formError}</FormNotice> : null}
-        <Button type="submit" loading={mutation.isPending} className="w-full">
-          {t('auth.login.submit')}
-        </Button>
+        <div className="relative">
+          {getLastAuthMethod() === 'password' ? (
+            <span className="pointer-events-none absolute -top-2.5 right-2 z-10 rounded-full border border-line bg-primary-soft px-2 py-0.5 text-[10px] font-semibold text-primary-dark shadow-xs dark:bg-primary/25 dark:text-brand-ink">
+              {t('auth.lastUsed')}
+            </span>
+          ) : null}
+          <Button type="submit" loading={mutation.isPending} className="w-full">
+            {t('auth.login.submit')}
+          </Button>
+        </div>
       </form>
-
-      <GoogleSignIn />
-    </AuthCard>
+    </AuthLayout>
   );
 }

@@ -13,7 +13,9 @@ import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { Input } from '@/shared/ui/Input';
 import { type VerifyEmailInput, type VerifyEmailValues, verifyEmailSchema } from '../authSchemas';
-import { AUTH_LINK_CLASS, AuthCard, FormNotice } from '../components/AuthCard';
+import { AUTH_LINK_CLASS, FormNotice } from '../components/AuthCard';
+import { AuthLayout } from '../components/AuthLayout';
+import { setLastAuthMethod } from '../lastAuthMethod';
 
 const RESEND_COOLDOWN_S = 60;
 
@@ -57,6 +59,7 @@ export default function VerifyEmailPage() {
 
   const verify = useMutation({
     mutationFn: verifyEmail,
+    onSuccess: () => setLastAuthMethod('password'),
     onError: (error) => {
       const code = isApiError(error) ? error.code : null;
       if (code === 'INVALID_OTP' || code === 'OTP_ATTEMPTS_EXCEEDED') {
@@ -91,15 +94,18 @@ export default function VerifyEmailPage() {
     resend.mutate({ email: verifyEmailSchema.shape.email.parse(getValues('email')) });
   };
 
+  const backToLogin = (
+    <Link to="/login" state={linkState} className={AUTH_LINK_CLASS}>
+      {t('auth.backToLogin')}
+    </Link>
+  );
+
   return (
-    <AuthCard
+    <AuthLayout
+      variant="verify"
       title={t('auth.verify.title')}
       subtitle={t('auth.verify.subtitle')}
-      footer={
-        <Link to="/login" state={linkState} className={AUTH_LINK_CLASS}>
-          {t('auth.backToLogin')}
-        </Link>
-      }
+      headerAction={backToLogin}
     >
       {state?.reason ? (
         <FormNotice tone="info">
@@ -155,6 +161,6 @@ export default function VerifyEmailPage() {
             : t('auth.verify.resend')}
         </Button>
       </form>
-    </AuthCard>
+    </AuthLayout>
   );
 }

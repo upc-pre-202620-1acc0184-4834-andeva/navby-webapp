@@ -24,6 +24,7 @@ import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
 import { useLogout, useSession } from '@/shared/auth/useSession';
 import { buttonVariants } from '@/shared/ui/buttonVariants';
 import { cn } from '@/shared/ui/cn';
+import { LegalLinksRow } from '@/shared/ui/LegalLinks';
 import { useTheme } from '@/shared/ui/theme';
 
 const MENU_ITEM_CLASS =
@@ -371,6 +372,11 @@ export function TopBar() {
                       {t('nav.langEn')}
                     </button>
                   </div>
+                </div>
+
+                <div className="border-t border-line pt-2.5">
+                  <LegalLinksRow showCopyright={false} />
+                  <p className="mt-1 text-[11px] text-fg-muted">{t('footer.copyright')}</p>
                 </div>
               </div>
             </div>

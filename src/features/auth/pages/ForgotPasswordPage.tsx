@@ -12,7 +12,8 @@ import { Field } from '@/shared/ui/Field';
 import { Input } from '@/shared/ui/Input';
 import { TurnstileField } from '@/shared/ui/TurnstileField';
 import { type ForgotPasswordValues, forgotPasswordSchema } from '../authSchemas';
-import { AUTH_LINK_CLASS, AuthCard, FormNotice } from '../components/AuthCard';
+import { AUTH_LINK_CLASS, FormNotice } from '../components/AuthCard';
+import { AuthLayout } from '../components/AuthLayout';
 import { useCaptcha } from '../useCaptcha';
 
 /** /forgot-password (US-08). La respuesta es la misma exista o no el correo. */
@@ -54,15 +55,18 @@ export default function ForgotPasswordPage() {
     mutation.mutate(values);
   });
 
+  const backToLogin = (
+    <Link to="/login" state={linkState} className={AUTH_LINK_CLASS}>
+      {t('auth.backToLogin')}
+    </Link>
+  );
+
   return (
-    <AuthCard
+    <AuthLayout
+      variant="recovery"
       title={t('auth.forgot.title')}
       subtitle={t('auth.forgot.subtitle')}
-      footer={
-        <Link to="/login" state={linkState} className={AUTH_LINK_CLASS}>
-          {t('auth.backToLogin')}
-        </Link>
-      }
+      headerAction={backToLogin}
     >
       {mutation.isSuccess ? (
         <FormNotice tone="info">{t('auth.forgot.sent')}</FormNotice>
@@ -93,6 +97,6 @@ export default function ForgotPasswordPage() {
           </Button>
         </form>
       )}
-    </AuthCard>
+    </AuthLayout>
   );
 }
