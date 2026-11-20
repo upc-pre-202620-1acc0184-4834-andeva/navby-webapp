@@ -163,6 +163,21 @@
     "ORDER_NOT_FOUND": "We couldn't find that purchase order."
   },
   "routes": {
+    "titleTemplate": "{{title}} · Navby",
+    "titles": {
+      "home": "Search flights",
+      "login": "Sign in",
+      "register": "Create account",
+      "verifyEmail": "Verify email",
+      "forgotPassword": "Forgot password",
+      "resetPassword": "New password",
+      "account": "My account",
+      "itineraries": "Saved itineraries",
+      "itineraryDetail": "Itinerary details",
+      "billing": "Credits & packs",
+      "billingResult": "Payment status",
+      "notFound": "Page not found"
+    },
     "notFound": {
       "title": "Page not found",
       "description": "The page you are looking for does not exist or moved."

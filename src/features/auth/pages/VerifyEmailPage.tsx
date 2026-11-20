@@ -112,7 +112,15 @@ export default function VerifyEmailPage() {
           label={t('auth.fields.email')}
           error={errors.email?.message && t(errors.email.message)}
         >
-          {(aria) => <Input {...aria} type="email" autoComplete="email" {...register('email')} />}
+          {(aria) => (
+            <Input
+              {...aria}
+              type="email"
+              autoComplete="email"
+              spellCheck={false}
+              {...register('email')}
+            />
+          )}
         </Field>
         <Field
           label={t('auth.fields.code')}
@@ -124,6 +132,7 @@ export default function VerifyEmailPage() {
               {...aria}
               inputMode="numeric"
               autoComplete="one-time-code"
+              spellCheck={false}
               className="tracking-[0.3em] tabular-nums"
               {...register('code')}
             />

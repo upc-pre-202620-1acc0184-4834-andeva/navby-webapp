@@ -5,22 +5,33 @@ import { Outlet, useMatches } from 'react-router';
 import { cn } from '@/shared/ui/cn';
 import { Footer } from './Footer';
 import { TopBar } from './TopBar';
+import { useDocumentTitle } from './useDocumentTitle';
 
 export type LayoutMode = 'default' | 'contained' | 'auth' | 'map';
 
 export interface RouteLayoutHandle {
   layout?: LayoutMode;
+  titleKey?: string;
 }
 
 export function AppLayout() {
   const { t } = useTranslation();
   const matches = useMatches();
 
+  const reversedHandles = [...matches]
+    .reverse()
+    .map((match) => match.handle as RouteLayoutHandle | undefined);
+
   const layout: LayoutMode =
-    [...matches]
-      .reverse()
-      .map((match) => (match.handle as RouteLayoutHandle | undefined)?.layout)
+    reversedHandles
+      .map((handle) => handle?.layout)
       .find((value): value is LayoutMode => value !== undefined) ?? 'default';
+
+  const titleKey = reversedHandles
+    .map((handle) => handle?.titleKey)
+    .find((value): value is string => value !== undefined);
+
+  useDocumentTitle(titleKey);
 
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-fg">
