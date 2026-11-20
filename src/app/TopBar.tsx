@@ -107,18 +107,23 @@ export function TopBar() {
         <Link
           to="/"
           aria-label={t('nav.homeAria')}
+          aria-current={location.pathname === '/' ? 'page' : undefined}
           className="inline-flex min-h-11 items-center rounded-lg py-1"
         >
           <img
             src={isologoPurple}
             alt=""
             aria-hidden="true"
+            width={1295}
+            height={580}
             className="h-7 w-auto sm:h-8 dark:hidden"
           />
           <img
             src={isologoWhite}
             alt=""
             aria-hidden="true"
+            width={1295}
+            height={580}
             className="hidden h-7 w-auto sm:h-8 dark:block"
           />
         </Link>
@@ -128,6 +133,7 @@ export function TopBar() {
             <Link
               to="/billing"
               aria-label={walletLabel}
+              aria-current={location.pathname === '/billing' ? 'page' : undefined}
               title={walletLabel}
               className={cn(
                 buttonVariants({ variant: 'secondary', size: 'md' }),
@@ -176,7 +182,7 @@ export function TopBar() {
               )}
               <ChevronDown
                 className={cn(
-                  'h-4 w-4 text-fg-muted transition-transform duration-150 ease-(--ease-out)',
+                  'h-4 w-4 text-fg-muted transition-transform duration-150 ease-(--ease-out) motion-reduce:transition-none',
                   isOpen && 'rotate-180',
                 )}
                 aria-hidden="true"
@@ -188,11 +194,11 @@ export function TopBar() {
               inert={!isOpen ? true : undefined}
               aria-hidden={!isOpen}
               className={cn(
-                'absolute top-[calc(100%+8px)] right-0 z-40 w-72 origin-top-right rounded-xl border border-line bg-surface p-2 shadow-lg',
-                'transition-[opacity,transform,visibility] ease-(--ease-out)',
+                'absolute top-[calc(100%+8px)] right-0 z-40 w-72 origin-top-right overscroll-contain rounded-xl border border-line bg-surface p-2 shadow-lg',
+                'transition-[opacity,transform,visibility] ease-(--ease-out) motion-reduce:transition-[opacity,visibility]',
                 isOpen
                   ? 'visible scale-100 opacity-100 duration-150'
-                  : 'pointer-events-none invisible scale-95 opacity-0 duration-125',
+                  : 'pointer-events-none invisible scale-95 opacity-0 duration-125 motion-reduce:scale-100',
               )}
             >
               {isAuthenticated && user ? (
@@ -207,6 +213,12 @@ export function TopBar() {
                   <>
                     <Link
                       to="/itineraries"
+                      aria-current={
+                        location.pathname === '/itineraries' ||
+                        location.pathname.startsWith('/itineraries/')
+                          ? 'page'
+                          : undefined
+                      }
                       className={MENU_ITEM_CLASS}
                       onClick={() => setIsOpen(false)}
                     >
@@ -215,6 +227,12 @@ export function TopBar() {
                     </Link>
                     <Link
                       to="/billing"
+                      aria-current={
+                        location.pathname === '/billing' ||
+                        location.pathname.startsWith('/billing/')
+                          ? 'page'
+                          : undefined
+                      }
                       className={MENU_ITEM_CLASS}
                       onClick={() => setIsOpen(false)}
                     >
@@ -223,6 +241,7 @@ export function TopBar() {
                     </Link>
                     <Link
                       to="/account"
+                      aria-current={location.pathname === '/account' ? 'page' : undefined}
                       className={MENU_ITEM_CLASS}
                       onClick={() => setIsOpen(false)}
                     >
@@ -253,6 +272,7 @@ export function TopBar() {
                   <>
                     <Link
                       to="/login"
+                      aria-current={location.pathname === '/login' ? 'page' : undefined}
                       state={redirectFrom ? { from: redirectFrom } : undefined}
                       className={MENU_ITEM_CLASS}
                       onClick={() => setIsOpen(false)}
@@ -262,6 +282,7 @@ export function TopBar() {
                     </Link>
                     <Link
                       to="/register"
+                      aria-current={location.pathname === '/register' ? 'page' : undefined}
                       state={redirectFrom ? { from: redirectFrom } : undefined}
                       className={MENU_ITEM_CLASS}
                       onClick={() => setIsOpen(false)}

@@ -6,6 +6,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { bindSessionSync } from '@/shared/auth/useSession';
 import { THEME_STORAGE_KEY } from '@/shared/ui/theme';
 import { wallet } from '@/test/fixtures/podium';
+// Precalienta HomePage y LoginPage lazy antes de los tests de AppLayout.
+import './HomePage';
+import '@/features/auth/pages/LoginPage';
 import { routes } from './router';
 
 vi.mock('@/features/map/components/RouteMap', () => ({

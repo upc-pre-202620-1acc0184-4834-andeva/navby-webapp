@@ -2,12 +2,12 @@ import { lazy } from 'react';
 import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RedirectIfAuthenticated, RequireAuth } from '@/shared/auth/RouteGuards';
 import { AppLayout, type RouteLayoutHandle } from './AppLayout';
-import { HomePage } from './HomePage';
 import {
   AccountPage,
   BillingPage,
   BillingResultPage,
   ForgotPasswordPage,
+  HomePage,
   ItinerariesPage,
   ItineraryDetailPage,
   LoginPage,
@@ -37,32 +37,47 @@ export const routes: RouteObject[] = [
         children: [
           {
             index: true,
-            handle: { layout: 'map' } satisfies RouteLayoutHandle,
+            handle: { layout: 'map', titleKey: 'routes.titles.home' } satisfies RouteLayoutHandle,
             element: <HomePage />,
           },
           {
             path: 'itineraries',
-            handle: { layout: 'contained' } satisfies RouteLayoutHandle,
+            handle: {
+              layout: 'contained',
+              titleKey: 'routes.titles.itineraries',
+            } satisfies RouteLayoutHandle,
             element: <ItinerariesPage />,
           },
           {
             path: 'itineraries/:id',
-            handle: { layout: 'contained' } satisfies RouteLayoutHandle,
+            handle: {
+              layout: 'contained',
+              titleKey: 'routes.titles.itineraryDetail',
+            } satisfies RouteLayoutHandle,
             element: <ItineraryDetailPage />,
           },
           {
             path: 'billing',
-            handle: { layout: 'contained' } satisfies RouteLayoutHandle,
+            handle: {
+              layout: 'contained',
+              titleKey: 'routes.titles.billing',
+            } satisfies RouteLayoutHandle,
             element: <BillingPage />,
           },
           {
             path: 'billing/result',
-            handle: { layout: 'contained' } satisfies RouteLayoutHandle,
+            handle: {
+              layout: 'contained',
+              titleKey: 'routes.titles.billingResult',
+            } satisfies RouteLayoutHandle,
             element: <BillingResultPage />,
           },
           {
             path: 'account',
-            handle: { layout: 'contained' } satisfies RouteLayoutHandle,
+            handle: {
+              layout: 'contained',
+              titleKey: 'routes.titles.account',
+            } satisfies RouteLayoutHandle,
             element: <AccountPage />,
           },
         ],
@@ -72,22 +87,31 @@ export const routes: RouteObject[] = [
         children: [
           {
             path: 'login',
-            handle: { layout: 'auth' } satisfies RouteLayoutHandle,
+            handle: { layout: 'auth', titleKey: 'routes.titles.login' } satisfies RouteLayoutHandle,
             element: <LoginPage />,
           },
           {
             path: 'register',
-            handle: { layout: 'auth' } satisfies RouteLayoutHandle,
+            handle: {
+              layout: 'auth',
+              titleKey: 'routes.titles.register',
+            } satisfies RouteLayoutHandle,
             element: <RegisterPage />,
           },
           {
             path: 'verify-email',
-            handle: { layout: 'auth' } satisfies RouteLayoutHandle,
+            handle: {
+              layout: 'auth',
+              titleKey: 'routes.titles.verifyEmail',
+            } satisfies RouteLayoutHandle,
             element: <VerifyEmailPage />,
           },
           {
             path: 'forgot-password',
-            handle: { layout: 'auth' } satisfies RouteLayoutHandle,
+            handle: {
+              layout: 'auth',
+              titleKey: 'routes.titles.forgotPassword',
+            } satisfies RouteLayoutHandle,
             element: <ForgotPasswordPage />,
           },
         ],
@@ -103,11 +127,15 @@ export const routes: RouteObject[] = [
         : []),
       {
         path: 'reset-password',
-        handle: { layout: 'auth' } satisfies RouteLayoutHandle,
+        handle: {
+          layout: 'auth',
+          titleKey: 'routes.titles.resetPassword',
+        } satisfies RouteLayoutHandle,
         element: <ResetPasswordPage />,
       },
       {
         path: '*',
+        handle: { titleKey: 'routes.titles.notFound' } satisfies RouteLayoutHandle,
         element: (
           <RoutePlaceholderPage
             titleKey="routes.notFound.title"

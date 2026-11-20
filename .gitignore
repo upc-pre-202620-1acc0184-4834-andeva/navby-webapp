@@ -24,10 +24,12 @@ Thumbs.db
 desktop.ini
 *.log
 .vscode/
+.cursor/
 
 # Agentes (las skills se restauran con `pnpm dlx skills experimental_install`)
-.agents/
+.agents/*
 .claude/*
 !.claude/settings.json
 !.claude/launch.json
+!.agents/launch.json
 .codegraph/

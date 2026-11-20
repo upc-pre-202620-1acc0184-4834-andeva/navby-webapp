@@ -4,7 +4,7 @@ export type ButtonVariant = 'primary' | 'buy' | 'secondary' | 'ghost' | 'danger'
 export type ButtonSize = 'md' | 'icon';
 
 const BASE_CLASSES =
-  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap select-none rounded-lg font-semibold text-sm transition-[transform,background-color,border-color,color,opacity] duration-150 ease-(--ease-out) active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100';
+  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap select-none rounded-lg font-semibold text-sm transition-[transform,background-color,border-color,color,opacity] duration-150 ease-(--ease-out) active:scale-[0.97] motion-reduce:active:scale-100 disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100';
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-white hover:bg-primary-dark',

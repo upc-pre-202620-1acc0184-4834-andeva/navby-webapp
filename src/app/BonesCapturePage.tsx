@@ -1,6 +1,7 @@
 import { Skeleton } from 'boneyard-js/react';
 import { Bookmark } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import '@/shared/ui/initBoneyard';
 import { PackagesBody, PackagesSection } from '@/features/billing/components/PackagesSection';
 import {
   TransactionsBody,

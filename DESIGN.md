@@ -400,8 +400,9 @@ Basado en `emil-design-eng`, `apple-design` y `animate`. El movimiento en la web
   desvanece (200 ms) cuando llega el podio y los 3 arcos aparecen escalonados 60 ms.
 - **Acciones frecuentes** (cambiar perfil, resaltar tarjeta) no animan más que color y
   opacidad.
-- `prefers-reduced-motion`: sin vuelo de cámara, sin pulsos ni escalados; solo cambios de
-  opacidad instantáneos (ya forzado en `global.css`).
+- `prefers-reduced-motion`: sin vuelo de cámara, sin pulsos ni escalados; conserva
+  transiciones breves de opacidad y color (≤ 150 ms) para preservar la claridad de estado
+  (configurado en `global.css` y utilidades `motion-reduce:`).
 
 ## Iconos, marca y voz
 

@@ -102,7 +102,15 @@ export default function RegisterPage() {
           label={t('auth.fields.email')}
           error={errors.email?.message && t(errors.email.message)}
         >
-          {(aria) => <Input {...aria} type="email" autoComplete="email" {...register('email')} />}
+          {(aria) => (
+            <Input
+              {...aria}
+              type="email"
+              autoComplete="email"
+              spellCheck={false}
+              {...register('email')}
+            />
+          )}
         </Field>
         {alreadyRegistered ? (
           <p className="-mt-2 text-sm text-fg-muted">
