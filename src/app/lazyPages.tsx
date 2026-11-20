@@ -1,5 +1,8 @@
 import { lazy } from 'react';
 
+// Plan 8: la pantalla principal también es lazy para que /login y las rutas de acceso no bajen
+// el buscador, el calendario ni el podio en el chunk inicial.
+export const HomePage = lazy(() => import('./HomePage').then((m) => ({ default: m.HomePage })));
 // Plan 3: cada pantalla de acceso y cuenta es un chunk aparte (AppLayout pone el Suspense).
 export const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
 export const RegisterPage = lazy(() => import('@/features/auth/pages/RegisterPage'));

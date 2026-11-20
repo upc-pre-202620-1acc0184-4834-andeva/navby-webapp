@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
+import '@/shared/ui/initBoneyard';
 import { type Wallet } from '@/shared/api/schemas';
 import { useSession } from '@/shared/auth/useSession';
 import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
