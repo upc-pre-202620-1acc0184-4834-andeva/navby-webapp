@@ -241,13 +241,29 @@ Para texto, siempre el `*-ink` del tema. Nunca el color como única señal: acom
   flujo normal de la página. Sin hojas
   arrastrables ni gestos nativos.
 - Pantallas de cuenta, itinerarios y billing: columna centrada `max-w-3xl`, sin mapa.
-- Acceso (login, registro, verificación, recuperación): tarjeta centrada `max-w-sm`.
+- **Acceso (login, registro, verificación, recuperación):** pantalla dividida (`AuthLayout`,
+  sin `TopBar` ni pie global).
+  - **Escritorio (≥ 1024 px):** dos columnas `min-h-dvh`. A la izquierda, tarjeta redondeada
+    (`rounded-3xl`, estilo Quina) con margen exterior:
+    - En `/login`, `/forgot-password` y `/reset-password`: globo interactivo `RouteGlobe`
+      (tema claro papel / tema oscuro nocturno) con rutas ortodrómicas desde Lima, destello
+      en píxeles y tarjeta flotante de vista previa del podio.
+    - En `/register` y `/verify-email`: fondo atmosférico oscuro (`#12101B`) con bloque
+      superior de beneficios y escenario inferior despejado para los elementos 3D con
+      animación suave de ondeo.
+      A la derecha, columna limpia (`max-w-[400px]` centrado) con controles compactos de
+      tema/idioma, enlace de cambio de ruta, acceso con Google arriba del divisor, formulario y
+      fila legal discreta al pie.
+  - **Pantallas angostas (< 1024 px):** sin panel lateral; cabecera compacta con isologo y
+    controles de tema/idioma, seguida directamente del formulario por encima del pliegue y
+    enlaces legales al pie.
 - Espaciado con la escala de Tailwind: `gap-2` dentro de un control, `gap-3` entre
   controles, `gap-4`/`p-4` en tarjetas, `gap-6` entre secciones. Gutter lateral 16 px en
   móvil.
 - Usa `min-h-dvh`, nunca `100vh`.
-- Cuando navby-website publique Términos y Política de Privacidad, el pie los enlazará
-  (`VITE_WEBSITE_URL`). Hoy solo muestra el copyright.
+- **Sin `Footer` global:** los enlaces a Términos y Política de Privacidad (`VITE_WEBSITE_URL`)
+  y el copyright viven en tres lugares: en el consentimiento y pie discreto de las pantallas de
+  acceso, en el menú desplegable de cuenta de `TopBar` y al pie de `/account`.
 
 ## Elevation & Depth
 
