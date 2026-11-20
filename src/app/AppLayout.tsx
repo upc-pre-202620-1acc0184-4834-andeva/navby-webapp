@@ -1,9 +1,9 @@
 import { Loader2 } from 'lucide-react';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useMatches } from 'react-router';
+import { resetAuthDesktopSide } from '@/shared/auth/authTransitionSide';
 import { cn } from '@/shared/ui/cn';
-import { Footer } from './Footer';
 import { TopBar } from './TopBar';
 import { useDocumentTitle } from './useDocumentTitle';
 
@@ -33,6 +33,10 @@ export function AppLayout() {
 
   useDocumentTitle(titleKey);
 
+  useEffect(() => {
+    if (layout !== 'auth') resetAuthDesktopSide();
+  }, [layout]);
+
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-fg">
       <a
@@ -42,7 +46,7 @@ export function AppLayout() {
         {t('common.skipToContent')}
       </a>
 
-      <TopBar />
+      {layout !== 'auth' ? <TopBar /> : null}
 
       <main
         id="main-content"
@@ -50,7 +54,6 @@ export function AppLayout() {
         className={cn(
           'flex flex-1 flex-col focus:outline-none',
           layout === 'contained' && 'mx-auto w-full max-w-3xl px-4 py-6 sm:px-6',
-          layout === 'auth' && 'mx-auto w-full max-w-sm justify-center px-4 py-8',
           layout === 'map' && 'relative overflow-x-clip',
         )}
       >
@@ -65,8 +68,6 @@ export function AppLayout() {
           <Outlet />
         </Suspense>
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -1,20 +1,24 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useForm, useWatch } from 'react-hook-form';
+import { Trans, useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { registerAccount } from '@/shared/api/endpoints';
 import { apiErrorMessage } from '@/shared/api/errorMessage';
 import { isApiError } from '@/shared/api/errors';
 import { type AuthRedirectState, resolveAuthRedirectFrom } from '@/shared/auth/authRedirect';
+import { getPrivacyUrl, getTermsUrl } from '@/shared/config/legalLinks';
 import { Button } from '@/shared/ui/Button';
 import { Field } from '@/shared/ui/Field';
 import { Input } from '@/shared/ui/Input';
+import { LegalAnchor } from '@/shared/ui/LegalLinks';
 import { TurnstileField } from '@/shared/ui/TurnstileField';
 import { type RegisterValues, registerSchema } from '../authSchemas';
-import { AUTH_LINK_CLASS, AuthCard, FormNotice } from '../components/AuthCard';
+import { AUTH_LINK_CLASS, FormNotice } from '../components/AuthCard';
+import { AuthLayout } from '../components/AuthLayout';
 import { GoogleSignIn } from '../components/GoogleSignIn';
+import { PasswordChecklist } from '../components/PasswordChecklist';
 import { PasswordInput } from '../components/PasswordInput';
 import { useCaptcha } from '../useCaptcha';
 
@@ -35,6 +39,7 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     setError,
+    control,
     formState: { errors },
   } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
@@ -42,6 +47,8 @@ export default function RegisterPage() {
     reValidateMode: 'onBlur',
     defaultValues: { full_name: '', email: '', password: '', accept_terms: false },
   });
+
+  const passwordValue = useWatch({ control, name: 'password', defaultValue: '' });
 
   const mutation = useMutation({
     mutationFn: (values: RegisterValues) => registerAccount(values, captcha.token),
@@ -78,19 +85,34 @@ export default function RegisterPage() {
 
   const termsErrorId = 'register-terms-error';
 
+  const preloadLogin = () => {
+    void import('./LoginPage');
+  };
+
+  const switchToLogin = (
+    <>
+      {t('auth.register.hasAccount')}{' '}
+      <Link
+        to="/login"
+        state={linkState}
+        onPointerEnter={preloadLogin}
+        onFocus={preloadLogin}
+        className={AUTH_LINK_CLASS}
+      >
+        {t('auth.register.toLogin')}
+      </Link>
+    </>
+  );
+
   return (
-    <AuthCard
+    <AuthLayout
+      variant="register"
       title={t('auth.register.title')}
       subtitle={t('auth.register.subtitle')}
-      footer={
-        <>
-          {t('auth.register.hasAccount')}{' '}
-          <Link to="/login" state={linkState} className={AUTH_LINK_CLASS}>
-            {t('auth.register.toLogin')}
-          </Link>
-        </>
-      }
+      headerAction={switchToLogin}
     >
+      <GoogleSignIn />
+
       <form noValidate onSubmit={(e) => void onSubmit(e)} className="flex flex-col gap-4">
         <Field
           label={t('auth.fields.fullName')}
@@ -129,7 +151,6 @@ export default function RegisterPage() {
         ) : null}
         <Field
           label={t('auth.fields.password')}
-          hint={t('auth.fields.passwordHint')}
           error={errors.password?.message && t(errors.password.message)}
         >
           {(aria) => (
@@ -137,16 +158,26 @@ export default function RegisterPage() {
           )}
         </Field>
 
+        <PasswordChecklist value={passwordValue} />
+
         <div className="flex flex-col gap-1.5">
-          <label className="flex min-h-11 cursor-pointer items-start gap-3 text-sm text-fg">
+          <label className="flex min-h-11 cursor-pointer items-start gap-3 text-sm leading-relaxed text-fg">
             <input
               type="checkbox"
               aria-invalid={errors.accept_terms ? true : undefined}
               aria-describedby={errors.accept_terms ? termsErrorId : undefined}
-              className="mt-0.5 h-5 w-5 shrink-0 rounded border-line-strong accent-primary"
+              className="mt-1 h-4 w-4 shrink-0 rounded border-line-strong accent-primary"
               {...register('accept_terms')}
             />
-            <span>{t('auth.register.terms')}</span>
+            <span>
+              <Trans
+                i18nKey="auth.register.termsRich"
+                components={{
+                  terms: <LegalAnchor href={getTermsUrl()} />,
+                  privacy: <LegalAnchor href={getPrivacyUrl()} />,
+                }}
+              />
+            </span>
           </label>
           {errors.accept_terms?.message ? (
             <p id={termsErrorId} role="alert" className="text-xs text-error-ink">
@@ -165,8 +196,6 @@ export default function RegisterPage() {
           {t('auth.register.submit')}
         </Button>
       </form>
-
-      <GoogleSignIn />
-    </AuthCard>
+    </AuthLayout>
   );
 }

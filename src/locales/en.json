@@ -134,7 +134,10 @@
     "copyright": "© 2026 Andeva. All rights reserved."
   },
   "legal": {
-    "priceDisclaimer": "Reference price obtained from third parties; confirmed on the seller's site."
+    "terms": "Terms and Conditions",
+    "privacy": "Privacy Policy",
+    "termsShort": "Terms",
+    "privacyShort": "Privacy"
   },
   "errors": {
     "UNAUTHENTICATED": "Sign in to continue.",
@@ -224,7 +227,8 @@
       "hasAccount": "Already have an account?",
       "toLogin": "Sign in here",
       "goLogin": "Go to sign in",
-      "goVerify": "Verify my email"
+      "goVerify": "Verify my email",
+      "termsRich": "I accept Navby’s <terms>Terms and Conditions</terms> and <privacy>Privacy Policy</privacy>."
     },
     "verify": {
       "title": "Verify your email",
@@ -251,10 +255,70 @@
       "requestNew": "Request a new link"
     },
     "google": {
-      "divider": "or",
+      "divider": "or with email",
       "consent": "By continuing with Google you accept Navby's Terms and Conditions and Privacy Policy.",
-      "loadFailed": "We couldn't load Google sign-in."
-    }
+      "loadFailed": "We couldn't load Google sign-in.",
+      "consentRich": "By continuing with Google you accept Navby’s <terms>Terms and Conditions</terms> and <privacy>Privacy Policy</privacy>.",
+      "continue": "Continue with Google"
+    },
+    "passwordRules": {
+      "title": "Password requirements",
+      "length": "Between 8 and 72 characters",
+      "letter": "At least one letter",
+      "number": "At least one number"
+    },
+    "showcase": {
+      "brandTagline": "Navby · Flight search by Andeva",
+      "login": {
+        "headline": "Plan your next flight",
+        "description": "Return to your map, check your daily credits, and pick up your saved itineraries.",
+        "previewRoute": "Lima → Tokyo",
+        "previewMeta": "Round trip · 1 passenger · Podium ready",
+        "top1Badge": "Top 1 · Best balance",
+        "top1Price": "$940",
+        "top1Details": "22h 15m · 1 stop · Aeromexico",
+        "top2Badge": "Top 2 · Fastest",
+        "top2Price": "$1,180",
+        "top2Details": "19h 40m · 1 stop",
+        "top3Badge": "Top 3 · Lowest price",
+        "top3Price": "$875",
+        "top3Details": "26h 10m · 2 stops"
+      },
+      "register": {
+        "headline": "Pick your ideal flight without twenty open tabs.",
+        "description": "Compare price, duration, and stops in a single podium.",
+        "features": [
+          {
+            "title": "3-flight recommendation podium",
+            "detail": "We rank the best options by real score, without endless lists."
+          },
+          {
+            "title": "10 free credits every day",
+            "detail": "Search routes instantly and top up whenever you need more."
+          },
+          {
+            "title": "Interactive route map",
+            "detail": "See flight paths and layovers directly on the map."
+          },
+          {
+            "title": "Saved itineraries & direct booking",
+            "detail": "Save your favorite options and book directly with the airline."
+          }
+        ],
+        "whatsIncluded": "See what's included"
+      },
+      "verify": {
+        "headline": "One quick step before takeoff.",
+        "description": "We confirm your email to protect your account and activate your 10 daily credits.",
+        "badge": "6-digit code · Valid for 10 min"
+      },
+      "recovery": {
+        "headline": "Recover access to your account.",
+        "description": "We send a secure one-time link so you can set a new password.",
+        "badge": "Secure link · Signs out previous sessions"
+      }
+    },
+    "lastUsed": "Last used"
   },
   "account": {
     "title": "My account",

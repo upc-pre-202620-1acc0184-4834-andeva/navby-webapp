@@ -273,6 +273,113 @@
   animation: navby-route-pulse 2.6s var(--ease-in-out) infinite;
 }
 
+/* Ondeo suave para elementos 3D flotantes en las pantallas de registro/verificación */
+@keyframes navby-float-wave {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translate3d(0, -11px, 0) rotate(1.5deg);
+  }
+}
+
+@keyframes navby-float-wave-alt {
+  0%,
+  100% {
+    transform: translate3d(0, -4px, 0) rotate(1.2deg);
+  }
+  50% {
+    transform: translate3d(0, 8px, 0) rotate(-1.2deg);
+  }
+}
+
+.navby-float-wave {
+  animation: navby-float-wave 5.2s var(--ease-in-out) infinite;
+}
+
+.navby-float-wave-slow {
+  animation: navby-float-wave-alt 6.4s var(--ease-in-out) -1.8s infinite;
+}
+
+.navby-float-wave-delay {
+  animation: navby-float-wave 5.8s var(--ease-in-out) -3.1s infinite;
+}
+
+/* Asentamiento del showcase y deslizamiento opuesto del formulario sincronizados con LiquidBridge (460 ms) */
+@keyframes navby-showcase-settle {
+  0% {
+    opacity: 0;
+    transform: scale(0.986);
+  }
+  72% {
+    opacity: 0;
+    transform: scale(0.986);
+  }
+  85% {
+    opacity: 1;
+    transform: scale(0.996);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes navby-form-glide-ltr {
+  0% {
+    opacity: 0;
+    transform: translate3d(22px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes navby-form-glide-rtl {
+  0% {
+    opacity: 0;
+    transform: translate3d(-22px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes navby-form-fade-mobile {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.navby-showcase-settle {
+  animation: navby-showcase-settle 460ms var(--ease-out) both;
+}
+
+@media (max-width: 63.999rem) {
+  .navby-form-glide-ltr,
+  .navby-form-glide-rtl {
+    animation: navby-form-fade-mobile 180ms var(--ease-out) both;
+  }
+}
+
+@media (min-width: 64rem) {
+  .navby-form-glide-ltr {
+    animation: navby-form-glide-ltr 300ms var(--ease-out) 70ms both;
+  }
+
+  .navby-form-glide-rtl {
+    animation: navby-form-glide-rtl 300ms var(--ease-out) 70ms both;
+  }
+}
+
 /* Marcadores y controles MapLibre integrados a los tokens del tema */
 .maplibregl-marker {
   z-index: 3;
@@ -428,6 +535,12 @@
   }
 
   .navby-preview-pulse,
+  .navby-float-wave,
+  .navby-float-wave-slow,
+  .navby-float-wave-delay,
+  .navby-showcase-settle,
+  .navby-form-glide-ltr,
+  .navby-form-glide-rtl,
   .animate-pulse {
     animation: none !important;
   }

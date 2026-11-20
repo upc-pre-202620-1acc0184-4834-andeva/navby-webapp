@@ -15,6 +15,7 @@ import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { Field } from '@/shared/ui/Field';
 import { Input } from '@/shared/ui/Input';
+import { LegalLinksRow } from '@/shared/ui/LegalLinks';
 
 /** /account (US-07, US-09, US-10, RL-02). */
 export default function AccountPage() {
@@ -191,6 +192,8 @@ export default function AccountPage() {
           </Button>
         )}
       </Card>
+
+      <LegalLinksRow className="pt-1" />
     </div>
   );
 }

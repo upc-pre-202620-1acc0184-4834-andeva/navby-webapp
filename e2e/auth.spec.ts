@@ -46,10 +46,14 @@ async function settleAnimations(page: Page) {
     Promise.all(
       (
         el as unknown as {
-          getAnimations(opts: { subtree: boolean }): { finished: Promise<unknown> }[];
+          getAnimations(opts: { subtree: boolean }): {
+            finished: Promise<unknown>;
+            effect?: { getComputedTiming(): { iterations?: number } };
+          }[];
         }
       )
         .getAnimations({ subtree: true })
+        .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
         .map((a) => a.finished),
     ),
   );

@@ -50,7 +50,7 @@ describe('AppLayout & shell', () => {
     vi.unstubAllGlobals();
   });
 
-  it('usuario sin sesión es redirigido de / a /login, ve preferencias y pie sin saldo', async () => {
+  it('usuario sin sesión es redirigido de / a /login sin TopBar ni Footer global, con controles de tema/idioma y enlaces legales', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(
@@ -73,24 +73,17 @@ describe('AppLayout & shell', () => {
       expect(screen.getByRole('heading', { level: 1, name: 'Iniciar sesión' })).toBeInTheDocument(),
     );
 
+    expect(
+      screen.queryByRole('button', { name: 'Menú de cuenta y preferencias' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
     expect(screen.queryByText('— créditos')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Términos y condiciones' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Política de privacidad' })).toBeInTheDocument();
     expect(screen.getByText(/© 2026 Andeva/)).toBeInTheDocument();
-
-    const user = userEvent.setup();
-    const trigger = screen.getByRole('button', { name: 'Menú de cuenta y preferencias' });
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
-
-    await user.click(trigger);
-    expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByRole('link', { name: 'Iniciar sesión' })).toHaveAttribute('href', '/login');
-    expect(screen.getByRole('link', { name: 'Crear cuenta' })).toHaveAttribute('href', '/register');
-
-    await user.keyboard('{Escape}');
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    expect(trigger).toHaveFocus();
   });
 
-  it('usuario autenticado ve HomePage, saldo, menú de cuenta y puede cambiar tema e idioma', async () => {
+  it('usuario autenticado ve HomePage, saldo, menú de cuenta con enlaces legales y puede cambiar tema e idioma', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(
@@ -110,6 +103,8 @@ describe('AppLayout & shell', () => {
       ).toBeInTheDocument(),
     );
 
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
+
     // US-26: total, búsquedas disponibles y hora de recarga (00:00 Lima).
     const creditsLink = await screen.findByRole('link', {
       name: 'Saldo: 50 créditos (10 búsquedas). Los gratuitos se renuevan a las 00:00, hora de Lima.',
@@ -128,6 +123,8 @@ describe('AppLayout & shell', () => {
     );
     expect(screen.getByRole('link', { name: 'Créditos' })).toHaveAttribute('href', '/billing');
     expect(screen.getByRole('link', { name: 'Mi cuenta' })).toHaveAttribute('href', '/account');
+    expect(screen.getByRole('link', { name: 'Términos y condiciones' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Política de privacidad' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Oscuro' }));
     expect(document.documentElement).toHaveClass('dark');
@@ -138,7 +135,7 @@ describe('AppLayout & shell', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Flight search' })).toBeInTheDocument();
   });
 
-  it('conserva la ruta original de búsqueda al cambiar entre /login y /register desde TopBar', async () => {
+  it('conserva la ruta original de búsqueda al cambiar entre /login y /register', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(
@@ -162,8 +159,11 @@ describe('AppLayout & shell', () => {
     );
 
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Menú de cuenta y preferencias' }));
-    await user.click(screen.getByRole('link', { name: 'Crear cuenta' }));
+    const [registerLink] = screen.getAllByRole('link', { name: 'Crear una cuenta' });
+    expect(registerLink).toBeDefined();
+    if (registerLink) {
+      await user.click(registerLink);
+    }
 
     await waitFor(() => expect(router.state.location.pathname).toBe('/register'));
     const redirectState = router.state.location.state as {
