@@ -8,6 +8,12 @@ import {
   ItinerarySchema,
   type ItineraryPage,
   ItineraryPageSchema,
+  type OrderCreated,
+  OrderCreatedSchema,
+  type OrderDetail,
+  OrderDetailSchema,
+  type PackagesResponse,
+  PackagesResponseSchema,
   type PodiumResponse,
   PodiumResponseSchema,
   type RegisterResponse,
@@ -16,6 +22,8 @@ import {
   RoutePreviewResponseSchema,
   type Session,
   SessionSchema,
+  type TransactionsPage,
+  TransactionsPageSchema,
   type UserProfile,
   UserProfileSchema,
   type UserSummary,
@@ -240,6 +248,46 @@ export function getWallet(signal?: AbortSignal): Promise<Wallet> {
     signal,
     auth: 'required',
     schema: WalletSchema,
+  });
+}
+
+export function listTransactions(
+  { page = 1, pageSize = 20 }: { page?: number; pageSize?: number } = {},
+  signal?: AbortSignal,
+): Promise<TransactionsPage> {
+  const params = new URLSearchParams({
+    page: String(page),
+    page_size: String(pageSize),
+  });
+  return apiFetch(`/billing/transactions?${params.toString()}`, {
+    signal,
+    auth: 'required',
+    schema: TransactionsPageSchema,
+  });
+}
+
+export function listPackages(signal?: AbortSignal): Promise<PackagesResponse> {
+  return apiFetch('/billing/packages', {
+    signal,
+    auth: 'required',
+    schema: PackagesResponseSchema,
+  });
+}
+
+export function createOrder(payload: { package_code: string }): Promise<OrderCreated> {
+  return apiFetch('/billing/orders', {
+    method: 'POST',
+    auth: 'required',
+    body: payload,
+    schema: OrderCreatedSchema,
+  });
+}
+
+export function getOrder(orderId: string, signal?: AbortSignal): Promise<OrderDetail> {
+  return apiFetch(`/billing/orders/${encodeURIComponent(orderId)}`, {
+    signal,
+    auth: 'required',
+    schema: OrderDetailSchema,
   });
 }
 

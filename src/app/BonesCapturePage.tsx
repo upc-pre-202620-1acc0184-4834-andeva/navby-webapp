@@ -1,11 +1,26 @@
 import { Skeleton } from 'boneyard-js/react';
 import { Bookmark } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { PackagesBody, PackagesSection } from '@/features/billing/components/PackagesSection';
+import {
+  TransactionsBody,
+  TransactionsSection,
+} from '@/features/billing/components/TransactionsSection';
+import {
+  WalletSummaryBody,
+  WalletSummaryCard,
+} from '@/features/billing/components/WalletSummaryCard';
+import { ItineraryRow } from '@/features/itineraries/components/ItineraryRow';
 import { PodiumCard } from '@/features/podium/components/PodiumCard';
 import { PodiumPanel } from '@/features/podium/components/PodiumPanel';
-import { ItineraryRow } from '@/features/itineraries/components/ItineraryRow';
 import { ItinerarySchema } from '@/shared/api/schemas';
 import { Button } from '@/shared/ui/Button';
+import {
+  packagesResponse,
+  transactionItem,
+  transactionsPage,
+  walletFixture,
+} from '@/test/fixtures/billing';
 import { manyItineraries } from '@/test/fixtures/itineraries';
 import { podiumResponse } from '@/test/fixtures/podium';
 
@@ -75,6 +90,72 @@ export function BonesItinerariesCapturePage() {
       >
         {null}
       </Skeleton>
+    </div>
+  );
+}
+
+/** Lo mismo para créditos y paquetes (`/__bones/billing`): saldo, paquetes y movimientos. */
+export function BonesBillingCapturePage() {
+  const { t } = useTranslation();
+  const sampleWallet = walletFixture();
+  const samplePackages = packagesResponse();
+  const sampleTransactions = transactionsPage([
+    transactionItem({ id: 'tx-b1', type: 'PURCHASE', free_delta: 0, paid_delta: 100 }),
+    transactionItem({ id: 'tx-b2', type: 'SEARCH_DEBIT', free_delta: -5, paid_delta: 0 }),
+    transactionItem({ id: 'tx-b3', type: 'SEARCH_REFUND', free_delta: 5, paid_delta: 0 }),
+  ]);
+
+  return (
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6 sm:px-6">
+      <h1 className="text-2xl font-bold text-fg">{t('billing.title')}</h1>
+      <WalletSummaryCard
+        wallet={undefined}
+        isPending
+        error={null}
+        onRetry={() => {}}
+        locale="es-PE"
+        skeletonFixture={<WalletSummaryBody wallet={sampleWallet} locale="es-PE" />}
+      />
+      <PackagesSection
+        data={undefined}
+        isPending
+        error={null}
+        onRetry={() => {}}
+        pendingCode={null}
+        isLocked={false}
+        onSelectPackage={() => {}}
+        locale="es-PE"
+        skeletonFixture={
+          <PackagesBody
+            data={samplePackages}
+            pendingCode={null}
+            isLocked={false}
+            onSelectPackage={() => {}}
+            locale="es-PE"
+          />
+        }
+      />
+      <TransactionsSection
+        data={undefined}
+        isPending
+        isFetching={false}
+        isPlaceholderData={false}
+        error={null}
+        onRetry={() => {}}
+        page={1}
+        onPageChange={() => {}}
+        locale="es-PE"
+        skeletonFixture={
+          <TransactionsBody
+            data={sampleTransactions}
+            isFetching={false}
+            isPlaceholderData={false}
+            page={1}
+            onPageChange={() => {}}
+            locale="es-PE"
+          />
+        }
+      />
     </div>
   );
 }

@@ -5,10 +5,16 @@ import { configureBoneyard } from 'boneyard-js/react'
 
 import _podium_panel from './podium-panel.bones.json'
 import _itineraries_list from './itineraries-list.bones.json'
+import _billing_wallet from './billing-wallet.bones.json'
+import _billing_packages from './billing-packages.bones.json'
+import _billing_transactions from './billing-transactions.bones.json'
 
 configureBoneyard({"animate":"pulse"})
 
 registerBones({
   "podium-panel": _podium_panel,
   "itineraries-list": _itineraries_list,
+  "billing-wallet": _billing_wallet,
+  "billing-packages": _billing_packages,
+  "billing-transactions": _billing_transactions,
 })

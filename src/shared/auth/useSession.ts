@@ -8,6 +8,23 @@ export const sessionKeys = {
   profile: ['users', 'me'] as const,
 };
 
+const PENDING_ORDER_STORAGE_KEY = 'navby:pending_order_id';
+
+function clearPendingOrderStorage(): void {
+  try {
+    sessionStorage.removeItem(PENDING_ORDER_STORAGE_KEY);
+  } catch {
+    // sessionStorage puede no estar disponible en entornos restringidos.
+  }
+}
+
+/** Marca el correo como no verificado en la caché para que `RequireAuth` redirija a `/verify-email`. */
+export function markEmailUnverified(queryClient: QueryClient): void {
+  queryClient.setQueryData<UserSummary | null>(sessionKeys.current, (user) =>
+    user ? { ...user, email_verified: false } : user,
+  );
+}
+
 /**
  * Conecta las rotaciones o expiraciones de `client.ts` con la caché de TanStack Query
  * al instanciar el QueryClient (evitando efectos en React bajo StrictMode).
@@ -22,8 +39,10 @@ export function bindSessionSync(queryClient: QueryClient): () => void {
       // Solo las inactivas: borrar una query montada la vuelve a pedir y reabriría la sesión.
       // Las que siguen montadas se desmontan con RequireAuth y caen en el cambio de usuario.
       queryClient.removeQueries({ predicate: notSession, type: 'inactive' });
+      clearPendingOrderStorage();
     } else if (lastUserId !== null && lastUserId !== user.user_id) {
       queryClient.removeQueries({ predicate: notSession });
+      clearPendingOrderStorage();
     }
     if (user) lastUserId = user.user_id;
   });

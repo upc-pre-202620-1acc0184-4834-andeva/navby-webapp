@@ -285,7 +285,7 @@ Se cobra siempre en soles; `usd_reference` es solo informativo.
   "checkout_url": "https://www.mercadopago.com.pe/checkout/v1/redirect?pref_id=..." }
 ```
 
-Error: `404 PACKAGE_NOT_FOUND`.
+Errores: `404 PACKAGE_NOT_FOUND`, `503 PROVIDER_UNAVAILABLE`.
 
 ### `GET /billing/orders/{order_id}`
 

@@ -5,6 +5,8 @@ import { AppLayout, type RouteLayoutHandle } from './AppLayout';
 import { HomePage } from './HomePage';
 import {
   AccountPage,
+  BillingPage,
+  BillingResultPage,
   ForgotPasswordPage,
   ItinerariesPage,
   ItineraryDetailPage,
@@ -21,6 +23,9 @@ const BonesItinerariesPage = import.meta.env.DEV
   ? lazy(() =>
       import('./BonesCapturePage').then((m) => ({ default: m.BonesItinerariesCapturePage })),
     )
+  : null;
+const BonesBillingPage = import.meta.env.DEV
+  ? lazy(() => import('./BonesCapturePage').then((m) => ({ default: m.BonesBillingCapturePage })))
   : null;
 
 export const routes: RouteObject[] = [
@@ -48,26 +53,12 @@ export const routes: RouteObject[] = [
           {
             path: 'billing',
             handle: { layout: 'contained' } satisfies RouteLayoutHandle,
-            element: (
-              <RoutePlaceholderPage
-                titleKey="routes.billing.title"
-                descriptionKey="routes.billing.description"
-                actionTo="/"
-                actionLabelKey="common.backHome"
-              />
-            ),
+            element: <BillingPage />,
           },
           {
             path: 'billing/result',
             handle: { layout: 'contained' } satisfies RouteLayoutHandle,
-            element: (
-              <RoutePlaceholderPage
-                titleKey="routes.billing.title"
-                descriptionKey="routes.billing.description"
-                actionTo="/"
-                actionLabelKey="common.backHome"
-              />
-            ),
+            element: <BillingResultPage />,
           },
           {
             path: 'account',
@@ -106,6 +97,9 @@ export const routes: RouteObject[] = [
         : []),
       ...(BonesItinerariesPage
         ? [{ path: '__bones/itineraries', element: <BonesItinerariesPage /> } satisfies RouteObject]
+        : []),
+      ...(BonesBillingPage
+        ? [{ path: '__bones/billing', element: <BonesBillingPage /> } satisfies RouteObject]
         : []),
       {
         path: 'reset-password',

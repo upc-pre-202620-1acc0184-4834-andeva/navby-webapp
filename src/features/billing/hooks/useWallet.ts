@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { getWallet } from '@/shared/api/endpoints';
+import { billingKeys } from '../billingKeys';
 
 export const walletKeys = {
-  current: ['billing', 'wallet'] as const,
+  current: billingKeys.wallet,
 };
 
 /** Saldo de créditos (US-26). La billetera nace al verificar el correo (RN-17). */
