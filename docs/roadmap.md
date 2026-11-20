@@ -33,7 +33,7 @@ están en [user-stories.md](user-stories.md); las reglas `RN-xx`/`RL-xx`, en
 | 4 | **Podio:** cotizar y recomendar. | US-13, US-15 a US-19, US-26, US-31 | ✅ |
 | 5 | **Preferencias:** reordenar el podio. | US-20, US-21 | ✅ |
 | 6 | **Itinerarios guardados.** | US-22, US-23, US-24 | ✅ |
-| 7 | **Créditos y pagos** (Mercado Pago sandbox). | US-25, US-27 a US-30 | ⬜ |
+| 7 | **Créditos y pagos** (Mercado Pago sandbox). | US-25 a US-30 | ✅ |
 | 8 | **Cierre de calidad y lanzamiento.** | Transversal | ⬜ |
 
 US-32 y US-33 (contenido) son del website; aquí solo se enlazan.
@@ -162,6 +162,7 @@ la ruta preliminar en milisegundos.
   `PENDING`; luego invalida el saldo.
 - **Hecho cuando:** escenarios de US-25 a US-30 probados; e2e con la orden simulada
   (nunca Mercado Pago real en pruebas, RL-04).
+- **Cerrado:** rutas lazy `/billing` y `/billing/result` con `WalletSummaryCard`, `PackagesSection` (`pack_100` destacado en `primary`, soles PEN con equivalente referencial USD y costo por búsqueda, aviso sandbox RL-04), `TransactionsSection` (paginación `?page=N` de 20 movimientos y todos los tipos sin exponer `reference_id`), `useCreateOrder` (bloqueo en doble clic, validación HTTPS, respaldo `sessionStorage` por usuario y desbloqueo `bfcache` en `pageshow`) y `useOrderStatus` (sondeo cada 3 s por 60 s con caducidad D3 client-side y revalidación del saldo sin destello previo); skeletons `billing-wallet`, `billing-packages` y `billing-transactions` en `boneyard-js`; pruebas en `billingSchemas.test.ts`, `formatBilling.test.ts`, `useOrderStatus.test.ts`, `billingPages.test.tsx` y `e2e/billing.spec.ts` en 1440 y 390 px con axe en claro y oscuro (ver Decisiones del Plan 7).
 
 ## Plan 8 · Cierre de calidad y lanzamiento
 
