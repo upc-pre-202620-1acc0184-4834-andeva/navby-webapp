@@ -1,6 +1,6 @@
 {
   "name": "navby-webapp",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "bones": "boneyard-js build http://localhost:5173/app/__bones/podium http://localhost:5173/app/__bones/itineraries --force"
+    "bones": "boneyard-js build http://localhost:5173/app/__bones/podium http://localhost:5173/app/__bones/itineraries http://localhost:5173/app/__bones/billing --force"
   },
   "dependencies": {
     "@deck.gl/core": "^9.4.1",

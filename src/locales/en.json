@@ -158,13 +158,11 @@
     "SEARCH_IN_PROGRESS": "A search is already in progress. Wait for it to finish; you will not be charged twice.",
     "SEARCH_NOT_FOUND": "These results expired or are not available.",
     "ROUTE_NOT_REACHABLE": "There are no routes with 2 stops or fewer between these cities. You were not charged.",
-    "INVALID_WEIGHTS": "The preferences are not valid. Try again."
+    "INVALID_WEIGHTS": "The preferences are not valid. Try again.",
+    "PACKAGE_NOT_FOUND": "That package is no longer available. Choose another one from the list.",
+    "ORDER_NOT_FOUND": "We couldn't find that purchase order."
   },
   "routes": {
-    "billing": {
-      "title": "Credits and packages",
-      "description": "Your daily credit balance and prepaid packages will appear here."
-    },
     "notFound": {
       "title": "Page not found",
       "description": "The page you are looking for does not exist or moved."
@@ -399,6 +397,134 @@
       "legendHeading": "Legs of the saved itinerary",
       "routeLabel": "Saved route:",
       "mapLabel": "Map of the saved route"
+    }
+  },
+  "billing": {
+    "title": "Credits and packages",
+    "wallet": {
+      "heading": "Your balance",
+      "totalCredits_one": "{{count}} credit",
+      "totalCredits_other": "{{count}} credits",
+      "searchesAvailable_one": "{{count}} search available (5 credits per search)",
+      "searchesAvailable_other": "{{count}} searches available (5 credits per search)",
+      "freeLabel": "Today's free",
+      "freeRatio": "{{free}} / 10",
+      "freeProgressLabel": "Daily free credits available",
+      "freeResetNote": "Refill at {{time}} (Lima time). Don't roll over and are used first.",
+      "paidLabel": "Purchased",
+      "paidNote": "Never expire and roll over",
+      "errorTitle": "We couldn't load your balance"
+    },
+    "packages": {
+      "heading": "Credit packages",
+      "subtitle": "One-time payment via Mercado Pago. Purchased credits never expire.",
+      "recommended": "Recommended",
+      "names": {
+        "pack_50": "Getaway",
+        "pack_100": "Frequent Traveler",
+        "pack_250": "Nomad"
+      },
+      "credits_one": "{{count}} credit",
+      "credits_other": "{{count}} credits",
+      "searches_one": "{{count}} search",
+      "searches_other": "{{count}} searches",
+      "usdReference": "approx. {{price}} USD (reference)",
+      "perSearch": "{{price}} per search",
+      "buy": "Buy",
+      "buyAria": "Buy {{name}} for {{price}}",
+      "emptyTitle": "No packages available",
+      "emptyDescription": "Please try again later.",
+      "errorTitle": "We couldn't load packages",
+      "sandboxNotice": "Charges are billed in Peruvian soles (PEN); the USD equivalent is for reference only. Mercado Pago is running in sandbox (test) mode: use test cards and no real money is charged."
+    },
+    "transactions": {
+      "heading": "Credit history",
+      "total_one": "{{count}} movement",
+      "total_other": "{{count}} movements",
+      "listLabel": "Credit movements",
+      "types": {
+        "SEARCH_DEBIT": "Flight search",
+        "SEARCH_REFUND": "Failed search refund",
+        "PURCHASE": "Package purchase",
+        "PURCHASE_REVERSAL": "Purchase reversal",
+        "ACCOUNT_DELETION": "Account closure adjustment",
+        "UNKNOWN": "Credit adjustment"
+      },
+      "sourceFree": "Free",
+      "sourcePaid": "Paid",
+      "sourceMixed": "{{free}} free · {{paid}} paid",
+      "sourceNone": "No balance change",
+      "emptyTitle": "No credit movements yet",
+      "emptyDescription": "When you search flights or buy a package, every change will appear here.",
+      "emptyAction": "Search flights",
+      "errorTitle": "We couldn't load your history",
+      "paginationLabel": "History pagination",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "pageOf": "Page {{page}} of {{totalPages}}"
+    },
+    "result": {
+      "title": "Purchase status",
+      "loading": "Checking your payment status…",
+      "orderSummary": "Order summary",
+      "packageLabel": "Package",
+      "creditsLabel": "Credits",
+      "amountLabel": "Amount",
+      "balanceLabel": "Your current balance",
+      "creditsAdded": "+{{credits}} credits",
+      "searchFlights": "Search flights",
+      "viewCredits": "View my credits",
+      "backToCredits": "Back to credits",
+      "tryAgain": "Try again",
+      "choosePackage": "Choose a package",
+      "recheck": "Check again",
+      "missing": {
+        "title": "We couldn't find your purchase reference",
+        "description": "Go back to Credits and packages to check your balance or start a new purchase."
+      },
+      "notFound": {
+        "title": "We couldn't find that purchase order",
+        "description": "If you just paid, check your balance in Credits and packages."
+      },
+      "error": {
+        "title": "We couldn't verify your payment",
+        "description": "There was a connection issue checking your order. Please try again."
+      },
+      "pending": {
+        "title": "Confirming your payment…",
+        "description": "Waiting for Mercado Pago confirmation. This usually takes a few seconds.",
+        "announce": "Confirming your payment with Mercado Pago."
+      },
+      "timedOut": {
+        "title": "Your payment is still pending",
+        "description": "Some payment methods take longer to confirm. If Mercado Pago approves the payment, your credits will be added automatically even if you close Navby.",
+        "announce": "Your payment is still pending confirmation."
+      },
+      "approved": {
+        "title": "Payment approved!",
+        "description": "Your purchased credits have been added. They never expire and are ready to use.",
+        "announce": "Payment approved. {{credits}} credits were added to your balance."
+      },
+      "rejected": {
+        "title": "Payment rejected",
+        "description": "Mercado Pago did not approve the payment and you were not charged. You can try again with another method.",
+        "announce": "The payment was rejected and no credits were added."
+      },
+      "expired": {
+        "title": "Order expired",
+        "description": "The 24-hour window to complete this purchase expired and no charge was made.",
+        "announce": "The order expired without charge."
+      },
+      "reversed": {
+        "title": "Payment reversed",
+        "description": "This payment was reversed or refunded and the associated credits were adjusted in your balance.",
+        "announce": "The payment was reversed and your balance was adjusted."
+      }
+    },
+    "errors": {
+      "checkoutFailed": "We couldn't start checkout",
+      "providerUnavailable": "Mercado Pago is unavailable right now. You were not charged; please try again in a few minutes.",
+      "invalidCheckoutUrl": "We received an invalid payment link. No charge was made."
     }
   }
 }

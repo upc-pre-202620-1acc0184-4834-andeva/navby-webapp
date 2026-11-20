@@ -158,13 +158,11 @@
     "SEARCH_IN_PROGRESS": "Ya hay una búsqueda en curso. Espera a que termine; no se te cobrará dos veces.",
     "SEARCH_NOT_FOUND": "Estos resultados vencieron o no están disponibles.",
     "ROUTE_NOT_REACHABLE": "No hay rutas con 2 escalas o menos entre estas ciudades. No se te cobró.",
-    "INVALID_WEIGHTS": "Las preferencias no son válidas. Inténtalo de nuevo."
+    "INVALID_WEIGHTS": "Las preferencias no son válidas. Inténtalo de nuevo.",
+    "PACKAGE_NOT_FOUND": "Ese paquete ya no está disponible. Elige otro de la lista.",
+    "ORDER_NOT_FOUND": "No encontramos esa orden de compra."
   },
   "routes": {
-    "billing": {
-      "title": "Créditos y paquetes",
-      "description": "Aquí podrás ver tu saldo diario y comprar paquetes de créditos."
-    },
     "notFound": {
       "title": "Página no encontrada",
       "description": "La ruta que buscas no existe o cambió de dirección."
@@ -399,6 +397,134 @@
       "legendHeading": "Tramos del itinerario guardado",
       "routeLabel": "Ruta guardada:",
       "mapLabel": "Mapa de la ruta guardada"
+    }
+  },
+  "billing": {
+    "title": "Créditos y paquetes",
+    "wallet": {
+      "heading": "Tu saldo",
+      "totalCredits_one": "{{count}} crédito",
+      "totalCredits_other": "{{count}} créditos",
+      "searchesAvailable_one": "{{count}} búsqueda disponible (5 créditos por búsqueda)",
+      "searchesAvailable_other": "{{count}} búsquedas disponibles (5 créditos por búsqueda)",
+      "freeLabel": "Gratis de hoy",
+      "freeRatio": "{{free}} / 10",
+      "freeProgressLabel": "Créditos gratuitos diarios disponibles",
+      "freeResetNote": "Se renuevan a las {{time}} (hora de Lima). No se acumulan y se usan primero.",
+      "paidLabel": "Comprados",
+      "paidNote": "No caducan y se acumulan",
+      "errorTitle": "No pudimos cargar tu saldo"
+    },
+    "packages": {
+      "heading": "Paquetes de créditos",
+      "subtitle": "Pago único con Mercado Pago. Los créditos comprados no vencen.",
+      "recommended": "Recomendado",
+      "names": {
+        "pack_50": "Escapada",
+        "pack_100": "Viajero Frecuente",
+        "pack_250": "Nómada"
+      },
+      "credits_one": "{{count}} crédito",
+      "credits_other": "{{count}} créditos",
+      "searches_one": "{{count}} búsqueda",
+      "searches_other": "{{count}} búsquedas",
+      "usdReference": "aprox. {{price}} (referencial)",
+      "perSearch": "{{price}} por búsqueda",
+      "buy": "Comprar",
+      "buyAria": "Comprar {{name}} por {{price}}",
+      "emptyTitle": "No hay paquetes disponibles",
+      "emptyDescription": "Vuelve a intentarlo más tarde.",
+      "errorTitle": "No pudimos cargar los paquetes",
+      "sandboxNotice": "El cobro se realiza en soles (PEN); el equivalente en USD es solo referencial. Mercado Pago opera en modo sandbox (prueba): usa tarjetas de prueba y no se realiza ningún cobro real."
+    },
+    "transactions": {
+      "heading": "Historial de movimientos",
+      "total_one": "{{count}} movimiento",
+      "total_other": "{{count}} movimientos",
+      "listLabel": "Movimientos de créditos",
+      "types": {
+        "SEARCH_DEBIT": "Búsqueda de vuelos",
+        "SEARCH_REFUND": "Devolución por búsqueda fallida",
+        "PURCHASE": "Compra de paquete",
+        "PURCHASE_REVERSAL": "Reversión de compra",
+        "ACCOUNT_DELETION": "Anulación por cierre de cuenta",
+        "UNKNOWN": "Movimiento de créditos"
+      },
+      "sourceFree": "Gratis",
+      "sourcePaid": "Comprados",
+      "sourceMixed": "{{free}} gratis · {{paid}} comprados",
+      "sourceNone": "Sin cambio de saldo",
+      "emptyTitle": "Aún no tienes movimientos",
+      "emptyDescription": "Cuando busques vuelos o compres un paquete, verás cada cambio aquí.",
+      "emptyAction": "Buscar vuelos",
+      "errorTitle": "No pudimos cargar tu historial",
+      "paginationLabel": "Paginación del historial",
+      "previousPage": "Anterior",
+      "nextPage": "Siguiente",
+      "pageOf": "Página {{page}} de {{totalPages}}"
+    },
+    "result": {
+      "title": "Estado de tu compra",
+      "loading": "Consultando el estado de tu pago…",
+      "orderSummary": "Resumen de la compra",
+      "packageLabel": "Paquete",
+      "creditsLabel": "Créditos",
+      "amountLabel": "Monto",
+      "balanceLabel": "Tu saldo actual",
+      "creditsAdded": "+{{credits}} créditos",
+      "searchFlights": "Buscar vuelos",
+      "viewCredits": "Ver mis créditos",
+      "backToCredits": "Volver a créditos",
+      "tryAgain": "Intentar de nuevo",
+      "choosePackage": "Elegir un paquete",
+      "recheck": "Verificar de nuevo",
+      "missing": {
+        "title": "No encontramos la referencia de tu compra",
+        "description": "Vuelve a Créditos y paquetes para revisar tu saldo o iniciar una nueva compra."
+      },
+      "notFound": {
+        "title": "No encontramos esa orden de compra",
+        "description": "Si pagaste hace un momento, revisa tu saldo en Créditos y paquetes."
+      },
+      "error": {
+        "title": "No pudimos verificar tu pago",
+        "description": "Hubo un problema de conexión al consultar tu orden. Inténtalo de nuevo."
+      },
+      "pending": {
+        "title": "Confirmando tu pago…",
+        "description": "Estamos esperando la confirmación de Mercado Pago. Esto suele tardar unos segundos.",
+        "announce": "Confirmando tu pago con Mercado Pago."
+      },
+      "timedOut": {
+        "title": "Tu pago sigue en confirmación",
+        "description": "Algunos medios de pago tardan en confirmarse. Si Mercado Pago aprueba el cobro, recibirás tus créditos automáticamente aunque cierres Navby.",
+        "announce": "Tu pago sigue pendiente de confirmación."
+      },
+      "approved": {
+        "title": "¡Pago aprobado!",
+        "description": "Ya agregamos tus créditos comprados. No caducan y están listos para usar.",
+        "announce": "Pago aprobado. Se agregaron {{credits}} créditos a tu saldo."
+      },
+      "rejected": {
+        "title": "Pago rechazado",
+        "description": "Mercado Pago no aprobó el pago y no se te cobró. Puedes intentarlo de nuevo con otro medio.",
+        "announce": "El pago fue rechazado y no se agregaron créditos."
+      },
+      "expired": {
+        "title": "Orden vencida",
+        "description": "El plazo de 24 horas para completar esta compra venció y no se realizó ningún cobro.",
+        "announce": "La orden venció sin cobro."
+      },
+      "reversed": {
+        "title": "Pago revertido",
+        "description": "Este pago fue revertido o reembolsado y los créditos asociados se ajustaron en tu saldo.",
+        "announce": "El pago fue revertido y tu saldo se ajustó."
+      }
+    },
+    "errors": {
+      "checkoutFailed": "No pudimos iniciar el pago",
+      "providerUnavailable": "Mercado Pago no está disponible en este momento. No se te cobró; inténtalo de nuevo en unos minutos.",
+      "invalidCheckoutUrl": "Recibimos un enlace de pago no válido. No se realizó ningún cobro."
     }
   }
 }

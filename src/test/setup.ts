@@ -46,6 +46,7 @@ afterEach(async () => {
   cleanup();
   resetApiClientForTests();
   localStorage.clear();
+  sessionStorage.clear();
   document.documentElement.classList.remove('dark');
   document.documentElement.setAttribute('lang', 'es');
   await i18n.changeLanguage('es');

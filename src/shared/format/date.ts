@@ -16,3 +16,15 @@ export function formatInstantDate(isoInstant: string, locale: string): string {
     year: 'numeric',
   }).format(new Date(isoInstant));
 }
+
+/** Fecha y hora de un movimiento en la zona horaria del usuario con reloj de 24 horas (`h23`). */
+export function formatInstantDateTime(isoInstant: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(new Date(isoInstant));
+}

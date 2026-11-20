@@ -27,6 +27,36 @@ export const E2E_WALLET = {
   free_credits_reset_at: '2026-11-18T05:00:00Z',
 };
 
+export const E2E_PACKAGES = {
+  currency: 'PEN',
+  packages: [
+    {
+      code: 'pack_50',
+      name: 'Escapada',
+      credits: 50,
+      searches: 10,
+      price: '9.90',
+      usd_reference: '2.49',
+    },
+    {
+      code: 'pack_100',
+      name: 'Viajero Frecuente',
+      credits: 100,
+      searches: 20,
+      price: '16.90',
+      usd_reference: '4.49',
+    },
+    {
+      code: 'pack_250',
+      name: 'Nómada',
+      credits: 250,
+      searches: 50,
+      price: '34.90',
+      usd_reference: '8.99',
+    },
+  ],
+};
+
 export const test = base.extend({
   page: async ({ page }, provide) => {
     await page.route('https://accounts.google.com/gsi/client**', (route) =>
@@ -38,6 +68,20 @@ export const test = base.extend({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify(E2E_WALLET),
+      }),
+    );
+    await page.route('**/api/v1/billing/packages', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(E2E_PACKAGES),
+      }),
+    );
+    await page.route('**/api/v1/billing/transactions*', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ items: [], page: 1, page_size: 20, total: 0 }),
       }),
     );
     // Lista de itinerarios vacía por defecto (US-22 a US-24); cada spec la sobrescribe.

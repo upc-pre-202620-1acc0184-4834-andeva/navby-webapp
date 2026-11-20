@@ -4,10 +4,11 @@ import { createMemoryRouter, type InitialEntry, RouterProvider } from 'react-rou
 import { vi } from 'vitest';
 import { routes } from '@/app/router';
 import { bindSessionSync } from '@/shared/auth/useSession';
+import { packagesResponse, transactionsPage } from '@/test/fixtures/billing';
 import { itineraryPage } from '@/test/fixtures/itineraries';
 import { wallet } from '@/test/fixtures/podium';
 
-export type ApiHandler = (init: RequestInit | undefined) => Response | Promise<Response>;
+export type ApiHandler = (init: RequestInit | undefined, url?: URL) => Response | Promise<Response>;
 
 /** Respuesta JSON (o RFC 7807 si `status >= 400`). */
 export function jsonResponse(status: number, body?: unknown): Response {
@@ -33,6 +34,8 @@ export const verifiedSession = {
 /** Saldo por defecto de la barra superior; cada prueba puede sobrescribirlo. */
 const defaultHandlers: Record<string, ApiHandler> = {
   'GET /billing/wallet': () => jsonResponse(200, wallet),
+  'GET /billing/packages': () => jsonResponse(200, packagesResponse()),
+  'GET /billing/transactions': () => jsonResponse(200, transactionsPage()),
   // Sin guardados: la lista de itinerarios se pide al ver un podio (US-22).
   'GET /itineraries': () => jsonResponse(200, itineraryPage([])),
 };
@@ -41,11 +44,13 @@ const defaultHandlers: Record<string, ApiHandler> = {
 export function mockApi(overrides: Record<string, ApiHandler>) {
   const handlers = { ...defaultHandlers, ...overrides };
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-    const path = String(input).replace('/api/v1', '').split('?')[0];
+    const rawUrl = String(input);
+    const url = new URL(rawUrl, 'http://localhost');
+    const path = rawUrl.replace('/api/v1', '').split('?')[0];
     const key = `${init?.method ?? 'GET'} ${path}`;
     const handler = handlers[key];
     if (!handler) throw new Error(`Unmocked API call: ${key}`);
-    return handler(init);
+    return handler(init, url);
   });
   vi.stubGlobal('fetch', fetchMock);
   return fetchMock;
