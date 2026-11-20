@@ -199,6 +199,79 @@ export const WalletSchema = z.object({
 
 export type Wallet = z.infer<typeof WalletSchema>;
 
+export const TransactionTypeSchema = z
+  .enum([
+    'SEARCH_DEBIT',
+    'SEARCH_REFUND',
+    'PURCHASE',
+    'PURCHASE_REVERSAL',
+    'ACCOUNT_DELETION',
+    'UNKNOWN',
+  ])
+  .catch('UNKNOWN');
+
+export type TransactionType = z.infer<typeof TransactionTypeSchema>;
+
+export const TransactionItemSchema = z.object({
+  id: z.string(),
+  type: TransactionTypeSchema,
+  free_delta: z.number().int(),
+  paid_delta: z.number().int(),
+  reference_id: z.string().nullable(),
+  created_at: z.string(),
+});
+
+export type TransactionItem = z.infer<typeof TransactionItemSchema>;
+
+export const TransactionsPageSchema = z.object({
+  items: z.array(TransactionItemSchema),
+  page: z.number().int(),
+  page_size: z.number().int(),
+  total: z.number().int(),
+});
+
+export type TransactionsPage = z.infer<typeof TransactionsPageSchema>;
+
+export const CreditPackageSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  credits: z.number().int().positive(),
+  searches: z.number().int().positive(),
+  price: z.string(),
+  usd_reference: z.string(),
+});
+
+export type CreditPackage = z.infer<typeof CreditPackageSchema>;
+
+export const PackagesResponseSchema = z.object({
+  currency: z.string(),
+  packages: z.array(CreditPackageSchema),
+});
+
+export type PackagesResponse = z.infer<typeof PackagesResponseSchema>;
+
+export const OrderStatusSchema = z.enum(['PENDING', 'APPROVED', 'REJECTED', 'EXPIRED', 'REVERSED']);
+
+export type OrderStatus = z.infer<typeof OrderStatusSchema>;
+
+export const OrderDetailSchema = z.object({
+  order_id: z.string(),
+  package_code: z.string(),
+  credits: z.number().int(),
+  amount: z.string(),
+  currency: z.string(),
+  status: OrderStatusSchema,
+  expires_at: z.string(),
+});
+
+export type OrderDetail = z.infer<typeof OrderDetailSchema>;
+
+export const OrderCreatedSchema = OrderDetailSchema.extend({
+  checkout_url: z.url(),
+});
+
+export type OrderCreated = z.infer<typeof OrderCreatedSchema>;
+
 /**
  * El backend guarda la oferta sin alias: los tramos traen `from_iata` / `to_iata` en lugar de
  * `from` / `to`. Se normaliza aquí para reutilizar el mapa y la tarjeta del podio.
