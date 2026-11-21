@@ -75,18 +75,24 @@ export function BonesItinerariesCapturePage() {
   const { t } = useTranslation();
   const rows = manyItineraries(3).map((item) => ItinerarySchema.parse(item));
   return (
-    <div className="mx-auto w-full max-w-3xl p-4">
+    <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
       <Skeleton
         name="itineraries-list"
         loading
         fixture={
-          <ul aria-label={t('itineraries.listLabel')} className="flex flex-col gap-3">
-            {rows.map((itinerary) => (
-              <li key={itinerary.id}>
-                <ItineraryRow itinerary={itinerary} locale="es-PE" onDelete={() => {}} />
-              </li>
-            ))}
-          </ul>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+              <div className="h-11 flex-1 rounded-lg border border-line-strong bg-surface lg:h-10" />
+              <div className="h-11 w-full rounded-lg border border-line-strong bg-surface sm:w-52 lg:h-10" />
+            </div>
+            <ul aria-label={t('itineraries.listLabel')} className="flex flex-col gap-3">
+              {rows.map((itinerary) => (
+                <li key={itinerary.id}>
+                  <ItineraryRow itinerary={itinerary} locale="es-PE" onDelete={() => {}} />
+                </li>
+              ))}
+            </ul>
+          </div>
         }
       >
         {null}

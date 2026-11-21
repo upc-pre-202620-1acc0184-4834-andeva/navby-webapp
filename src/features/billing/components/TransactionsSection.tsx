@@ -11,21 +11,30 @@ import {
   ShoppingBag,
   UserX,
 } from 'lucide-react';
-import { type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { isApiError } from '@/shared/api/errors';
+import { useSession } from '@/shared/auth/useSession';
 import { formatInstantDateTime } from '@/shared/format/date';
-import { type TransactionsPage, type TransactionType } from '@/shared/api/schemas';
+import {
+  type CreditPackage,
+  type TransactionItem,
+  type TransactionsPage,
+  type TransactionType,
+} from '@/shared/api/schemas';
+import { useHomeHref } from '@/shared/search/lastSearch';
 import { Button } from '@/shared/ui/Button';
 import { buttonVariants } from '@/shared/ui/buttonVariants';
 import { Card } from '@/shared/ui/Card';
 import { cn } from '@/shared/ui/cn';
 import { StatusMessage } from '@/shared/ui/StatusMessage';
 import { formatSignedCredits } from '../formatBilling';
+import { TransactionDetailDialog } from './TransactionDetailDialog';
 
 export interface TransactionsSectionProps {
   data: TransactionsPage | undefined;
+  packages?: CreditPackage[];
   isPending: boolean;
   isFetching: boolean;
   isPlaceholderData: boolean;
@@ -90,6 +99,7 @@ function TransactionsFallback() {
 /** Lista y paginación del historial, reutilizada por `BonesBillingCapturePage`. */
 export function TransactionsBody({
   data,
+  packages,
   isFetching,
   isPlaceholderData,
   page,
@@ -97,6 +107,7 @@ export function TransactionsBody({
   locale,
 }: {
   data: TransactionsPage;
+  packages?: CreditPackage[];
   isFetching: boolean;
   isPlaceholderData: boolean;
   page: number;
@@ -104,6 +115,9 @@ export function TransactionsBody({
   locale: string;
 }) {
   const { t } = useTranslation();
+  const { user } = useSession();
+  const homeHref = useHomeHref(user?.user_id);
+  const [selectedTx, setSelectedTx] = useState<TransactionItem | null>(null);
   const totalPages = Math.max(1, Math.ceil(data.total / data.page_size));
 
   if (data.total === 0) {
@@ -114,7 +128,7 @@ export function TransactionsBody({
         title={t('billing.transactions.emptyTitle')}
         description={t('billing.transactions.emptyDescription')}
         action={
-          <Link to="/" className={buttonVariants({ variant: 'primary' })}>
+          <Link to={homeHref} className={buttonVariants({ variant: 'primary' })}>
             {t('billing.transactions.emptyAction')}
           </Link>
         }
@@ -156,37 +170,56 @@ export function TransactionsBody({
               sourceText = t('billing.transactions.sourceNone');
             }
 
+            const formattedDate = formatInstantDateTime(tx.created_at, locale);
+            const typeLabel = t(`billing.transactions.types.${tx.type}`);
+
             return (
-              <li key={tx.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span
-                    className={cn(
-                      'flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-sunken',
-                      meta.iconInk,
-                    )}
-                  >
-                    <Icon className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-fg">
-                      {t(`billing.transactions.types.${tx.type}`)}
-                    </p>
-                    <p className="text-xs text-fg-muted tabular-nums">
-                      {formatInstantDateTime(tx.created_at, locale)}
-                    </p>
+              <li key={tx.id}>
+                <button
+                  type="button"
+                  aria-label={t('billing.transactions.openDetailAria', {
+                    type: typeLabel,
+                    date: formattedDate,
+                  })}
+                  onClick={() => setSelectedTx(tx)}
+                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors duration-150 ease-(--ease-out) hover:bg-surface-sunken/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset active:bg-surface-sunken"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span
+                      className={cn(
+                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-sunken',
+                        meta.iconInk,
+                      )}
+                    >
+                      <Icon className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm leading-snug font-medium text-fg">{typeLabel}</p>
+                      <p className="text-xs text-fg-muted tabular-nums">{formattedDate}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="shrink-0 text-right">
-                  <p className={cn('text-sm font-semibold tabular-nums', deltaInk)}>
-                    {formatSignedCredits(netDelta, locale)}
-                  </p>
-                  <p className="text-xs text-fg-muted tabular-nums">{sourceText}</p>
-                </div>
+                  <div className="flex shrink-0 items-center gap-2.5">
+                    <div className="text-right">
+                      <p className={cn('text-sm font-semibold tabular-nums', deltaInk)}>
+                        {formatSignedCredits(netDelta, locale)}
+                      </p>
+                      <p className="text-xs text-fg-muted tabular-nums">{sourceText}</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-fg-muted" aria-hidden="true" />
+                  </div>
+                </button>
               </li>
             );
           })}
         </ul>
       </Card>
+
+      <TransactionDetailDialog
+        transaction={selectedTx}
+        packages={packages}
+        locale={locale}
+        onClose={() => setSelectedTx(null)}
+      />
 
       {data.total > data.page_size ? (
         <nav
@@ -221,6 +254,7 @@ export function TransactionsBody({
 /** Historial paginado de movimientos de créditos (US-27). Nunca muestra `reference_id`. */
 export function TransactionsSection({
   data,
+  packages,
   isPending,
   isFetching,
   isPlaceholderData,
@@ -272,6 +306,7 @@ export function TransactionsSection({
           {data ? (
             <TransactionsBody
               data={data}
+              packages={packages}
               isFetching={isFetching}
               isPlaceholderData={isPlaceholderData}
               page={page}

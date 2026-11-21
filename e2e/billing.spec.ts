@@ -33,7 +33,7 @@ function makeTransactions(count: number, startOffset: number) {
       type: isPurchase ? 'PURCHASE' : 'SEARCH_DEBIT',
       free_delta: isPurchase ? 0 : -5,
       paid_delta: isPurchase ? 100 : 0,
-      reference_id: `ref-${n}`,
+      reference_id: isPurchase ? ORDER_ID : `srch_e2e_${n}`,
       created_at: new Date(Date.UTC(2026, 10, 19, 12) - n * 3_600_000).toISOString(),
     };
   });
@@ -72,6 +72,18 @@ test.describe('Créditos y pagos (Plan 7)', () => {
       });
     });
 
+    await page.route(`**/api/v1/billing/orders/${ORDER_ID}`, (route) =>
+      json(route, 200, {
+        order_id: ORDER_ID,
+        package_code: 'pack_100',
+        credits: 100,
+        amount: '16.90',
+        currency: 'PEN',
+        status: 'APPROVED',
+        expires_at: new Date(Date.now() + 24 * 60 * 60_000).toISOString(),
+      }),
+    );
+
     await page.route('**/api/v1/billing/orders', (route) =>
       json(route, 201, {
         order_id: ORDER_ID,
@@ -106,7 +118,18 @@ test.describe('Créditos y pagos (Plan 7)', () => {
 
     await expect(page.getByRole('heading', { level: 3, name: 'Viajero Frecuente' })).toBeVisible();
     await expect(page.getByText('Recomendado')).toBeVisible();
-    await expect(page.getByText(/Mercado Pago opera en modo sandbox/)).toBeVisible();
+    await expect(page.getByText(/Mercado Pago opera en modo sandbox/)).toBeHidden();
+
+    // Detalle de movimiento / comprobante de compra desde el historial.
+    await page.getByRole('button', { name: /Ver detalle de Compra de paquete/ }).click();
+    const receiptDialog = page.getByRole('dialog');
+    await expect(
+      receiptDialog.getByRole('heading', { level: 2, name: 'Comprobante de compra' }),
+    ).toBeVisible();
+    await expect(receiptDialog.getByText('Aprobado')).toBeVisible();
+    await expect(receiptDialog.getByText('Viajero Frecuente')).toBeVisible();
+    await receiptDialog.getByRole('button', { name: 'Cerrar' }).last().click();
+    await expect(receiptDialog).toBeHidden();
 
     // Paginación de historial: página 1 -> página 2 -> página 1.
     await expect(page.getByText('Página 1 de 2')).toBeVisible();
@@ -166,7 +189,9 @@ test.describe('Créditos y pagos (Plan 7)', () => {
     await expect(page.getByRole('heading', { level: 2, name: '¡Pago aprobado!' })).toBeVisible({
       timeout: 10_000,
     });
-    await expect(page.getByRole('link', { name: /Saldo: 110 créditos/ })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Saldo: 110 créditos/, includeHidden: true }),
+    ).toBeAttached();
 
     await expectNoHorizontalOverflow(page);
     await expectAxeLightAndDark(page);

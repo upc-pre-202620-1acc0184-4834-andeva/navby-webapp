@@ -242,7 +242,7 @@ test.describe('Buscador y mapa preliminar (Plan 2)', () => {
 
   test('autocompletado (US-11), selector de aeropuertos (US-14), pasajeros/moneda (US-34) y ruta preliminar (US-12)', async ({
     page,
-  }, testInfo) => {
+  }) => {
     const counters = { cityCalls: [] as string[], previewCalls: [] as string[] };
     await setupAuthenticatedMocks(page, counters);
 
@@ -309,18 +309,26 @@ test.describe('Buscador y mapa preliminar (Plan 2)', () => {
     await expect(page).toHaveURL(/cabin=BUSINESS/);
     await expect(page).toHaveURL(/cur=PEN/);
 
-    await expect(page.getByText('Ruta física más rápida (ida y vuelta): ~46 h')).toBeVisible();
+    // Al buscar, los resultados reemplazan al formulario con flecha atrás y botón Ver detalles.
+    await expect(page.getByRole('button', { name: 'Volver al buscador' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Ver detalles' }).first().click();
+    await expect(page.getByRole('heading', { name: 'Detalles del análisis' })).toBeVisible();
+    await expect(page.getByText('4.00 ms')).toBeVisible();
+    await expect(page.getByText('9.00 ms')).toBeVisible();
+    await expect(page.getByText('18')).toBeVisible();
+    await page.getByRole('button', { name: 'Cerrar' }).last().click();
+
+    await page.getByRole('button', { name: 'Volver al buscador' }).click();
+
+    await expect(page.getByRole('button', { name: 'Ver recomendaciones' })).toBeVisible();
     await expect(page.getByRole('region', { name: 'Mapa de ruta preliminar' })).toBeVisible();
     await expect(page.getByText('Origen: LIM')).toBeAttached();
     await expect(page.getByText('Escala: LAX')).toBeAttached();
     await expect(page.getByText('Destino: HND')).toBeAttached();
 
     const legendSummary = page.getByText(/Tramos estimados: LIM → LAX → HND \(1 escala\)/);
-    if (testInfo.project.name === 'mobile') {
-      await expect(legendSummary).toBeVisible();
-    } else {
-      await expect(legendSummary).toBeAttached();
-    }
+    await expect(legendSummary).toBeAttached();
 
     // US-14: excluir Narita (NRT) tras búsqueda activa dispara recálculo debounced a HND.
     await page.getByRole('button', { name: /Aeropuertos de Tokio \(2\/2\)/ }).click();
@@ -339,6 +347,42 @@ test.describe('Buscador y mapa preliminar (Plan 2)', () => {
 
     const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
     expect(violations).toEqual([]);
+  });
+
+  test('buscador sin scroll en Laptop/Desktop y hoja estilo Google Maps en Tablet/Mobile', async ({
+    page,
+  }, testInfo) => {
+    await setupAuthenticatedMocks(page);
+    await page.goto('/app/');
+
+    if (testInfo.project.name === 'desktop') {
+      // Desktop 1440x900 y Laptop 1280x720: el buscador flotante no debe tener scroll vertical.
+      for (const viewport of [
+        { width: 1440, height: 900 },
+        { width: 1280, height: 720 },
+      ]) {
+        await page.setViewportSize(viewport);
+        const searchButton = page.getByRole('button', { name: 'Buscar' });
+        await expect(searchButton).toBeVisible();
+        const hasVerticalScroll = await searchButton.evaluate((btn) => {
+          const scroller = btn.closest('.overflow-y-auto');
+          return scroller ? scroller.scrollHeight > scroller.clientHeight + 2 : false;
+        });
+        expect(hasVerticalScroll).toBe(false);
+      }
+
+      // Tablet 768x1024: barra superior flotante y hoja inferior acoplada sin desbordamiento.
+      await page.setViewportSize({ width: 768, height: 1024 });
+      await expect(page.getByRole('button', { name: 'Ajustar panel del mapa' })).toBeVisible();
+      const tabletOverflow = await page
+        .locator('html')
+        .evaluate((el) => el.scrollWidth > el.clientWidth);
+      expect(tabletOverflow).toBe(false);
+    } else {
+      await expect(page.getByRole('button', { name: 'Ajustar panel del mapa' })).toBeVisible();
+      await page.getByRole('button', { name: 'Ajustar panel del mapa' }).click();
+      await expect(page.getByRole('button', { name: 'Buscar' })).toBeVisible();
+    }
   });
 
   test('ruta imposible IPC -> FNJ, modo oscuro, URL compartida recargable y prefers-reduced-motion', async ({
@@ -361,7 +405,8 @@ test.describe('Buscador y mapa preliminar (Plan 2)', () => {
     await page.goto(
       `/app/?trip=ONE_WAY&from=LIM&to=HND&dep=${futureIso(12)}&ad=1&ch=0&in=0&cabin=ECONOMY&cur=USD`,
     );
-    await expect(page.getByText('Ruta física más rápida: ~22 h')).toBeVisible();
+    await expect(page.getByText(/Tramos estimados: LIM → LAX → HND \(1 escala\)/)).toBeAttached();
+    await expect(page.getByText(/Ruta física más rápida/)).toHaveCount(0);
     await expect(page.locator('.navby-preview-pulse')).toHaveCount(0);
 
     const overflow = await page.locator('html').evaluate((el) => el.scrollWidth > el.clientWidth);

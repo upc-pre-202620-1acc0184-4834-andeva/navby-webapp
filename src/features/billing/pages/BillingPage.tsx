@@ -120,6 +120,7 @@ export default function BillingPage() {
 
       <TransactionsSection
         data={transactionsQuery.data}
+        packages={packagesQuery.data?.packages}
         isPending={transactionsQuery.isPending}
         isFetching={transactionsQuery.isFetching}
         isPlaceholderData={transactionsQuery.isPlaceholderData}

@@ -93,6 +93,46 @@ describe('Lista de itinerarios (US-23)', () => {
     expect(
       screen.getByText('Los precios son del momento en que guardaste cada itinerario'),
     ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Volver al buscador' })).toHaveAttribute('href', '/');
+  });
+
+  it('filtra por texto y ordena por precio o próxima salida con estado vacío limpio', async () => {
+    const EXPENSIVE = itineraryJson({
+      id: '00000000-0000-4000-8000-0000000000c1',
+      name: 'Viaje lejano',
+      origin: 'LIM',
+      destination: 'HND',
+      departure_date: '2027-02-10',
+      offer: {
+        ...RECENT.offer,
+        price: { amount: '950.00', currency: 'USD' },
+      },
+    });
+    setup(savedStore([EXPENSIVE, OLDER, OLDEST]).handlers);
+    renderApp(LIST_URL);
+    const user = userEvent.setup();
+    await rowsOf();
+
+    const searchInput = screen.getByRole('searchbox', { name: 'Buscar en mis itinerarios' });
+    await user.type(searchInput, 'CUZ');
+    const filtered = await rowsOf();
+    expect(filtered).toHaveLength(1);
+    expect(within(at(filtered, 0)).getByRole('link').textContent).toBe('LIM → CUZ · 2026-12-03');
+
+    await user.clear(searchInput);
+    await user.type(searchInput, 'NOEXISTE');
+    expect(await screen.findByText('No hay itinerarios que coincidan')).toBeInTheDocument();
+    const clearButtons = screen.getAllByRole('button', { name: 'Limpiar búsqueda' });
+    await user.click(clearButtons[clearButtons.length - 1]!);
+    expect(await rowsOf()).toHaveLength(3);
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Ordenar por' }), 'departureAsc');
+    const sorted = await rowsOf();
+    expect(sorted.map((row) => within(row).getByRole('link').textContent)).toEqual([
+      'LIM → MAD · 2026-11-01 (ida y vuelta)',
+      'LIM → CUZ · 2026-12-03',
+      'Viaje lejano',
+    ]);
   });
 
   it('vacío: invita a buscar vuelos y no muestra contador', async () => {
@@ -250,7 +290,7 @@ describe('Detalle del itinerario (US-23)', () => {
     expect(within(card).getByText(price('240.00'))).toBeInTheDocument();
     expect(
       within(card).getByText(
-        `Precio del ${formatInstantDate(QUOTED_AT, 'es-PE')}; puede haber cambiado. Precio referencial obtenido de terceros; se confirma en el sitio del vendedor.`,
+        `Precio del ${formatInstantDate(QUOTED_AT, 'es-PE')}; puede haber cambiado. Precio referencial obtenido de terceros.`,
       ),
     ).toBeInTheDocument();
     expect(within(card).getByRole('link', { name: /Comprar/ })).toHaveAttribute(
@@ -259,6 +299,10 @@ describe('Detalle del itinerario (US-23)', () => {
     );
     expect(screen.queryByText(/Opción/)).not.toBeInTheDocument();
     expect(within(card).queryByRole('button', { name: /Guardar/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Buscar precios actuales' })).toHaveAttribute(
+      'href',
+      '/?trip=ONE_WAY&from=LIM&to=MAD&dep=2026-11-01&cur=USD',
+    );
   });
 
   it('un puesto fuera del podio (5) y un perfil distinto se muestran sin romper', async () => {

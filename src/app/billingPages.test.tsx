@@ -232,7 +232,9 @@ describe('Historial de movimientos en /billing (US-27)', () => {
     let calls = 0;
 
     setupBilling({
-      'GET /billing/transactions': () => {
+      'GET /billing/transactions': (_init, url) => {
+        // La campana del TopBar pide la página 1 por su cuenta: no cuenta para el reintento.
+        if (url?.searchParams.get('page') === '1') return jsonResponse(200, transactionsPage());
         calls += 1;
         if (calls === 1) return problem(500, 'INTERNAL');
         return jsonResponse(
@@ -250,10 +252,88 @@ describe('Historial de movimientos en /billing (US-27)', () => {
     expect(await screen.findByText('Página 2 de 2')).toBeInTheDocument();
     await waitFor(() => expect(router.state.location.search).toBe('?page=2'));
   });
+
+  it('abre comprobante de compra al hacer clic en una fila PURCHASE (GET /billing/orders/:id)', async () => {
+    const purchaseTx = transactionItem({
+      id: 'tx-purchase-1',
+      type: 'PURCHASE',
+      free_delta: 0,
+      paid_delta: 100,
+      reference_id: SAMPLE_ORDER_ID,
+    });
+    setupBilling({
+      'GET /billing/transactions': () => jsonResponse(200, transactionsPage([purchaseTx])),
+      [`GET /billing/orders/${SAMPLE_ORDER_ID}`]: () =>
+        jsonResponse(
+          200,
+          orderDetail({
+            order_id: SAMPLE_ORDER_ID,
+            package_code: 'pack_100',
+            credits: 100,
+            amount: '16.90',
+            currency: 'PEN',
+            status: 'APPROVED',
+          }),
+        ),
+    });
+
+    renderApp('/billing');
+    const user = userEvent.setup();
+    const list = await screen.findByRole('list', { name: 'Movimientos de créditos' });
+    await user.click(
+      within(list).getByRole('button', { name: /Ver detalle de Compra de paquete/ }),
+    );
+
+    const dialog = await screen.findByRole('dialog');
+    expect(
+      within(dialog).getByRole('heading', { level: 2, name: 'Comprobante de compra' }),
+    ).toBeInTheDocument();
+    expect(await within(dialog).findByText('Aprobado')).toBeInTheDocument();
+    expect(within(dialog).getByText('Viajero Frecuente')).toBeInTheDocument();
+    expect(within(dialog).getByText('+100')).toBeInTheDocument();
+    expect(within(dialog).getByText(/S\/\s*16\.90/)).toBeInTheDocument();
+
+    const closeButtons = within(dialog).getAllByRole('button', { name: 'Cerrar' });
+    await user.click(closeButtons[closeButtons.length - 1]!);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('muestra aviso y enlace a itinerarios al abrir un SEARCH_DEBIT ya expirado (404)', async () => {
+    const searchTx = transactionItem({
+      id: 'tx-search-expired',
+      type: 'SEARCH_DEBIT',
+      free_delta: -5,
+      paid_delta: 0,
+      reference_id: 'srch_expired_01',
+    });
+    setupBilling({
+      'GET /billing/transactions': () => jsonResponse(200, transactionsPage([searchTx])),
+      'GET /quotes/srch_expired_01': () => problem(404, 'SEARCH_NOT_FOUND'),
+    });
+
+    renderApp('/billing');
+    const user = userEvent.setup();
+    const list = await screen.findByRole('list', { name: 'Movimientos de créditos' });
+    await user.click(
+      within(list).getByRole('button', { name: /Ver detalle de Búsqueda de vuelos/ }),
+    );
+
+    const dialog = await screen.findByRole('dialog');
+    expect(
+      within(dialog).getByRole('heading', { level: 2, name: 'Detalle del movimiento' }),
+    ).toBeInTheDocument();
+    expect(
+      await within(dialog).findByText(/superaron los 30 minutos de vigencia/),
+    ).toBeInTheDocument();
+    expect(within(dialog).getByRole('link', { name: 'Ir a mis itinerarios' })).toHaveAttribute(
+      'href',
+      '/itineraries',
+    );
+  });
 });
 
 describe('Paquetes y compra en /billing (US-28, US-29)', () => {
-  it('muestra los 3 paquetes en soles, USD referencial, precio por búsqueda y aviso sandbox RL-04', async () => {
+  it('muestra los 3 paquetes en soles, USD referencial y precio por búsqueda', async () => {
     setupBilling();
     renderApp('/billing');
 
@@ -269,7 +349,7 @@ describe('Paquetes y compra en /billing (US-28, US-29)', () => {
     expect(screen.getByText(/S\/\s*34\.90/)).toBeInTheDocument();
     expect(screen.getByText(/aprox\. USD\s*2\.49 \(referencial\)/)).toBeInTheDocument();
     expect(screen.getByText(/S\/\s*0\.85 por búsqueda/)).toBeInTheDocument();
-    expect(screen.getByText(/Mercado Pago opera en modo sandbox/)).toBeInTheDocument();
+    expect(screen.queryByText(/Mercado Pago opera en modo sandbox/)).not.toBeInTheDocument();
   });
 
   it('localiza nombres y USD explícito cuando el idioma es inglés', async () => {
@@ -364,7 +444,7 @@ describe('Paquetes y compra en /billing (US-28, US-29)', () => {
       },
     });
 
-    const { router } = renderApp('/billing');
+    const { router, unmount } = renderApp('/billing');
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: /Comprar Viajero Frecuente/ }));
@@ -391,6 +471,7 @@ describe('Paquetes y compra en /billing (US-28, US-29)', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/verify-email'));
 
     // 401 sin sesión activa redirige a /login silenciosamente.
+    unmount();
     toastSpy.mockClear();
     let refreshCalls = 0;
     setupBilling({

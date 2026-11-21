@@ -17,10 +17,11 @@ export function usePackages() {
   });
 }
 
-export function useTransactions(page: number, pageSize = 20) {
+export function useTransactions(page: number, pageSize = 20, enabled = true) {
   return useQuery({
     queryKey: billingKeys.transactions(page, pageSize),
     queryFn: ({ signal }) => listTransactions({ page, pageSize }, signal),
+    enabled,
     staleTime: 0,
     refetchOnMount: 'always',
     placeholderData: keepPreviousData,
