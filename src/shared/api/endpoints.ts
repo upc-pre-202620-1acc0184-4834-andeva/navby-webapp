@@ -137,6 +137,28 @@ export async function deleteMyAccount(payload: { confirmation: string }): Promis
   clearSession();
 }
 
+/** Crea (cuenta solo-Google) o cambia la contraseña; `current_password` solo si ya tiene una. */
+export async function setMyPassword(payload: {
+  new_password: string;
+  current_password?: string;
+}): Promise<void> {
+  await apiFetch('/users/me/password', {
+    method: 'PUT',
+    auth: 'required',
+    body: payload,
+    parseVoid: true,
+  });
+}
+
+/** Desvincula Google; el backend exige que la cuenta tenga contraseña (`409 PASSWORD_REQUIRED`). */
+export async function unlinkGoogle(): Promise<void> {
+  await apiFetch('/users/me/google', {
+    method: 'DELETE',
+    auth: 'required',
+    parseVoid: true,
+  });
+}
+
 export function getMyProfile(signal?: AbortSignal): Promise<UserProfile> {
   return apiFetch('/users/me', {
     signal,
@@ -288,6 +310,14 @@ export function getOrder(orderId: string, signal?: AbortSignal): Promise<OrderDe
     signal,
     auth: 'required',
     schema: OrderDetailSchema,
+  });
+}
+
+export function getQuotePodium(searchId: string, signal?: AbortSignal): Promise<PodiumResponse> {
+  return apiFetch(`/quotes/${encodeURIComponent(searchId)}`, {
+    signal,
+    auth: 'required',
+    schema: PodiumResponseSchema,
   });
 }
 

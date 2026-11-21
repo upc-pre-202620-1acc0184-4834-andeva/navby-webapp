@@ -1,7 +1,8 @@
 import { type HTMLAttributes } from 'react';
 import { cn } from './cn';
 
-export type BadgeVariant = 'neutral' | 'success' | 'warning' | 'error' | 'affinity' | 'accent';
+export type BadgeVariant =
+  'neutral' | 'success' | 'warning' | 'error' | 'affinity' | 'brand' | 'accent';
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
@@ -13,6 +14,7 @@ const VARIANT_CLASSES: Record<BadgeVariant, string> = {
   warning: 'border-line bg-surface-sunken text-warning-ink',
   error: 'border-line bg-surface-sunken text-error-ink',
   affinity: 'border-transparent bg-primary-soft text-primary-dark',
+  brand: 'border-transparent bg-primary text-white',
   accent: 'border-transparent bg-accent text-on-accent',
 };
 
