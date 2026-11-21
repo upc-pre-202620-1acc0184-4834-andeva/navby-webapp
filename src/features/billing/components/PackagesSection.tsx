@@ -1,12 +1,13 @@
 import { Skeleton } from 'boneyard-js/react';
 import { CreditCard } from 'lucide-react';
-import { type ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isApiError } from '@/shared/api/errors';
 import { type PackagesResponse } from '@/shared/api/schemas';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
+import { cn } from '@/shared/ui/cn';
 import { StatusMessage } from '@/shared/ui/StatusMessage';
 import { formatBillingMoney, formatPerSearchPrice, localizePackageName } from '../formatBilling';
 
@@ -17,6 +18,7 @@ export interface PackagesSectionProps {
   onRetry: () => void;
   pendingCode: string | null;
   isLocked: boolean;
+  selectedPackCode?: string | null;
   onSelectPackage: (code: string) => void;
   locale: string;
   skeletonFixture?: ReactNode;
@@ -45,16 +47,31 @@ export function PackagesBody({
   data,
   pendingCode,
   isLocked,
+  selectedPackCode = null,
   onSelectPackage,
   locale,
 }: {
   data: PackagesResponse;
   pendingCode: string | null;
   isLocked: boolean;
+  selectedPackCode?: string | null;
   onSelectPackage: (code: string) => void;
   locale: string;
 }) {
   const { t } = useTranslation();
+  const selectedCardRef = useRef<HTMLDivElement>(null);
+  const scrolledPackRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!selectedPackCode || scrolledPackRef.current === selectedPackCode) return;
+    const card = selectedCardRef.current;
+    if (!card) return;
+    scrolledPackRef.current = selectedPackCode;
+    if (typeof card.scrollIntoView === 'function') {
+      const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      card.scrollIntoView({ block: 'nearest', behavior: reducedMotion ? 'auto' : 'smooth' });
+    }
+  }, [selectedPackCode]);
 
   if (data.packages.length === 0) {
     return (
@@ -66,10 +83,16 @@ export function PackagesBody({
     );
   }
 
+  const hasSelected = Boolean(
+    selectedPackCode && data.packages.some((pkg) => pkg.code === selectedPackCode),
+  );
+
   return (
     <div className="grid grid-cols-1 gap-6 pt-3 md:grid-cols-3 md:gap-4">
       {data.packages.map((pkg) => {
         const isRecommended = pkg.code === 'pack_100';
+        const isSelected = selectedPackCode === pkg.code;
+        const isHighlighted = hasSelected ? isSelected : isRecommended;
         const name = localizePackageName(t, pkg.code, pkg.name);
         const priceFormatted = formatBillingMoney(pkg.price, data.currency, locale);
         const usdFormatted = formatBillingMoney(pkg.usd_reference, 'USD', locale);
@@ -83,8 +106,13 @@ export function PackagesBody({
         return (
           <Card
             key={pkg.code}
-            variant={isRecommended ? 'highlighted' : 'default'}
-            className="relative flex flex-col justify-between gap-4 p-4"
+            ref={isSelected ? selectedCardRef : undefined}
+            data-selected={isSelected ? 'true' : undefined}
+            variant={isHighlighted ? 'highlighted' : 'default'}
+            className={cn(
+              'relative flex flex-col justify-between gap-4 p-4',
+              isSelected && 'ring-2 ring-primary/20',
+            )}
           >
             {isRecommended ? (
               <Badge
@@ -121,7 +149,7 @@ export function PackagesBody({
             </div>
 
             <Button
-              variant={isRecommended ? 'primary' : 'secondary'}
+              variant={isHighlighted ? 'primary' : 'secondary'}
               className="w-full"
               loading={pendingCode === pkg.code}
               disabled={isLocked}
@@ -149,6 +177,7 @@ export function PackagesSection({
   onRetry,
   pendingCode,
   isLocked,
+  selectedPackCode = null,
   onSelectPackage,
   locale,
   skeletonFixture,
@@ -192,6 +221,7 @@ export function PackagesSection({
               data={data}
               pendingCode={pendingCode}
               isLocked={isLocked}
+              selectedPackCode={selectedPackCode}
               onSelectPackage={onSelectPackage}
               locale={locale}
             />

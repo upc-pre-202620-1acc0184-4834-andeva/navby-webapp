@@ -366,6 +366,30 @@ describe('Paquetes y compra en /billing (US-28, US-29)', () => {
     expect(screen.getByText('approx. $4.49 USD (reference)')).toBeInTheDocument();
   });
 
+  it('resalta el paquete preseleccionado con ?pack= y crea orden al comprar', async () => {
+    let createdPackageCode: string | null = null;
+    setupBilling({
+      'POST /billing/orders': (init) => {
+        createdPackageCode = (JSON.parse(String(init?.body)) as { package_code: string })
+          .package_code;
+        return jsonResponse(201, orderCreated({ package_code: createdPackageCode }));
+      },
+    });
+
+    renderApp('/billing?pack=pack_50');
+    const user = userEvent.setup();
+
+    const getawayHeading = await screen.findByRole('heading', { level: 3, name: 'Escapada' });
+    const getawayCard = getawayHeading.closest('[data-selected="true"]');
+    expect(getawayCard).not.toBeNull();
+    expect(screen.getByText('Recomendado')).toBeInTheDocument();
+
+    await user.click(within(getawayCard as HTMLElement).getByRole('button', { name: /^Comprar / }));
+
+    await waitFor(() => expect(createdPackageCode).toBe('pack_50'));
+    expect(checkoutNavigation.redirectToCheckout).toHaveBeenCalledTimes(1);
+  });
+
   it('crea orden, bloquea botones (y desbloquea en bfcache pageshow), guarda sessionStorage y redirige', async () => {
     let resolveOrder!: (res: Response) => void;
     setupBilling({

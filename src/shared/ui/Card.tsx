@@ -1,10 +1,10 @@
-import { type HTMLAttributes } from 'react';
+import { type ComponentProps } from 'react';
 import { cn } from './cn';
 
 export type CardVariant = 'default' | 'elevated' | 'highlighted';
 export type CardPadding = 'none' | 'md';
 
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends ComponentProps<'div'> {
   variant?: CardVariant;
   padding?: CardPadding;
 }

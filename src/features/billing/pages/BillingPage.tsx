@@ -32,6 +32,11 @@ export default function BillingPage() {
   const packagesQuery = usePackages();
   const transactionsQuery = useTransactions(page, PAGE_SIZE);
   const createOrder = useCreateOrder(user?.user_id);
+  const requestedPack = searchParams.get('pack');
+  const selectedPackCode =
+    requestedPack && packagesQuery.data?.packages.some((pkg) => pkg.code === requestedPack)
+      ? requestedPack
+      : null;
 
   // Si la caché del saldo cruzó la medianoche de Lima, refresca al entrar a /billing.
   useEffect(() => {
@@ -114,6 +119,7 @@ export default function BillingPage() {
         onRetry={() => void packagesQuery.refetch()}
         pendingCode={createOrder.pendingCode}
         isLocked={createOrder.isLocked}
+        selectedPackCode={selectedPackCode}
         onSelectPackage={createOrder.mutate}
         locale={locale}
       />
