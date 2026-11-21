@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { newPasswordSchema } from '@/shared/auth/passwordSchema';
 
 // Los mensajes son claves de i18n (auth.errors.*); la página las traduce al mostrarlas.
 // Las reglas espejan los value objects de navby-platform (Email, FullName, PlainPassword).
@@ -11,11 +12,7 @@ const email = z
   .max(254, 'auth.errors.emailInvalid')
   .regex(/^[^@\s]+@[^@\s]+\.[^@\s]+$/, 'auth.errors.emailInvalid');
 
-const newPassword = z
-  .string()
-  .min(8, 'auth.errors.passwordMin')
-  .max(72, 'auth.errors.passwordMax')
-  .refine((v) => /\p{L}/u.test(v) && /\p{N}/u.test(v), 'auth.errors.passwordComplexity');
+const newPassword = newPasswordSchema;
 
 export const loginSchema = z.object({
   email,

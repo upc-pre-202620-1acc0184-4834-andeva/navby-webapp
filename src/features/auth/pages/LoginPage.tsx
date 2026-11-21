@@ -16,8 +16,8 @@ import { type LoginValues, loginSchema } from '../authSchemas';
 import { AUTH_LINK_CLASS, FormNotice } from '../components/AuthCard';
 import { AuthLayout } from '../components/AuthLayout';
 import { GoogleSignIn } from '../components/GoogleSignIn';
-import { PasswordInput } from '../components/PasswordInput';
-import { getLastAuthMethod, setLastAuthMethod } from '../lastAuthMethod';
+import { PasswordInput } from '@/shared/ui/PasswordInput';
+import { setLastAuthMethod } from '../lastAuthMethod';
 import { useCaptcha } from '../useCaptcha';
 
 /** /login (US-04, US-05). Al abrir sesión, RedirectIfAuthenticated vuelve a `from`. */
@@ -138,16 +138,9 @@ export default function LoginPage() {
           action="login"
         />
         {formError ? <FormNotice>{formError}</FormNotice> : null}
-        <div className="relative">
-          {getLastAuthMethod() === 'password' ? (
-            <span className="pointer-events-none absolute -top-2.5 right-2 z-10 rounded-full border border-line bg-primary-soft px-2 py-0.5 text-[10px] font-semibold text-primary-dark shadow-xs dark:bg-primary/25 dark:text-brand-ink">
-              {t('auth.lastUsed')}
-            </span>
-          ) : null}
-          <Button type="submit" loading={mutation.isPending} className="w-full">
-            {t('auth.login.submit')}
-          </Button>
-        </div>
+        <Button type="submit" loading={mutation.isPending} className="w-full">
+          {t('auth.login.submit')}
+        </Button>
       </form>
     </AuthLayout>
   );

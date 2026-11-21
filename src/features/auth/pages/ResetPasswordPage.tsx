@@ -13,8 +13,8 @@ import { Field } from '@/shared/ui/Field';
 import { type ResetPasswordValues, resetPasswordSchema } from '../authSchemas';
 import { AUTH_LINK_CLASS, FormNotice } from '../components/AuthCard';
 import { AuthLayout } from '../components/AuthLayout';
-import { PasswordChecklist } from '../components/PasswordChecklist';
-import { PasswordInput } from '../components/PasswordInput';
+import { PasswordChecklist } from '@/shared/ui/PasswordChecklist';
+import { PasswordInput } from '@/shared/ui/PasswordInput';
 
 /**
  * /reset-password?token= (US-08). Queda fuera de RedirectIfAuthenticated para que el enlace

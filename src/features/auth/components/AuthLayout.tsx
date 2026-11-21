@@ -1,16 +1,22 @@
 import { Check, ChevronDown } from 'lucide-react';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import cosmicHorizonBg from '@/assets/auth/cosmic-horizon.jpg';
 import paperAirplaneImg from '@/assets/auth/paper-airplane.png';
 import travelCompassImg from '@/assets/auth/travel-compass.png';
 import isologoWhite from '@/assets/brand/navby-isologo-white.svg';
-import { advanceAuthDesktopSide, commitAuthDesktopSide } from '@/shared/auth/authTransitionSide';
+import {
+  advanceAuthDesktopSide,
+  AUTH_LIQUID_DURATION_MS,
+  commitAuthDesktopSide,
+} from '@/shared/auth/authTransitionSide';
 import { cn } from '@/shared/ui/cn';
 import { LegalLinksRow } from '@/shared/ui/LegalLinks';
 import { AuthShowcase, type AuthShowcaseVariant, type RegisterFeature } from './AuthShowcase';
+import { NAVBY_GLOBE_NIGHT } from './globeMath';
 import { LiquidBridge, type LiquidDirection } from './LiquidBridge';
+import { RouteGlobe } from './RouteGlobe';
 
 export interface AuthLayoutProps {
   title: string;
@@ -57,11 +63,14 @@ export function AuthLayout({
     returnObjects: true,
   }) as RegisterFeature[];
 
-  const mobileHeroAsset =
-    variant === 'register' || variant === 'verify' ? paperAirplaneImg : travelCompassImg;
+  const showGlobe = !showcaseLeft;
+  const mobileHeroAsset = showcaseLeft ? paperAirplaneImg : travelCompassImg;
 
   return (
-    <div className="relative grid min-h-dvh w-full overflow-x-clip bg-bg lg:grid-cols-2">
+    <div
+      className="relative grid min-h-dvh w-full overflow-x-clip bg-bg lg:grid-cols-2"
+      style={{ '--auth-liquid-ms': `${AUTH_LIQUID_DURATION_MS}ms` } as CSSProperties}
+    >
       <AuthShowcase
         variant={variant}
         cardRef={showcaseCardRef}
@@ -86,7 +95,12 @@ export function AuthLayout({
         )}
       >
         {/* Cabecera móvil compacta estilo GitHub: banner oscuro + elemento 3D sobre la costura */}
-        <div className="relative bg-[#12101B] px-5 pt-4 pb-11 text-white lg:hidden">
+        <div
+          className={cn(
+            'relative bg-[#12101B] px-5 pt-4 text-white lg:hidden',
+            showGlobe ? 'min-h-64 overflow-hidden pb-8' : 'pb-11',
+          )}
+        >
           <img
             src={cosmicHorizonBg}
             alt=""
@@ -97,6 +111,16 @@ export function AuthLayout({
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 bg-[#12101B]/45"
           />
+
+          {/* Login y recuperación: el mismo globo de escritorio, decorativo y asomando por la derecha */}
+          {showGlobe ? (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-10 -bottom-12 h-64 w-64"
+            >
+              <RouteGlobe theme={NAVBY_GLOBE_NIGHT} style={{ background: 'transparent' }} />
+            </div>
+          ) : null}
 
           <div className="relative z-10 flex items-center justify-between gap-2">
             <Link
@@ -167,12 +191,14 @@ export function AuthLayout({
             ) : null}
           </div>
 
-          <img
-            src={mobileHeroAsset}
-            alt=""
-            aria-hidden="true"
-            className="navby-float-wave pointer-events-none absolute -bottom-8 left-1/2 z-20 h-18 w-auto -translate-x-1/2 drop-shadow-[0_12px_20px_rgba(0,0,0,0.45)] select-none"
-          />
+          {showGlobe ? null : (
+            <img
+              src={mobileHeroAsset}
+              alt=""
+              aria-hidden="true"
+              className="navby-float-wave pointer-events-none absolute -bottom-8 left-1/2 z-20 h-18 w-auto -translate-x-1/2 drop-shadow-[0_12px_20px_rgba(0,0,0,0.45)] select-none"
+            />
+          )}
         </div>
 
         {/* Cabecera compacta en escritorio (≥ 1024 px) */}
@@ -181,7 +207,12 @@ export function AuthLayout({
         </header>
 
         {/* Cuerpo del formulario centrado */}
-        <div className="mx-auto my-auto flex w-full max-w-[400px] flex-col gap-6 px-5 pt-11 pb-6 sm:px-6 lg:px-0 lg:py-8">
+        <div
+          className={cn(
+            'mx-auto my-auto flex w-full max-w-[400px] flex-col gap-6 px-5 pb-6 sm:px-6 lg:px-0 lg:py-8',
+            showGlobe ? 'pt-8' : 'pt-11',
+          )}
+        >
           <div className="flex flex-col gap-1.5">
             <h1 className="text-2xl font-bold tracking-tight text-fg sm:text-[1.75rem]">{title}</h1>
             {subtitle ? <p className="text-sm leading-relaxed text-fg-muted">{subtitle}</p> : null}

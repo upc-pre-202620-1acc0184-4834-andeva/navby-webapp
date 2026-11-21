@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { LogOut, Trash2 } from 'lucide-react';
+import { Check, LogOut, Trash2 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { flushSync } from 'react-dom';
@@ -10,12 +10,19 @@ import { z } from 'zod';
 import { deleteMyAccount, getMyProfile } from '@/shared/api/endpoints';
 import { apiErrorMessage } from '@/shared/api/errorMessage';
 import { sessionKeys, useLogout, useSession } from '@/shared/auth/useSession';
+import { PreferenceSelector } from '@/shared/preferences/PreferenceSelector';
+import {
+  type PreferenceSelection,
+  readDefaultPreference,
+  writeDefaultPreference,
+} from '@/shared/preferences/preferences';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { Field } from '@/shared/ui/Field';
 import { Input } from '@/shared/ui/Input';
 import { LegalLinksRow } from '@/shared/ui/LegalLinks';
+import { SecurityCard } from '../components/SecurityCard';
 
 /** /account (US-07, US-09, US-10, RL-02). */
 export default function AccountPage() {
@@ -26,6 +33,17 @@ export default function AccountPage() {
     queryFn: ({ signal }) => getMyProfile(signal),
   });
   const logout = useLogout();
+
+  const [defaultPref, setDefaultPref] = useState<PreferenceSelection>(() =>
+    readDefaultPreference(user?.user_id),
+  );
+  const [prefSaved, setPrefSaved] = useState(false);
+
+  const handleDefaultPrefChange = (next: PreferenceSelection) => {
+    setDefaultPref(next);
+    writeDefaultPreference(user?.user_id, next);
+    setPrefSaved(true);
+  };
 
   const [confirming, setConfirming] = useState(false);
   const deleteTriggerRef = useRef<HTMLButtonElement>(null);
@@ -135,6 +153,35 @@ export default function AccountPage() {
             {t('account.logout')}
           </Button>
         </div>
+      </Card>
+
+      {data ? <SecurityCard hasPassword={data.has_password} hasGoogle={data.has_google} /> : null}
+
+      <Card className="flex flex-col gap-3 p-5">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-semibold text-fg">
+              {t('account.defaultPreference.title')}
+            </h2>
+            <p className="mt-0.5 text-sm text-fg-muted">
+              {t('account.defaultPreference.description')}
+            </p>
+          </div>
+          {prefSaved ? (
+            <Badge variant="success">
+              <Check className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{t('account.defaultPreference.saved')}</span>
+            </Badge>
+          ) : null}
+        </div>
+
+        <PreferenceSelector
+          selection={defaultPref}
+          onChange={handleDefaultPrefChange}
+          columns={4}
+          hideLegend={true}
+          legend={t('account.defaultPreference.title')}
+        />
       </Card>
 
       <Card className="flex flex-col gap-3 border-error-ink/40 p-5">
