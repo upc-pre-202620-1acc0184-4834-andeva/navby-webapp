@@ -2,7 +2,11 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   buildDashedGreatCircleSegments,
   computeRouteBounds,
+  type DashedArcSegment,
+  interpolateGreatCircle,
+  type LonLat,
   readCssRgbTuple,
+  revealSegments,
 } from './greatCircleDashes';
 
 describe('greatCircleDashes', () => {
@@ -85,5 +89,32 @@ describe('greatCircleDashes', () => {
 
     document.documentElement.style.setProperty('--route-preview', 'rgb(96 74 255)');
     expect(readCssRgbTuple('--route-preview', [138, 138, 147])).toEqual([96, 74, 255]);
+  });
+});
+
+describe('interpolateGreatCircle y revealSegments', () => {
+  it('interpola extremos y el punto medio sobre el círculo máximo', () => {
+    const a: LonLat = [0, 0];
+    const b: LonLat = [90, 0];
+    expect(interpolateGreatCircle(a, b, 0)[0]).toBeCloseTo(0);
+    expect(interpolateGreatCircle(a, b, 1)[0]).toBeCloseTo(90);
+    expect(interpolateGreatCircle(a, b, 0.5)[0]).toBeCloseTo(45);
+  });
+
+  it('no falla con puntos idénticos', () => {
+    expect(interpolateGreatCircle([10, 10], [10, 10], 0.5)).toEqual([10, 10]);
+  });
+
+  it('revela los trazos completos y recorta el que va en curso', () => {
+    const segments = [
+      { source: [0, 0], target: [10, 0] },
+      { source: [20, 0], target: [30, 0] },
+    ] as DashedArcSegment[];
+    expect(revealSegments(segments, 0)).toHaveLength(0);
+    const half = revealSegments(segments, 0.75);
+    expect(half).toHaveLength(2);
+    expect(half[0]).toBe(segments[0]);
+    expect(half[1]!.target[0]).toBeCloseTo(25);
+    expect(revealSegments(segments, 1)).toEqual(segments);
   });
 });

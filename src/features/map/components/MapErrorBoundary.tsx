@@ -1,11 +1,13 @@
 import { Component, type ReactNode } from 'react';
 import { withTranslation, type WithTranslation } from 'react-i18next';
+import { cn } from '@/shared/ui/cn';
 import { StatusMessage } from '@/shared/ui/StatusMessage';
 
 interface MapErrorBoundaryOwnProps {
   children: ReactNode;
   fallbackLegend?: ReactNode;
   onError?: () => void;
+  floatingPanel?: boolean;
 }
 
 type MapErrorBoundaryProps = MapErrorBoundaryOwnProps & WithTranslation;
@@ -31,9 +33,14 @@ class MapErrorBoundaryBase extends Component<MapErrorBoundaryProps, MapErrorBoun
 
   render(): ReactNode {
     if (this.state.hasError) {
-      const { t, fallbackLegend } = this.props;
+      const { t, fallbackLegend, floatingPanel = true } = this.props;
       return (
-        <div className="flex h-full w-full flex-col justify-center gap-4 bg-surface-sunken p-4 lg:pl-[460px]">
+        <div
+          className={cn(
+            'flex h-full w-full flex-col justify-center gap-4 bg-surface-sunken p-4',
+            floatingPanel && 'lg:pl-[460px]',
+          )}
+        >
           <StatusMessage
             variant="info"
             title={t('map.fallbackTitle')}

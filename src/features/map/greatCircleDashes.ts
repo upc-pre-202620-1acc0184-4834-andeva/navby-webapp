@@ -149,6 +149,47 @@ export function buildDashedGreatCircleSegments(
   return result;
 }
 
+/** Punto a la fracción `t` (0..1) del círculo máximo entre dos coordenadas; recto si es antípoda o diminuto. */
+export function interpolateGreatCircle(a: LonLat, b: LonLat, t: number): LonLat {
+  const u = toCartesian(a[0], a[1]);
+  const v = toCartesian(b[0], b[1]);
+  const dot = Math.max(-1, Math.min(1, u[0] * v[0] + u[1] * v[1] + u[2] * v[2]));
+  const omega = Math.acos(dot);
+  if (omega > Math.PI - ANTIPODAL_EPSILON || omega < TINY_ANGLE_EPSILON) {
+    return lerpLonLat({ lon: a[0], lat: a[1] }, { lon: b[0], lat: b[1] }, t);
+  }
+  return slerpPoint(u, v, omega, Math.sin(omega), t);
+}
+
+/**
+ * Los trazos visibles cuando la ruta lleva `progress` (0..1) dibujada: los completos y, el que
+ * está en curso, recortado hasta su avance. Así la ruta "se dibuja" sin cortes sueltos.
+ */
+export function revealSegments(
+  segments: ReadonlyArray<DashedArcSegment>,
+  progress: number,
+): DashedArcSegment[] {
+  const scaled = Math.max(0, Math.min(1, progress)) * segments.length;
+  const result: DashedArcSegment[] = [];
+  for (let i = 0; i < segments.length; i += 1) {
+    const local = Math.min(1, scaled - i);
+    if (local <= 0) break;
+    const seg = segments[i]!;
+    result.push(
+      local >= 1
+        ? seg
+        : {
+            source: seg.source,
+            target: [
+              seg.source[0] + (seg.target[0] - seg.source[0]) * local,
+              seg.source[1] + (seg.target[1] - seg.source[1]) * local,
+            ],
+          },
+    );
+  }
+  return result;
+}
+
 /**
  * Calcula la envolvente `[[west, south], [east, north]]` encontrando la mayor brecha
  * circular de longitudes en `[0, 360)`. Cuando `west > east`, MapLibre ajusta el
