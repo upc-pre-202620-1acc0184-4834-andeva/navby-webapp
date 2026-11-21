@@ -147,6 +147,14 @@ export function PodiumPanel({
         />
       ) : null}
 
+      {isRouteUnreachable && !isLoading && !isStale && !podium ? (
+        <StatusMessage
+          variant="empty"
+          title={t('search.unreachableTitle')}
+          description={t('search.unreachableDescription')}
+        />
+      ) : null}
+
       {showQuoteError ? (
         <StatusMessage
           variant={quoteErrorCode === 'SEARCH_IN_PROGRESS' ? 'info' : 'error'}

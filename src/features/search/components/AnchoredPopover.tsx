@@ -50,19 +50,29 @@ export function AnchoredPopover({
       if (matchTriggerWidth) {
         popover.style.width = `${clampedWidth}px`;
       } else {
-        popover.style.minWidth = `${Math.min(rect.width, maxWidth)}px`;
         popover.style.maxWidth = `${maxWidth}px`;
       }
 
       popover.style.left = `${clampedLeft}px`;
 
+      const margin = 12;
+      const availableHeight = Math.max(200, viewportHeight - margin * 2);
+      popover.style.maxHeight = `${availableHeight}px`;
+      popover.style.overflowY = 'auto';
+
+      const measuredHeight = Math.min(popover.offsetHeight || 0, availableHeight);
+
       if (openAbove) {
+        const desiredBottom = viewportHeight - rect.top + 6;
+        const maxBottom = Math.max(margin, viewportHeight - measuredHeight - margin);
         popover.style.top = 'auto';
-        popover.style.bottom = `${Math.max(12, viewportHeight - rect.top + 6)}px`;
+        popover.style.bottom = `${Math.max(margin, Math.min(desiredBottom, maxBottom))}px`;
         popover.style.transformOrigin = 'bottom left';
       } else {
+        const desiredTop = rect.bottom + 6;
+        const maxTop = Math.max(margin, viewportHeight - measuredHeight - margin);
         popover.style.bottom = 'auto';
-        popover.style.top = `${Math.min(viewportHeight - 40, rect.bottom + 6)}px`;
+        popover.style.top = `${Math.max(margin, Math.min(desiredTop, maxTop))}px`;
         popover.style.transformOrigin = 'top left';
       }
     };
@@ -110,7 +120,7 @@ export function AnchoredPopover({
     <div
       ref={popoverRef}
       className={cn(
-        'fixed z-20 overscroll-contain rounded-xl border border-line bg-surface shadow-lg',
+        'fixed z-40 overscroll-contain rounded-xl border border-line bg-surface shadow-lg',
         'scale-100 opacity-100 transition-[opacity,transform] duration-150 ease-(--ease-out) motion-reduce:transition-opacity',
         'starting:scale-[0.97] starting:opacity-0 motion-reduce:starting:scale-100',
         className,

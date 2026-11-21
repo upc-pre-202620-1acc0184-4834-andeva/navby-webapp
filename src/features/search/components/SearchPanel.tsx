@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowUpDown, ChevronDown, Route } from 'lucide-react';
+import { ArrowRight, ArrowUpDown, ChevronDown } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -15,14 +15,13 @@ import { useHydrateCityByIata } from '../hooks/useCityAutocomplete';
 import {
   CABIN_CLASSES,
   type CabinClass,
-  computeFastestHours,
   createSearchCriteriaSchema,
   CURRENCIES,
   type CurrencyCode,
   getTodayInLima,
   type SearchCriteria,
 } from '../searchCriteria';
-import { CityCombobox } from './CityCombobox';
+import { CityAirportsToggle, CityCombobox } from './CityCombobox';
 import { DateRangeField } from './DateRangeField';
 import { PassengersField } from './PassengersField';
 
@@ -36,6 +35,11 @@ export interface SearchPanelProps {
   isRateLimitCooldown: boolean;
   /** Cotización en curso: Buscar queda deshabilitado (US-18, el 409 no debería verse). */
   isQuoting?: boolean;
+  /** `card` para el panel flotante de escritorio; `embedded` dentro de la hoja móvil/tablet. */
+  variant?: 'card' | 'embedded';
+  /** Permite volver a los resultados si ya existen recomendaciones cargadas. */
+  hasStoredResults?: boolean;
+  onViewResults?: () => void;
   onRetryPreview: () => void;
   onSubmitCriteria: (criteria: SearchCriteria) => void;
   onAirportsDebouncedChange: (criteria: SearchCriteria) => void;
@@ -43,7 +47,7 @@ export interface SearchPanelProps {
 }
 
 const SEGMENTED_TAB_BASE =
-  'inline-flex min-h-11 sm:min-h-9 items-center justify-center rounded-md px-3 text-xs font-semibold transition-colors duration-150 ease-(--ease-out)';
+  'inline-flex min-h-10 lg:min-h-8 items-center justify-center rounded-md px-3 text-xs font-semibold transition-colors duration-150 ease-(--ease-out)';
 
 export function SearchPanel({
   initialCriteria,
@@ -54,6 +58,9 @@ export function SearchPanel({
   isPreviewFetching,
   isRateLimitCooldown,
   isQuoting = false,
+  variant = 'card',
+  hasStoredResults = false,
+  onViewResults,
   onRetryPreview,
   onSubmitCriteria,
   onAirportsDebouncedChange,
@@ -102,17 +109,30 @@ export function SearchPanel({
   const [pickedDestCity, setPickedDestCity] = useState<City | null>(null);
   const airportDebounceRef = useRef<number | null>(null);
 
+  const activePickedOrigin =
+    pickedOriginCity &&
+    origins.length > 0 &&
+    pickedOriginCity.airports.some((airport) => origins.includes(airport.iata))
+      ? pickedOriginCity
+      : null;
+  const activePickedDest =
+    pickedDestCity &&
+    destinations.length > 0 &&
+    pickedDestCity.airports.some((airport) => destinations.includes(airport.iata))
+      ? pickedDestCity
+      : null;
+
   const originHydration = useHydrateCityByIata(
     origins,
-    pickedOriginCity === null && origins.length > 0,
+    activePickedOrigin === null && origins.length > 0,
   );
   const destHydration = useHydrateCityByIata(
     destinations,
-    pickedDestCity === null && destinations.length > 0,
+    activePickedDest === null && destinations.length > 0,
   );
 
-  const originCity = pickedOriginCity ?? originHydration.city;
-  const destinationCity = pickedDestCity ?? destHydration.city;
+  const originCity = origins.length > 0 ? (activePickedOrigin ?? originHydration.city) : null;
+  const destinationCity = destinations.length > 0 ? (activePickedDest ?? destHydration.city) : null;
 
   useEffect(() => {
     onResolvedCitiesChange?.({ origin: originCity, destination: destinationCity });
@@ -184,8 +204,6 @@ export function SearchPanel({
     setValue('destinations', prevOrigins, { shouldValidate: submitCount > 0 });
   };
 
-  const fastestHours = preview ? computeFastestHours(preview, tripType) : null;
-
   const renderPreviewError = () => {
     if (!previewError) return null;
     if (isApiError(previewError)) {
@@ -242,17 +260,19 @@ export function SearchPanel({
     );
   };
 
-  return (
-    <Card variant="elevated" className="flex flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-fg">{t('home.title')}</h1>
-        <p className="mt-1 text-sm text-fg-muted">{t('home.subtitle')}</p>
-      </div>
+  const content = (
+    <div className="flex flex-col gap-2.5">
+      {variant === 'card' ? (
+        <div className="min-w-0">
+          <h1 className="text-lg font-bold tracking-tight text-fg sm:text-xl">{t('home.title')}</h1>
+          <p className="mt-0.5 text-xs leading-snug text-fg-muted">{t('home.subtitle')}</p>
+        </div>
+      ) : null}
 
       <form
         noValidate
         onSubmit={handleSubmit((data) => onSubmitCriteria(data))}
-        className="flex flex-col gap-3"
+        className="flex flex-col gap-2.5"
       >
         <div
           role="group"
@@ -293,63 +313,85 @@ export function SearchPanel({
           </button>
         </div>
 
+        {/* Origen y Destino emparejados al estilo Google Maps; los toggles de aeropuerto van debajo para no desalinear el botón ⇅. */}
         <div className="flex flex-col gap-2">
-          <CityCombobox
-            label={t('search.originLabel')}
-            placeholder={t('search.originPlaceholder')}
-            selectedCity={originCity}
-            selectedAirports={origins}
-            fallbackIatas={origins}
-            error={
-              fieldError('origins') ??
-              (originHydration.notFound ? t('search.errors.airportNotFound') : undefined)
-            }
-            onSelectCity={(city, iatas) => {
-              setPickedOriginCity(city);
-              setValue('origins', iatas, { shouldValidate: true, shouldTouch: true });
-            }}
-            onToggleAirport={(iata) => handleToggleAirport('origins', iata)}
-            onClearCity={() => {
-              setPickedOriginCity(null);
-              setValue('origins', [], { shouldValidate: true, shouldTouch: true });
-            }}
-            onBlur={() => void trigger('origins')}
-          />
+          <div className="grid grid-cols-[1fr_auto] items-center gap-x-2">
+            <div className="flex min-w-0 flex-col gap-2">
+              <CityCombobox
+                label={t('search.originLabel')}
+                placeholder={t('search.originPlaceholder')}
+                selectedCity={originCity}
+                selectedAirports={origins}
+                fallbackIatas={origins}
+                showAirportsPanel={false}
+                error={
+                  fieldError('origins') ??
+                  (originHydration.notFound ? t('search.errors.airportNotFound') : undefined)
+                }
+                onSelectCity={(city, iatas) => {
+                  setPickedOriginCity(city);
+                  setValue('origins', iatas, { shouldValidate: true, shouldTouch: true });
+                }}
+                onToggleAirport={(iata) => handleToggleAirport('origins', iata)}
+                onClearCity={() => {
+                  setPickedOriginCity(null);
+                  setValue('origins', [], { shouldValidate: true, shouldTouch: true });
+                }}
+                onBlur={() => void trigger('origins')}
+              />
 
-          <div className="my-0.5 flex items-center gap-2">
-            <div className="h-px flex-1 bg-line" aria-hidden="true" />
-            <Button
-              variant="secondary"
-              size="icon"
-              aria-label={t('search.swapAria')}
-              onClick={handleSwap}
-              className="shrink-0"
-            >
-              <ArrowUpDown className="h-4 w-4" aria-hidden="true" />
-            </Button>
+              <CityCombobox
+                label={t('search.destinationLabel')}
+                placeholder={t('search.destinationPlaceholder')}
+                selectedCity={destinationCity}
+                selectedAirports={destinations}
+                fallbackIatas={destinations}
+                showAirportsPanel={false}
+                error={
+                  fieldError('destinations') ??
+                  (destHydration.notFound ? t('search.errors.airportNotFound') : undefined)
+                }
+                onSelectCity={(city, iatas) => {
+                  setPickedDestCity(city);
+                  setValue('destinations', iatas, { shouldValidate: true, shouldTouch: true });
+                }}
+                onToggleAirport={(iata) => handleToggleAirport('destinations', iata)}
+                onClearCity={() => {
+                  setPickedDestCity(null);
+                  setValue('destinations', [], { shouldValidate: true, shouldTouch: true });
+                }}
+                onBlur={() => void trigger('destinations')}
+              />
+            </div>
+
+            <div className="flex items-center self-center pt-5">
+              <Button
+                variant="secondary"
+                size="icon"
+                aria-label={t('search.swapAria')}
+                onClick={handleSwap}
+                className="h-10 min-h-10 w-10 min-w-10 shrink-0 rounded-full shadow-xs lg:h-9 lg:min-h-9 lg:w-9 lg:min-w-9"
+              >
+                <ArrowUpDown className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </div>
           </div>
 
-          <CityCombobox
-            label={t('search.destinationLabel')}
-            placeholder={t('search.destinationPlaceholder')}
-            selectedCity={destinationCity}
-            selectedAirports={destinations}
-            fallbackIatas={destinations}
-            error={
-              fieldError('destinations') ??
-              (destHydration.notFound ? t('search.errors.airportNotFound') : undefined)
-            }
-            onSelectCity={(city, iatas) => {
-              setPickedDestCity(city);
-              setValue('destinations', iatas, { shouldValidate: true, shouldTouch: true });
-            }}
-            onToggleAirport={(iata) => handleToggleAirport('destinations', iata)}
-            onClearCity={() => {
-              setPickedDestCity(null);
-              setValue('destinations', [], { shouldValidate: true, shouldTouch: true });
-            }}
-            onBlur={() => void trigger('destinations')}
-          />
+          {originCity && originCity.airports.length > 1 ? (
+            <CityAirportsToggle
+              city={originCity}
+              selectedAirports={origins}
+              onToggleAirport={(iata) => handleToggleAirport('origins', iata)}
+            />
+          ) : null}
+
+          {destinationCity && destinationCity.airports.length > 1 ? (
+            <CityAirportsToggle
+              city={destinationCity}
+              selectedAirports={destinations}
+              onToggleAirport={(iata) => handleToggleAirport('destinations', iata)}
+            />
+          ) : null}
         </div>
 
         <DateRangeField
@@ -385,7 +427,7 @@ export function SearchPanel({
           }}
         />
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5">
           <Field label={t('search.cabinLabel')}>
             {(ariaProps) => (
               <div className="relative">
@@ -444,7 +486,7 @@ export function SearchPanel({
           variant="primary"
           loading={isQuoting || isPreviewFetching}
           disabled={isQuoting}
-          className="mt-1 w-full"
+          className="mt-0.5 w-full"
         >
           {t('search.submit')}
         </Button>
@@ -465,19 +507,23 @@ export function SearchPanel({
           />
         ) : null}
 
-        {!isPreviewLoading && !previewError && preview?.reachable && fastestHours !== null ? (
-          <div className="flex flex-col gap-1 rounded-xl border border-line bg-surface-sunken p-3">
-            <div className="flex items-center gap-2 text-sm font-semibold text-fg tabular-nums">
-              <Route className="h-4 w-4 shrink-0 text-brand-ink" aria-hidden="true" />
-              <span>
-                {tripType === 'ROUND_TRIP'
-                  ? t('search.previewFastestRoundTrip', { hours: fastestHours })
-                  : t('search.previewFastestOneWay', { hours: fastestHours })}
-              </span>
-            </div>
-          </div>
+        {hasStoredResults && onViewResults ? (
+          <Button variant="secondary" onClick={onViewResults} className="w-full">
+            <span>{t('home.viewResults')}</span>
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Button>
         ) : null}
       </div>
+    </div>
+  );
+
+  if (variant === 'embedded') {
+    return content;
+  }
+
+  return (
+    <Card variant="elevated" className="p-3.5 sm:p-4">
+      {content}
     </Card>
   );
 }

@@ -95,6 +95,29 @@ describe('HomePage (Plan 2)', () => {
         );
       }
 
+      if (url.includes('/api/v1/quotes/search')) {
+        return new Response(
+          JSON.stringify({
+            search_id: 'srch_01HOMEPAGETEST00000000000',
+            expires_at: new Date(Date.now() + 30 * 60_000).toISOString(),
+            credits_charged: 0,
+            credits_remaining: 10,
+            partial: false,
+            pairs_quoted: [{ origin: 'LIM', destination: 'HND' }],
+            t_min_minutes: 2760,
+            offers_received: 12,
+            pareto_size: 4,
+            preferences: {
+              profile: 'BALANCED',
+              weights: { price: 0.5, duration: 0.3, stops: 0.2 },
+            },
+            price_disclaimer: 'Precio referencial.',
+            podium: [],
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        );
+      }
+
       return new Response('{}', { status: 404 });
     });
 
@@ -109,11 +132,10 @@ describe('HomePage (Plan 2)', () => {
       screen.getByRole('heading', { level: 1, name: 'Buscador de vuelos' }),
     ).toBeInTheDocument();
 
-    expect(await screen.findByText('Ruta física más rápida: ~22 h')).toBeInTheDocument();
-
     expect(
       await screen.findByText(/Tramos estimados: LIM → LAX → HND \(1 escala\)/),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/Ruta física más rápida/)).not.toBeInTheDocument();
 
     expect(screen.getByTestId('lazy-route-map')).toHaveAttribute('data-route', 'LIM-LAX-HND');
   });
@@ -155,6 +177,29 @@ describe('HomePage (Plan 2)', () => {
         );
       }
 
+      if (url.includes('/api/v1/quotes/search')) {
+        return new Response(
+          JSON.stringify({
+            search_id: 'srch_01HOMEPAGETEST00000000000',
+            expires_at: new Date(Date.now() + 30 * 60_000).toISOString(),
+            credits_charged: 0,
+            credits_remaining: 10,
+            partial: false,
+            pairs_quoted: [{ origin: 'LIM', destination: 'HND' }],
+            t_min_minutes: 2760,
+            offers_received: 12,
+            pareto_size: 4,
+            preferences: {
+              profile: 'BALANCED',
+              weights: { price: 0.5, duration: 0.3, stops: 0.2 },
+            },
+            price_disclaimer: 'Precio referencial.',
+            podium: [],
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        );
+      }
+
       return new Response('{}', { status: 404 });
     });
 
@@ -191,8 +236,27 @@ describe('HomePage (Plan 2)', () => {
       expect(router.state.location.search).toContain('to=HND%2CNRT');
     });
 
-    expect(
-      await screen.findByText('Ruta física más rápida (ida y vuelta): ~46 h'),
-    ).toBeInTheDocument();
+    // Al buscar, la vista pasa a resultados con Ver detalles, Simular ruta y flecha atrás para volver.
+    const detailsButtons = await screen.findAllByRole('button', { name: 'Ver detalles' });
+    await user.click(detailsButtons[0]!);
+    expect(await screen.findByText('Detalles del análisis')).toBeInTheDocument();
+    expect(screen.getByText('5.00 ms')).toBeInTheDocument();
+    expect(screen.getByText('10.00 ms')).toBeInTheDocument();
+    expect(screen.getByText('18')).toBeInTheDocument();
+
+    // Abre la simulación animada paso a paso y recorre fases/pares.
+    await user.click(screen.getByRole('button', { name: 'Simular cómo se halló la ruta' }));
+    expect(await screen.findByText('1. Expansión por niveles desde origen')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Siguiente fase' }));
+    expect(await screen.findByText('2. Búsqueda guiada por pares')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Siguiente fase' }));
+    expect(await screen.findByText('3. Comparación y convergencia')).toBeInTheDocument();
+
+    await user.click(screen.getAllByRole('button', { name: 'Cerrar' })[0]!);
+
+    const backBtn = await screen.findByRole('button', { name: 'Volver al buscador' });
+    await user.click(backBtn);
+
+    expect(await screen.findByRole('button', { name: 'Ver recomendaciones' })).toBeInTheDocument();
   });
 });

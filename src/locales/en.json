@@ -1,7 +1,16 @@
 {
   "home": {
     "title": "Flight search",
-    "subtitle": "Pick your cities and we recommend the 3 flights with the best balance of price, duration and stops."
+    "subtitle": "Pick a route for your top 3 flight options.",
+    "mobileSearchPrompt": "Where are you flying?",
+    "editSearch": "Edit",
+    "backToSearch": "Back to search",
+    "viewResults": "View recommendations",
+    "sheetHandleAria": "Adjust map sheet",
+    "expandSheet": "Show more",
+    "collapseSheet": "Show map",
+    "sheetFastestMin": "Physical min ~{{hours}} h",
+    "sheetBestOffer": "Best option from {{price}}"
   },
   "search": {
     "originLabel": "Origin",
@@ -22,6 +31,14 @@
     "returnLabel": "Return",
     "datePlaceholder": "Pick a date",
     "calendarAria": "Travel dates calendar",
+    "calendarPrompt": "Pick departure and return",
+    "calendarHint": "Click or drag endpoints to adjust dates.",
+    "calendarSingleHint": "Pick your departure date.",
+    "calendarDone": "Done",
+    "calendarNights_one": "{{count}} night",
+    "calendarNights_other": "{{count}} nights",
+    "calendarSameDay": "Same day",
+    "viewDetails": "View details",
     "passengersLabel": "Passengers",
     "passengersAdults": "Adults",
     "passengersAdultsHint": "12 years and older",
@@ -52,8 +69,6 @@
     },
     "submit": "Search",
     "previewLoading": "Calculating preliminary route…",
-    "previewFastestOneWay": "Fastest physical route: ~{{hours}} h",
-    "previewFastestRoundTrip": "Fastest physical route (round-trip): ~{{hours}} h",
     "unreachableTitle": "Route unavailable",
     "unreachableDescription": "No routes with 2 stops or fewer exist between these cities.",
     "previewErrorTitle": "Could not calculate route",
@@ -98,7 +113,15 @@
       "hoursMinutes": "{{hours}} h {{minutes}} min"
     },
     "markerStopLayover": "Stop in {{iata}}, {{duration}} connection",
-    "legendPodiumRoute": "Option {{rank}} route:"
+    "legendPodiumRoute": "Option {{rank}} route:",
+    "recenter": "Recenter route",
+    "role": {
+      "origin": "Origin",
+      "stop": "Layover",
+      "destination": "Destination",
+      "selected": "Selected airport"
+    },
+    "layoverLine": "{{duration}} connection"
   },
   "common": {
     "skipToContent": "Skip to main content",
@@ -130,6 +153,33 @@
     "creditsAria_other": "Balance: {{count}} credits ({{searches}} searches). Free credits renew at {{time}}, Lima time.",
     "creditsLoadingAria": "Credit balance"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "Nothing new right now.",
+    "new": "New",
+    "triggerAria_zero": "Notifications",
+    "triggerAria_one": "Notifications, {{count}} unread",
+    "triggerAria_other": "Notifications, {{count}} unread",
+    "creditsEmpty": {
+      "title": "You're out of credits",
+      "body": "Free credits renew at {{time}} (Lima time). You can also buy a package."
+    },
+    "purchase": {
+      "title_one": "{{count}} credit added",
+      "title_other": "{{count}} credits added",
+      "body": "Your purchase was approved."
+    },
+    "refund": {
+      "title_one": "{{count}} credit refunded",
+      "title_other": "{{count}} credits refunded",
+      "body": "The search couldn't be completed and you weren't charged."
+    },
+    "reversal": {
+      "title_one": "A {{count}}-credit purchase was reversed",
+      "title_other": "A {{count}}-credit purchase was reversed",
+      "body": "See the details in your credit history."
+    }
+  },
   "footer": {
     "copyright": "© 2026 Andeva. All rights reserved."
   },
@@ -137,7 +187,8 @@
     "terms": "Terms and Conditions",
     "privacy": "Privacy Policy",
     "termsShort": "Terms",
-    "privacyShort": "Privacy"
+    "privacyShort": "Privacy",
+    "priceDisclaimer": "Reference price obtained from third parties."
   },
   "errors": {
     "UNAUTHENTICATED": "Sign in to continue.",
@@ -163,7 +214,9 @@
     "ROUTE_NOT_REACHABLE": "There are no routes with 2 stops or fewer between these cities. You were not charged.",
     "INVALID_WEIGHTS": "The preferences are not valid. Try again.",
     "PACKAGE_NOT_FOUND": "That package is no longer available. Choose another one from the list.",
-    "ORDER_NOT_FOUND": "We couldn't find that purchase order."
+    "ORDER_NOT_FOUND": "We couldn't find that purchase order.",
+    "INVALID_CURRENT_PASSWORD": "Your current password is incorrect.",
+    "PASSWORD_REQUIRED": "Create a password before unlinking Google."
   },
   "routes": {
     "titleTemplate": "{{title}} · Navby",
@@ -330,6 +383,35 @@
     "createdAt": "Account created",
     "logout": "Sign out",
     "logoutFailed": "We couldn't sign you out",
+    "security": {
+      "title": "Sign-in & security",
+      "passwordTitle": "Password",
+      "createDescription": "You sign in with Google only. Create a password to also sign in with your email, and to be able to unlink Google if you ever want to.",
+      "changeDescription": "Change the password you use to sign in with your email.",
+      "create": "Create password",
+      "change": "Change password",
+      "currentPassword": "Current password",
+      "currentRequired": "Enter your current password.",
+      "newPassword": "New password",
+      "cancel": "Cancel",
+      "saveCreate": "Save password",
+      "saveChange": "Update password",
+      "createdDone": "Password created. We signed out your other sessions; you can now sign in with your email.",
+      "changedDone": "Password updated. We signed out your other sessions.",
+      "googleTitle": "Google",
+      "googleLinked": "You can sign in with your Google account.",
+      "unlink": "Unlink Google",
+      "unlinkNeedsPassword": "Create a password first: without it you couldn't sign back in.",
+      "unlinkDialogTitle": "Unlink Google?",
+      "unlinkDialogBody": "You'll stop signing in with Google and use your email and password instead. If you use Google again with this same email, it will link again.",
+      "unlinkConfirm": "Unlink",
+      "unlinkDone": "Google unlinked."
+    },
+    "defaultPreference": {
+      "title": "Default search preference",
+      "description": "Automatically applied whenever you start a new search.",
+      "saved": "Default preference saved"
+    },
     "delete": {
       "title": "Delete account",
       "description": "This is irreversible: we anonymize your name and email, delete your saved itineraries and void your credits. We keep purchase orders as required by law and tax rules.",
@@ -432,15 +514,115 @@
       "limit": "You already have 50 itineraries. Delete one to save another",
       "limitLink": "View my itineraries",
       "error": "We couldn't save it. Please try again."
+    },
+    "details": {
+      "openButton": "View details",
+      "title": "Analysis details",
+      "close": "Close",
+      "routeSectionTitle": "Connectivity & route evaluation",
+      "connectivityLatency": "Connectivity check",
+      "connectivityDesc": "Routes with up to 2 stops",
+      "optimalPathLatency": "Optimal path computation",
+      "optimalPathDesc": "Physical minimum estimate",
+      "airportsExplored": "Airports evaluated",
+      "pairsEvaluated_one": "{{count}} pair evaluated",
+      "pairsEvaluated_other": "{{count}} pairs evaluated",
+      "pairsHeading": "Combinations evaluated",
+      "pairItem": "{{origin}} → {{destination}} · min {{stops}} · ~{{hours}} h",
+      "multicriteriaHeading": "Multi-criteria selection",
+      "offersReceived": "Offers evaluated",
+      "optimalFrontier": "Optimal frontier",
+      "finalPodium": "Final podium",
+      "weightsApplied": "Active weights: Price {{price}}% · Duration {{duration}}% · Stops {{stops}}%",
+      "physicalMinimum": "Minimum physical reference: {{duration}}",
+      "tableOption": "Option",
+      "tableAffinity": "Match",
+      "tableScore": "Index",
+      "tableDuration": "Duration",
+      "tableExtra": "Over minimum",
+      "scoreNote": "Lower index = closer to ideal.",
+      "milliseconds": "{{value}} ms",
+      "noQuoteYet": "Press Search to compare fares, duration, and charts.",
+      "latencyChartLabel": "Evaluation timing (ms)",
+      "funnelTitle": "Selection funnel",
+      "weightsDistribution": "Criteria breakdown",
+      "scatterTitle": "Price vs. Duration",
+      "scatterCaption": "Lower & left = cheaper and faster.",
+      "scatterAxisPrice": "Price",
+      "scatterAxisDuration": "Duration",
+      "tabs": {
+        "charts": "Charts & metrics",
+        "simulation": "Simulate route"
+      },
+      "simulation": {
+        "ctaButton": "Simulate how the route was found",
+        "play": "Simulate",
+        "pause": "Pause",
+        "restart": "Restart",
+        "prevStep": "Previous phase",
+        "nextStep": "Next phase",
+        "speedLabel": "Speed {{speed}}x",
+        "timelineAria": "Simulation progress",
+        "stepLabel": "Phase {{current}} of {{total}}",
+        "pairProgress": "Pair {{index}}/{{total}}: {{origin}} → {{destination}}",
+        "statExplored": "Airports explored",
+        "statEvaluated": "Evaluated",
+        "statTime": "Elapsed",
+        "statActivePair": "Active pair",
+        "statRoute": "Fastest path",
+        "queueTitle": "Step-by-step trace",
+        "legendOrigin": "Origin / Destination",
+        "legendActive": "Evaluating",
+        "legendDiscarded": "Pruned",
+        "legendOptimal": "Optimal route",
+        "legendAlternative": "Podium alternative",
+        "canvasAria": "Animated route search simulation between {{origin}} and {{destination}}",
+        "candidateLabel": "{{route}} · est. {{hours}} h",
+        "statusChecking": "Checking reachability (hop {{level}})",
+        "statusScanning": "Prioritizing lowest total travel time",
+        "statusBest": "Physical minimum path locked",
+        "steps": {
+          "originTitle": "1. Level-by-level reach sweep",
+          "originDesc": "Scans direct and up to 2-stop connections in {{ms}} ms to confirm reach.",
+          "bfsTitle": "2. Guided search across pairs",
+          "bfsDesc": "Evaluates {{pairs}} pairs prioritizing lowest elapsed + remaining time ({{explored}} airports).",
+          "astarTitle": "3. Pair comparison & convergence",
+          "astarDesc": "Prunes slower branches and locks the fastest physical route: {{route}}.",
+          "rankTitle": "4. Multi-criteria filtering to Top 3",
+          "rankDesc": "From {{offers}} live fares, {{frontier}} non-dominated options compete for the final podium.",
+          "rankPreviewDesc": "Baseline path {{route}} (~{{duration}}) ready for live fare search."
+        }
+      }
     }
   },
   "itineraries": {
     "title": "My itineraries",
+    "backToSearch": "Back to search",
     "count": "{{count}} of {{max}}",
     "full": "You've reached the limit of 50. Delete one to save another",
     "listLabel": "Saved itineraries",
     "savedOn": "Saved on {{date}}",
+    "priceAtSave": "Price when saved",
     "dates": "{{departure}} – {{return}}",
+    "tripType": {
+      "ONE_WAY": "One-way",
+      "ROUND_TRIP": "Round-trip"
+    },
+    "viewDetail": "View route",
+    "searchLabel": "Search my itineraries",
+    "searchPlaceholder": "Filter by route, name, or airline",
+    "clearSearch": "Clear search",
+    "sortLabel": "Sort by",
+    "sort": {
+      "recent": "Most recent",
+      "priceAsc": "Lowest price",
+      "durationAsc": "Shortest duration",
+      "departureAsc": "Soonest departure"
+    },
+    "noMatches": {
+      "title": "No matching itineraries",
+      "description": "Try another destination, name, or airline, or clear your filter."
+    },
     "delete": "Delete",
     "deleteAria": "Delete {{name}}",
     "priceNote": "Prices are from the moment you saved each itinerary",
@@ -463,6 +645,7 @@
     },
     "detail": {
       "back": "Back to my itineraries",
+      "searchLive": "Check live prices",
       "profile": "Quoted with the {{profile}} profile",
       "disclaimer": "Price from {{date}}; it may have changed. {{legal}}",
       "loading": "Loading itinerary…",
@@ -540,7 +723,40 @@
       "paginationLabel": "History pagination",
       "previousPage": "Previous",
       "nextPage": "Next",
-      "pageOf": "Page {{page}} of {{totalPages}}"
+      "pageOf": "Page {{page}} of {{totalPages}}",
+      "openDetailAria": "View details for {{type}}, {{date}}",
+      "detail": {
+        "title": "Movement details",
+        "receiptTitle": "Purchase receipt",
+        "close": "Close",
+        "loadingOrder": "Loading order receipt…",
+        "orderUnavailable": "We couldn't load the full receipt for this order.",
+        "packageLabel": "Package",
+        "amountLabel": "Amount",
+        "orderCodeLabel": "Order ref.",
+        "statusLabel": "Status",
+        "dateLabel": "Date & time",
+        "creditsTotalLabel": "Balance change",
+        "breakdownLabel": "Credit source",
+        "freeDeltaLabel": "Free",
+        "paidDeltaLabel": "Purchased",
+        "statuses": {
+          "PENDING": "Pending",
+          "APPROVED": "Approved",
+          "REJECTED": "Rejected",
+          "EXPIRED": "Expired",
+          "REVERSED": "Reversed"
+        },
+        "purchaseNote": "One-time Mercado Pago payment. Purchased credits never expire.",
+        "reversalNote": "This payment was reversed or refunded and its credits were deducted from your balance.",
+        "searchActiveRoute": "Searched route",
+        "searchActiveOffers": "{{count}} options evaluated · active session",
+        "searchViewResults": "View recommendations",
+        "searchExpiredNote": "Results from this search expired after 30 minutes. If you saved an option, you can find it in My itineraries.",
+        "searchGoItineraries": "Go to my itineraries",
+        "refundNote": "The search could not be completed and your credits were refunded automatically.",
+        "accountDeletionNote": "Automatic adjustment upon account closure."
+      }
     },
     "result": {
       "title": "Purchase status",
