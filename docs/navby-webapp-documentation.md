@@ -14,7 +14,7 @@ Todas las rutas cuelgan de `https://navby.andeva.tech/app` (Vite con `base: "/ap
 | `/itineraries`, `/itineraries/:id` | Itinerarios guardados | Sesión |
 | `/billing` | Saldo, historial y compra de paquetes. Precios en soles; el equivalente en USD aparece solo como referencia. | Sesión |
 | `/billing/result` | Retorno desde Mercado Pago (consulta el estado de la orden; si sigue `PENDING`, reintenta cada 3 s durante 1 min) | Sesión |
-| `/account` | Perfil, **Cerrar sesión** y **Eliminar mi cuenta** (escribe «ELIMINAR», o «DELETE» en inglés, para confirmar, RL-02) | Sesión |
+| `/account` | Perfil, **Acceso y seguridad** (crear o cambiar contraseña; desvincular Google solo con contraseña), **Cerrar sesión** y **Eliminar mi cuenta** (escribe «ELIMINAR», o «DELETE» en inglés, para confirmar, RL-02) | Sesión |
 
 Los enlaces a los Términos y la Política de Privacidad del website se añadirán cuando `navby-website` publique esas páginas; mientras tanto el pie solo muestra el copyright (ver Decisiones del Plan 3). Toda tarifa muestra el aviso `price_disclaimer` (RL-03).
 

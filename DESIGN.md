@@ -125,8 +125,11 @@ es secundario y se nota menos.
 - **Movimiento de sello: el arco.** El único gesto propio de Navby es la ruta ortodrómica
   que se dibuja sobre el mapa: punteada mientras se piensa, sólida cuando hay respuesta.
   Es la «signature move»; ningún otro elemento compite con ella.
-- **Responsive web, no app móvil.** Se diseña para escritorio (1440 px) y se adapta a 390 px.
-  No se imitan patrones nativos de iOS/Android.
+- **Responsive web con fluidez espacial.** Se diseña con rigor para 4 puntos de control:
+  Desktop (`1440 px`), Laptop (`1280 px`), Tablet (`768 px`) y Mobile (`390 px`). En escritorio
+  y laptop el buscador flota sin scroll sobre el mapa; en tablet y móvil el mapa vive a sangre
+  con barra flotante superior y hoja inferior arrastrable (_bottom sheet_ con física de
+  resorte, seguimiento 1:1 y proyección por momento).
 
 Señales de que la webapp se está volviendo un «Frankenstein»:
 
@@ -221,25 +224,36 @@ Para texto, siempre el `*-ink` del tema. Nunca el color como única señal: acom
 
 ## Layout
 
-**Escritorio (≥ 1024 px): mapa + panel.**
+**Desktop (`>= 1280 px`, 1440 px) y Laptop (`1024–1279 px`, 1280 px): mapa a sangre + panel flotante.**
 
 ```text
-┌──────────── barra superior: isologo · créditos · cuenta ────────────┐
-│ ┌─ panel (400–440 px) ─┐                                            │
-│ │ buscador             │            mapa a sangre                   │
-│ │ selector de perfil   │      (arcos, marcadores, fitBounds)        │
+┌──────────── barra superior (56 px): isologo · créditos · cuenta ────┐
+│ ┌─ panel (392–420 px) ─┐                                            │
+│ │ Modo Búsqueda        │            mapa a sangre                   │
+│ │ (sin scroll vertical)│      (arcos, marcadores, fitBounds)        │
+│ │  ── o al buscar ──   │                                            │
+│ │ ← Resumen · Detalles │                                            │
+│ │ selector de perfil   │                                            │
 │ │ podio (3 tarjetas)   │                                            │
 │ └──────────────────────┘                                            │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-- El panel es una superficie flotante sobre el mapa (`surface`, `rounded-xl`, borde `line`)
-  con su propio scroll; el mapa ocupa todo el fondo. `fitBounds` deja libre el ancho del
-  panel (padding izquierdo).
-- **Pantallas angostas (< 1024 px):** el buscador arriba, el mapa a ancho completo con
-  alto fijo (~40 dvh) y el podio debajo (con el selector de perfil sobre las tarjetas), en
-  flujo normal de la página. Sin hojas
-  arrastrables ni gestos nativos.
+- El panel es una superficie flotante sobre el mapa (`surface`, `rounded-xl`, borde `line`,
+  `shadow-lg`); el mapa ocupa todo el fondo. `fitBounds` deja libre el ancho del panel
+  (padding izquierdo).
+- **Sin scroll en Modo Búsqueda:** el formulario cabe completo en el alto útil de Laptop
+  (`1280×720`) y Desktop (`1440×900`) sin barra de desplazamiento.
+- **Cambio en sitio a Modo Resultados:** al enviar **Buscar** (o cargar `?sid=`), el podio
+  reemplaza a los campos de búsqueda dentro del mismo panel, con cabecera fija arriba: botón
+  **Atrás (`←`)** para volver a editar criterios, resumen compacto de ruta/fechas y botón
+  **Ver detalles** para inspeccionar el análisis de ruta y puntaje.
+- **Tablet (`768–1023 px`, 768 px) y Mobile (`< 768 px`, 390 px) — estilo Google Maps:**
+  mapa a sangre debajo de la barra superior (`min-h-[calc(100dvh-3.5rem)]`), píldora flotante
+  superior con la ruta activa y **hoja inferior arrastrable** (`MapBottomSheet`) con 3 puntos
+  de anclaje (`peek` / `half` / `full`). En Tablet la hoja se acopla a la izquierda
+  (`max-w-[480px]`); en Mobile abarca el ancho completo (`rounded-t-2xl`). `fitBounds` ajusta el
+  padding inferior según la altura de la hoja visible.
 - Pantallas de cuenta, itinerarios y billing: columna centrada `max-w-3xl`, sin mapa.
 - **Acceso (login, registro, verificación, recuperación):** pantalla dividida (`AuthLayout`,
   sin `TopBar` ni pie global).
@@ -295,7 +309,7 @@ Bordes de 1 px. Radios anidados: el interior es el exterior menos el padding.
 | Fantasma   | Acciones terciarias, íconos     | sin fondo, `hover:bg-surface-sunken`                                                                      |
 | Peligro    | Eliminar cuenta o itinerario    | `bg-surface border border-error-ink text-error-ink` (contorno: el rojo de relleno no da 4.5:1 con blanco) |
 
-Alto 40 px (44 px en táctil), `font-semibold text-sm`, ícono de 16 px a la izquierda.
+Alto 40 px desde `lg` (`1024 px`), 44 px en móvil y tableta (`< 1024 px`), `font-semibold text-sm`, ícono de 16 px a la izquierda.
 Estado de carga: el botón conserva su ancho y muestra un spinner; se deshabilita mientras
 corre la búsqueda (`409 SEARCH_IN_PROGRESS` nunca debería verse). Feedback al presionar:
 `active:scale-[0.97]` con `transition-transform duration-150 ease-out`.
@@ -306,18 +320,30 @@ corre la búsqueda (`409 SEARCH_IN_PROGRESS` nunca debería verse). Feedback al 
   con anillo `ring`. Error: borde y mensaje en `error-ink`, con `aria-describedby`.
 - Validación con Zod al enviar y al salir del campo, no en cada tecla.
 - **Combobox de ciudades** (`role="combobox"`): muestra ciudad y país; los códigos IATA
-  aparecen pequeños en `fg-muted`, nunca obligatorios. Desplegable opcional «Aeropuertos de
-  Tokio» con casillas.
-- **Fechas** con `react-day-picker` estilado con tokens; ida y vuelta como rango.
+  aparecen pequeños en `fg-muted`, nunca obligatorios. Origen y Destino se agrupan en rejilla
+  `grid-cols-[1fr_auto]` con el botón circular de intercambio (`ArrowUpDown`, `rounded-full`)
+  centrado a la derecha; los desplegables opcionales «Aeropuertos de …» van debajo de esa rejilla
+  para que nunca desplacen el botón de intercambio. Si existen resultados vigentes, «Ver
+  recomendaciones →» reemplaza el bloque de vista previa debajo de «Buscar» (que conserva el
+  100 % del ancho); «Ver detalles» vive en la cabecera de la vista de resultados.
+  intermedias.
+- **Fechas** con `react-day-picker` estilado con tokens (celdas cuadradas alineadas, tamaño
+  de fuente estable, hover circular solo en días libres y vista previa del rango al pasar el
+  cursor); en ida y vuelta permite clic-clic o **arrastrar el puntero** tanto para trazar un
+  rango nuevo como para mover los extremos seleccionados.
 - **Pasajeros** con steppers (− / +) que respetan RN-02 deshabilitando, no con errores.
 
 ### Tarjeta del podio
 
-Orden de lectura: puesto y afinidad → precio → duración y escalas → aerolíneas → acciones.
+Orden de lectura: puesto y afinidad → precio y aerolíneas → resumen de duración y escalas →
+línea de tiempo visual por tramo (`Ida` / `Vuelta` con hora salida · pista con escalas · hora
+llegada) → aviso RL-03 y acciones.
 
-- Encabezado: puesto («1», «2», «3») con el color de su ruta, insignia de afinidad
-  `match_pct %` (`bg-primary-soft text-primary-dark`).
-- Precio `text-3xl font-extrabold tabular-nums` formateado con `Intl.NumberFormat`.
+- Encabezado: puesto («1», «2», «3») con el color de su ruta (el Top 1 destaca con insignia
+  rellena `bg-route-1 text-white`), insignia de afinidad `match_pct %`
+  (`bg-primary-soft text-primary-dark`).
+- Precio `text-2xl sm:text-3xl font-extrabold tabular-nums` formateado con
+  `Intl.NumberFormat`.
 - Línea de metadatos `fg-muted`: duración · escalas · «+X h sobre el mínimo físico».
 - Aviso RL-03 siempre visible en `text-xs fg-muted`: «Precio referencial obtenido de
   terceros; se confirma en el sitio del vendedor».
@@ -327,17 +353,25 @@ Orden de lectura: puesto y afinidad → precio → duración y escalas → aerol
   aviso en línea bajo las acciones (`role="status"`): enlace a `/itineraries` o botón
   `ghost` **Reintentar** alineado junto al mensaje.
 - Hover/foco de la tarjeta = resalta su ruta en el mapa, y viceversa.
+- **Ver detalles del análisis (`SearchDetailsDialog`):** botón discreto «Ver detalles» en la
+  vista previa y en la cabecera de resultados que abre un `<dialog>` nativo con las métricas
+  reales de enrutamiento y selección multicriterio (tiempos en milisegundos, combinaciones y
+  aeropuertos evaluados, opciones óptimas sin descarte, `T_min` y tabla comparativa del
+  podio), sin exponer jerga técnica prohibida.
 
 ### Itinerarios guardados
 
-- **Fila (`/itineraries`):** `Card` `relative flex items-center gap-3` con enlace extendido
-  (`after:absolute after:inset-0 after:rounded-xl`) sobre toda la fila hacia el detalle,
-  borde `hover:border-line-strong` (150 ms `ease-out`). Orden de lectura: nombre truncado →
-  fechas → precio `font-semibold` + duración y escalas → «Guardado el …». A la derecha,
-  botón `ghost` `size="icon"` (`Trash2`, `z-10 shrink-0`) para eliminar sin activar el enlace.
-- **Detalle (`/itineraries/:id`):** columna `max-w-3xl` con enlace **Volver a mis itinerarios**,
-  título, mapa del detalle, `PodiumCard` sin puesto ni afinidad (encabezado «Cotizado con
-  el perfil …» y aviso con la fecha de `quoted_at` + RL-03) y botón **Eliminar** (`danger`).
+- **Cabecera y ritmo (`/itineraries`):** columna `max-w-3xl`, ritmo vertical `gap-6` (como `/billing` y `/account`). Arriba, enlace de regreso `← Volver al buscador` (`ghost`); debajo, título `<h1>` + contador `N de 50` en insignia `tabular-nums`. Con 2 o más itinerarios aparece una barra compacta de búsqueda por texto (ruta, nombre o aerolínea) y ordenación (`Más recientes`, `Menor precio`, `Menor duración`, `Próxima salida`).
+- **Fila (`/itineraries`):** `Card` interactiva con **forma literal de billete / pase de abordar** (`relative grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto]`), dividida por una línea discontinua de corte (`border-dashed`) con **muescas semicirculares** (`bg-bg` con borde `line`) en los extremos del corte (arriba/abajo desde `sm`, izquierda/derecha en móvil). Enlace extendido (`after:absolute after:inset-0 after:rounded-xl`) sobre todo el billete hacia el detalle, `hover:border-line-strong` (150 ms `ease-out`) y anillo `ring` en toda la tarjeta al foco del teclado.
+  - **Cuerpo izquierdo (datos del vuelo):** chip de ruta (`LIM → HND`) + tipo de viaje + insignia del perfil cotizado → nombre del itinerario (`line-clamp-2` en móvil, `truncate` desde `sm`) → fechas de viaje + aerolíneas con logo de 16 px → franja compacta (`bg-surface-sunken/75 rounded-lg`) con horario local de salida/llegada, duración y escalas (`tabular-nums`) → «Guardado el …».
+  - **Talón derecho / pie móvil (decisión):** precio en `text-xl sm:text-2xl font-extrabold tabular-nums` + indicación visual `Ver ruta >` y botón `ghost` `size="icon"` (`Trash2`, `z-10 shrink-0`) para eliminar sin activar el enlace.
+- **Aviso al pie (`/itineraries`):** el aviso RL-03 + nota de precios congelados vive en un bloque equilibrado a ancho completo (`rounded-xl border border-line bg-surface-sunken px-4 py-3`), al mismo ancho y ritmo que los billetes.
+- **Detalle (`/itineraries/:id`):** columna `max-w-3xl`, ritmo `gap-6`. Arriba, **Volver a mis itinerarios**; cabecera con título, metadatos de ruta/fechas y acciones en línea (**Buscar precios actuales** `secondary` con ruta prellenada en `/` + **Eliminar** `danger`), mapa del detalle, `PodiumCard` sin puesto ni afinidad (encabezado «Cotizado con el perfil …» y aviso con `quoted_at` + RL-03).
+
+### Créditos y paquetes (`/billing`)
+
+- **Paquetes (`PackagesSection`):** rejilla de 3 columnas desde `md`. La insignia **Recomendado** sobresale en el borde superior de la tarjeta destacada (`absolute -top-3 right-4`) fuera del flujo del título para que los tres precios queden alineados en la misma línea horizontal; sin recuadro inferior de aviso sandbox.
+- **Historial y comprobantes (`TransactionsSection` + `TransactionDetailDialog`):** cada fila es un botón interactivo (`aria-label` descriptivo, nunca expone IDs internos en la lista) que abre un `<dialog>` nativo (`Comprobante de compra` con paquete, monto, estado y referencia corta para órdenes, o detalle/enlace para búsquedas).
 
 ### Diálogo de confirmación
 
@@ -363,6 +397,8 @@ diferencia proporcionalmente) con el valor en `tabular-nums` al lado.
   pista blanca en oscuro).
 - Mientras reordena, las tarjetas quedan al 60 % de opacidad (150 ms `ease-out`); no se
   mueven ni escalan.
+- **Perfil predeterminado en `/account`:** el mismo selector vive también en Mi cuenta (`4` columnas desde `sm`) para guardar la prioridad habitual del usuario y aplicarla por defecto en cada búsqueda nueva cuando la URL no fija otra.
+- **Análisis gráfico y simulación (`Ver detalles`):** diálogo nativo con dos pestañas: _Gráficas y métricas_ (barras de latencia, embudo de selección, barra apilada de pesos y diagrama SVG Precio vs. Duración) y _Simular ruta_ (reproducción paso a paso en proyección geográfica con controles Play/Pausa, Anterior/Siguiente y Reiniciar).
 
 ### Skeletons, toasts y estados
 
@@ -377,23 +413,36 @@ diferencia proporcionalmente) con el valor en `tabular-nums` al lado.
 
 ## Map
 
-| Elemento              | Estilo                                                                                                        |
-| :-------------------- | :------------------------------------------------------------------------------------------------------------ |
-| Ruta preliminar (A\*) | Arco `route-preview`, punteado, pulso de opacidad lento; texto «Ruta física más rápida: ~X h».                |
-| Top 1 / 2 / 3         | `route-1` (púrpura), `route-2` (naranja), `route-3` (gris neutro). Ancho 3 px; la resaltada 5 px.             |
-| Resaltado             | Al resaltar una ruta las demás bajan a 30 % de opacidad.                                                      |
-| Marcadores            | Punto de 10 px con borde `surface`; etiqueta IATA en `text-xs font-semibold`; en escalas, tiempo de conexión. |
-| Leyenda textual       | Lista equivalente al mapa (tramos y escalas) para lectores de pantalla.                                       |
+| Elemento              | Estilo                                                                                                                  |
+| :-------------------- | :---------------------------------------------------------------------------------------------------------------------- |
+| Ruta preliminar (A\*) | Arco `route-preview`, punteado, pulso de opacidad lento; texto «Ruta física más rápida: ~X h».                          |
+| Top 1 / 2 / 3         | `route-1` (púrpura), `route-2` (naranja), `route-3` (gris neutro). Ancho 3 px; la resaltada 5 px.                       |
+| Resaltado             | Al resaltar una ruta las demás bajan a 30 % de opacidad.                                                                |
+| Marcadores            | Punto de 10 px con borde `surface`, pulsable; etiqueta IATA en `text-xs font-semibold`; en escalas, tiempo de conexión. |
+| Leyenda textual       | Lista equivalente al mapa (tramos y escalas) para lectores de pantalla.                                                 |
 
 - Arcos con deck.gl `ArcLayer` y `greatCircle: true`, un arco por tramo.
 - Los colores de deck.gl son arrays RGB: léelos de las variables CSS al montar y al cambiar
   de tema; nunca dupliques los hex en el código del mapa.
-- El mapa no es interactivo para elegir aeropuertos ni dibuja el grafo completo.
+- **Secuencia de dibujado (GSAP, `useRouteReveal`):** excepción deliberada al tope de 300 ms,
+  porque es una narración y no una respuesta de interfaz. La ruta preliminar se dibuja de origen
+  a destino (1,5 s, `power2.inOut`) con una punta luminosa; aunque el podio ya haya llegado,
+  espera a que termine, hace una pausa de 0,3 s y entonces la preliminar se desvanece (0,5 s)
+  mientras las rutas 1, 2 y 3 se dibujan escalonadas (1,3 s c/u, 0,4 s de desfase). La cámara
+  se reencuadra con `easeInOutCubic` (0,9 s). Con `prefers-reduced-motion` todo aparece ya
+  dibujado.
+- **Ciudades pulsables:** cada punto es un botón (área de toque ≥ 36 px). Al pulsarlo la cámara
+  se centra con suavidad (0,7 s) y muestra una tarjeta con el código IATA, el aeropuerto (si se
+  conoce), su rol y la conexión en escalas. Se cierra con `Esc`, al pulsar el mapa o al volver a
+  pulsar el punto. El centro del punto cae exactamente sobre la coordenada: la etiqueta sale en
+  posición absoluta y no desplaza el ancla.
+- El mapa no dibuja el grafo completo ni permite elegir aeropuertos.
 - **Mapa del detalle (`/itineraries/:id`):** contenedor encuadrado dentro de `max-w-3xl`
   (`h-60 lg:h-80 rounded-xl border border-line bg-surface-sunken`) sin panel flotante, con una
-  sola ruta en `route-1`, etiqueta accesible propia (`regionLabel`) y la leyenda textual
-  inmediatamente debajo (visible en `< 1024 px` o si WebGL falla, `lg:sr-only` en
-  escritorio).
+  sola ruta en `route-1` dibujada de inmediato (sin animación progresiva de búsqueda), margen de
+  encuadre generoso (`padding: 52/72/56/56`) para que las etiquetas IATA no rocen los bordes ni
+  la atribución, etiqueta accesible propia (`regionLabel`) y la leyenda textual inmediatamente
+  debajo (visible en `< 1024 px` o si WebGL falla, `lg:sr-only` en escritorio).
 
 ## Motion
 
