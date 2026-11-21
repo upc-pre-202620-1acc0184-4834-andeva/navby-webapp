@@ -97,7 +97,9 @@ describe('Podio (US-13, US-31)', () => {
     });
     await search();
 
-    expect(await screen.findByText('45 créditos')).toBeInTheDocument();
+    expect(
+      within(await screen.findByRole('link', { name: /Saldo/ })).getByText('45 créditos'),
+    ).toBeInTheDocument();
   });
 });
 
@@ -105,7 +107,8 @@ describe('Casos especiales del podio (tabla §2)', () => {
   it('no cotiza al cargar una búsqueda compartida sin sid (cuesta créditos)', async () => {
     const fetchMock = setup({});
     renderApp(ONE_WAY_URL);
-    await screen.findByText('Ruta física más rápida: ~6 h');
+    await screen.findByText(/Tramos estimados: LIM → MAD \(directo\)/);
+    expect(screen.queryByText(/Ruta física más rápida/)).not.toBeInTheDocument();
     expect(callsTo(fetchMock, 'POST', '/quotes/search')).toHaveLength(0);
     expect(
       screen.queryByRole('heading', { name: 'Tus 3 recomendaciones' }),
@@ -208,10 +211,11 @@ describe('Casos especiales del podio (tabla §2)', () => {
 
   it('US-18: Buscar queda deshabilitado mientras cotiza', async () => {
     setup({ 'POST /quotes/search': () => new Promise<Response>(() => {}) });
-    await search();
+    const { user } = await search();
 
+    expect(await screen.findByText('Buscando vuelos…')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Volver al buscador' }));
     await waitFor(() => expect(screen.getByRole('button', { name: 'Buscar' })).toBeDisabled());
-    expect(screen.getByText('Buscando vuelos…')).toBeInTheDocument();
   });
 
   it('US-18: si otra pestaña ya cotiza (409) informa que hay una búsqueda en curso', async () => {
@@ -335,7 +339,9 @@ describe('Preferencias (US-20, US-21)', () => {
       screen.getByText('Recomendaciones ordenadas por Ahorro. Sin costo.'),
     ).toBeInTheDocument();
     expect(walletCalls).toBe(walletCallsBefore);
-    expect(screen.getByText('50 créditos')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('link', { name: /Saldo/ })).getByText('50 créditos'),
+    ).toBeInTheDocument();
 
     // Volver a un perfil ya visto sale de caché, sin otra petición.
     await user.click(screen.getByRole('radio', { name: 'Equilibrado' }));

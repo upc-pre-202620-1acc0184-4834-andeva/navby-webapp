@@ -1,12 +1,13 @@
 import { Skeleton } from 'boneyard-js/react';
-import { CreditCard, Info } from 'lucide-react';
-import { type ReactNode } from 'react';
+import { CreditCard } from 'lucide-react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isApiError } from '@/shared/api/errors';
 import { type PackagesResponse } from '@/shared/api/schemas';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
+import { cn } from '@/shared/ui/cn';
 import { StatusMessage } from '@/shared/ui/StatusMessage';
 import { formatBillingMoney, formatPerSearchPrice, localizePackageName } from '../formatBilling';
 
@@ -17,6 +18,7 @@ export interface PackagesSectionProps {
   onRetry: () => void;
   pendingCode: string | null;
   isLocked: boolean;
+  selectedPackCode?: string | null;
   onSelectPackage: (code: string) => void;
   locale: string;
   skeletonFixture?: ReactNode;
@@ -45,16 +47,31 @@ export function PackagesBody({
   data,
   pendingCode,
   isLocked,
+  selectedPackCode = null,
   onSelectPackage,
   locale,
 }: {
   data: PackagesResponse;
   pendingCode: string | null;
   isLocked: boolean;
+  selectedPackCode?: string | null;
   onSelectPackage: (code: string) => void;
   locale: string;
 }) {
   const { t } = useTranslation();
+  const selectedCardRef = useRef<HTMLDivElement>(null);
+  const scrolledPackRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!selectedPackCode || scrolledPackRef.current === selectedPackCode) return;
+    const card = selectedCardRef.current;
+    if (!card) return;
+    scrolledPackRef.current = selectedPackCode;
+    if (typeof card.scrollIntoView === 'function') {
+      const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      card.scrollIntoView({ block: 'nearest', behavior: reducedMotion ? 'auto' : 'smooth' });
+    }
+  }, [selectedPackCode]);
 
   if (data.packages.length === 0) {
     return (
@@ -66,82 +83,88 @@ export function PackagesBody({
     );
   }
 
+  const hasSelected = Boolean(
+    selectedPackCode && data.packages.some((pkg) => pkg.code === selectedPackCode),
+  );
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {data.packages.map((pkg) => {
-          const isRecommended = pkg.code === 'pack_100';
-          const name = localizePackageName(t, pkg.code, pkg.name);
-          const priceFormatted = formatBillingMoney(pkg.price, data.currency, locale);
-          const usdFormatted = formatBillingMoney(pkg.usd_reference, 'USD', locale);
-          const perSearchFormatted = formatPerSearchPrice(
-            pkg.price,
-            pkg.searches,
-            data.currency,
-            locale,
-          );
+    <div className="grid grid-cols-1 gap-6 pt-3 md:grid-cols-3 md:gap-4">
+      {data.packages.map((pkg) => {
+        const isRecommended = pkg.code === 'pack_100';
+        const isSelected = selectedPackCode === pkg.code;
+        const isHighlighted = hasSelected ? isSelected : isRecommended;
+        const name = localizePackageName(t, pkg.code, pkg.name);
+        const priceFormatted = formatBillingMoney(pkg.price, data.currency, locale);
+        const usdFormatted = formatBillingMoney(pkg.usd_reference, 'USD', locale);
+        const perSearchFormatted = formatPerSearchPrice(
+          pkg.price,
+          pkg.searches,
+          data.currency,
+          locale,
+        );
 
-          return (
-            <Card
-              key={pkg.code}
-              variant={isRecommended ? 'highlighted' : 'default'}
-              className="flex flex-col justify-between gap-4 p-4"
-            >
-              <div className="flex flex-col gap-3">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-base font-semibold text-fg">{name}</h3>
-                  {isRecommended ? (
-                    <Badge variant="neutral" className="shrink-0 whitespace-nowrap">
-                      {t('billing.packages.recommended')}
-                    </Badge>
-                  ) : null}
-                </div>
-
-                <p className="text-sm text-fg tabular-nums">
-                  <span className="font-semibold">
-                    {t('billing.packages.credits', { count: pkg.credits })}
-                  </span>{' '}
-                  <span className="text-fg-muted">
-                    · {t('billing.packages.searches', { count: pkg.searches })}
-                  </span>
-                </p>
-
-                <div className="flex flex-col gap-1">
-                  <p className="text-3xl font-extrabold text-fg tabular-nums">{priceFormatted}</p>
-                  <p className="text-xs text-fg-muted tabular-nums">
-                    {t('billing.packages.usdReference', { price: usdFormatted })}
-                  </p>
-                  {perSearchFormatted ? (
-                    <p className="text-xs text-fg-muted tabular-nums">
-                      {t('billing.packages.perSearch', { price: perSearchFormatted })}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-
-              <Button
-                variant={isRecommended ? 'primary' : 'secondary'}
-                className="w-full"
-                loading={pendingCode === pkg.code}
-                disabled={isLocked}
-                aria-label={t('billing.packages.buyAria', {
-                  name,
-                  price: priceFormatted,
-                })}
-                icon={<CreditCard className="h-4 w-4" aria-hidden="true" />}
-                onClick={() => onSelectPackage(pkg.code)}
+        return (
+          <Card
+            key={pkg.code}
+            ref={isSelected ? selectedCardRef : undefined}
+            data-selected={isSelected ? 'true' : undefined}
+            variant={isHighlighted ? 'highlighted' : 'default'}
+            className={cn(
+              'relative flex flex-col justify-between gap-4 p-4',
+              isSelected && 'ring-2 ring-primary/20',
+            )}
+          >
+            {isRecommended ? (
+              <Badge
+                variant="brand"
+                className="absolute -top-3 right-4 px-3 py-0.5 whitespace-nowrap shadow-xs"
               >
-                {t('billing.packages.buy')}
-              </Button>
-            </Card>
-          );
-        })}
-      </div>
+                {t('billing.packages.recommended')}
+              </Badge>
+            ) : null}
 
-      <div className="flex items-start gap-2.5 rounded-xl border border-line bg-surface-sunken p-3 text-sm text-fg">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-brand-ink" aria-hidden="true" />
-        <p>{t('billing.packages.sandboxNotice')}</p>
-      </div>
+            <div className="flex flex-col gap-3">
+              <h3 className="text-base font-semibold text-fg">{name}</h3>
+
+              <p className="text-sm text-fg tabular-nums">
+                <span className="font-semibold">
+                  {t('billing.packages.credits', { count: pkg.credits })}
+                </span>{' '}
+                <span className="text-fg-muted">
+                  · {t('billing.packages.searches', { count: pkg.searches })}
+                </span>
+              </p>
+
+              <div className="flex flex-col gap-1">
+                <p className="text-3xl font-extrabold text-fg tabular-nums">{priceFormatted}</p>
+                <p className="text-xs text-fg-muted tabular-nums">
+                  {t('billing.packages.usdReference', { price: usdFormatted })}
+                </p>
+                {perSearchFormatted ? (
+                  <p className="text-xs text-fg-muted tabular-nums">
+                    {t('billing.packages.perSearch', { price: perSearchFormatted })}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <Button
+              variant={isHighlighted ? 'primary' : 'secondary'}
+              className="w-full"
+              loading={pendingCode === pkg.code}
+              disabled={isLocked}
+              aria-label={t('billing.packages.buyAria', {
+                name,
+                price: priceFormatted,
+              })}
+              icon={<CreditCard className="h-4 w-4" aria-hidden="true" />}
+              onClick={() => onSelectPackage(pkg.code)}
+            >
+              {t('billing.packages.buy')}
+            </Button>
+          </Card>
+        );
+      })}
     </div>
   );
 }
@@ -154,6 +177,7 @@ export function PackagesSection({
   onRetry,
   pendingCode,
   isLocked,
+  selectedPackCode = null,
   onSelectPackage,
   locale,
   skeletonFixture,
@@ -197,6 +221,7 @@ export function PackagesSection({
               data={data}
               pendingCode={pendingCode}
               isLocked={isLocked}
+              selectedPackCode={selectedPackCode}
               onSelectPackage={onSelectPackage}
               locale={locale}
             />

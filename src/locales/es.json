@@ -1,7 +1,16 @@
 {
   "home": {
     "title": "Buscador de vuelos",
-    "subtitle": "Elige tus ciudades y te recomendamos los 3 vuelos con mejor equilibrio entre precio, duración y escalas."
+    "subtitle": "Elige tu ruta para ver las 3 mejores opciones.",
+    "mobileSearchPrompt": "¿A dónde viajas?",
+    "editSearch": "Editar",
+    "backToSearch": "Volver al buscador",
+    "viewResults": "Ver recomendaciones",
+    "sheetHandleAria": "Ajustar panel del mapa",
+    "expandSheet": "Ver más",
+    "collapseSheet": "Ver mapa",
+    "sheetFastestMin": "Mínimo físico ~{{hours}} h",
+    "sheetBestOffer": "Mejor opción desde {{price}}"
   },
   "search": {
     "originLabel": "Origen",
@@ -22,6 +31,14 @@
     "returnLabel": "Regreso",
     "datePlaceholder": "Elige una fecha",
     "calendarAria": "Calendario de fechas de viaje",
+    "calendarPrompt": "Elige salida y regreso",
+    "calendarHint": "Haz clic o arrastra los extremos para ajustar las fechas.",
+    "calendarSingleHint": "Elige tu fecha de salida.",
+    "calendarDone": "Listo",
+    "calendarNights_one": "{{count}} noche",
+    "calendarNights_other": "{{count}} noches",
+    "calendarSameDay": "Mismo día",
+    "viewDetails": "Ver detalles",
     "passengersLabel": "Pasajeros",
     "passengersAdults": "Adultos",
     "passengersAdultsHint": "12 años o más",
@@ -52,8 +69,6 @@
     },
     "submit": "Buscar",
     "previewLoading": "Calculando ruta preliminar…",
-    "previewFastestOneWay": "Ruta física más rápida: ~{{hours}} h",
-    "previewFastestRoundTrip": "Ruta física más rápida (ida y vuelta): ~{{hours}} h",
     "unreachableTitle": "Ruta no disponible",
     "unreachableDescription": "No hay rutas con 2 escalas o menos entre estas ciudades.",
     "previewErrorTitle": "No pudimos calcular la ruta",
@@ -98,7 +113,15 @@
       "hoursMinutes": "{{hours}} h {{minutes}} min"
     },
     "markerStopLayover": "Escala en {{iata}}, conexión de {{duration}}",
-    "legendPodiumRoute": "Ruta de la opción {{rank}}:"
+    "legendPodiumRoute": "Ruta de la opción {{rank}}:",
+    "recenter": "Centrar ruta",
+    "role": {
+      "origin": "Origen",
+      "stop": "Escala",
+      "destination": "Destino",
+      "selected": "Aeropuerto seleccionado"
+    },
+    "layoverLine": "Conexión de {{duration}}"
   },
   "common": {
     "skipToContent": "Saltar al contenido principal",
@@ -130,6 +153,33 @@
     "creditsAria_other": "Saldo: {{count}} créditos ({{searches}} búsquedas). Los gratuitos se renuevan a las {{time}}, hora de Lima.",
     "creditsLoadingAria": "Saldo de créditos"
   },
+  "notifications": {
+    "title": "Notificaciones",
+    "empty": "No tienes novedades por ahora.",
+    "new": "Nueva",
+    "triggerAria_zero": "Notificaciones",
+    "triggerAria_one": "Notificaciones, {{count}} sin leer",
+    "triggerAria_other": "Notificaciones, {{count}} sin leer",
+    "creditsEmpty": {
+      "title": "Te quedaste sin créditos",
+      "body": "Los gratuitos se renuevan a las {{time}} (hora de Lima). También puedes comprar un paquete."
+    },
+    "purchase": {
+      "title_one": "Se acreditó {{count}} crédito",
+      "title_other": "Se acreditaron {{count}} créditos",
+      "body": "Tu compra fue aprobada."
+    },
+    "refund": {
+      "title_one": "Te devolvimos {{count}} crédito",
+      "title_other": "Te devolvimos {{count}} créditos",
+      "body": "La búsqueda no se pudo completar y no se te cobró."
+    },
+    "reversal": {
+      "title_one": "Se revirtió una compra de {{count}} crédito",
+      "title_other": "Se revirtió una compra de {{count}} créditos",
+      "body": "Revisa el detalle en tu historial de créditos."
+    }
+  },
   "footer": {
     "copyright": "© 2026 Andeva. Todos los derechos reservados."
   },
@@ -137,7 +187,8 @@
     "terms": "Términos y condiciones",
     "privacy": "Política de privacidad",
     "termsShort": "Términos",
-    "privacyShort": "Privacidad"
+    "privacyShort": "Privacidad",
+    "priceDisclaimer": "Precio referencial obtenido de terceros."
   },
   "errors": {
     "UNAUTHENTICATED": "Inicia sesión para continuar.",
@@ -163,7 +214,9 @@
     "ROUTE_NOT_REACHABLE": "No hay rutas con 2 escalas o menos entre estas ciudades. No se te cobró.",
     "INVALID_WEIGHTS": "Las preferencias no son válidas. Inténtalo de nuevo.",
     "PACKAGE_NOT_FOUND": "Ese paquete ya no está disponible. Elige otro de la lista.",
-    "ORDER_NOT_FOUND": "No encontramos esa orden de compra."
+    "ORDER_NOT_FOUND": "No encontramos esa orden de compra.",
+    "INVALID_CURRENT_PASSWORD": "La contraseña actual no es correcta.",
+    "PASSWORD_REQUIRED": "Crea una contraseña antes de desvincular Google."
   },
   "routes": {
     "titleTemplate": "{{title}} · Navby",
@@ -330,6 +383,35 @@
     "createdAt": "Cuenta creada",
     "logout": "Cerrar sesión",
     "logoutFailed": "No pudimos cerrar la sesión",
+    "security": {
+      "title": "Acceso y seguridad",
+      "passwordTitle": "Contraseña",
+      "createDescription": "Entras solo con Google. Crea una contraseña para poder entrar también con tu correo, y para poder desvincular Google si algún día quieres.",
+      "changeDescription": "Cambia la contraseña con la que entras con tu correo.",
+      "create": "Crear contraseña",
+      "change": "Cambiar contraseña",
+      "currentPassword": "Contraseña actual",
+      "currentRequired": "Escribe tu contraseña actual.",
+      "newPassword": "Contraseña nueva",
+      "cancel": "Cancelar",
+      "saveCreate": "Guardar contraseña",
+      "saveChange": "Actualizar contraseña",
+      "createdDone": "Contraseña creada. Cerramos tus otras sesiones; ya puedes entrar con tu correo.",
+      "changedDone": "Contraseña actualizada. Cerramos tus otras sesiones.",
+      "googleTitle": "Google",
+      "googleLinked": "Puedes entrar con tu cuenta de Google.",
+      "unlink": "Desvincular Google",
+      "unlinkNeedsPassword": "Crea una contraseña primero: sin ella no podrías volver a entrar.",
+      "unlinkDialogTitle": "¿Desvincular Google?",
+      "unlinkDialogBody": "Dejarás de entrar con Google y lo harás con tu correo y contraseña. Si vuelves a usar Google con este mismo correo, se vinculará de nuevo.",
+      "unlinkConfirm": "Desvincular",
+      "unlinkDone": "Google desvinculado."
+    },
+    "defaultPreference": {
+      "title": "Preferencia de búsqueda predeterminada",
+      "description": "Se aplicará automáticamente en cada búsqueda nueva.",
+      "saved": "Preferencia predeterminada guardada"
+    },
     "delete": {
       "title": "Eliminar cuenta",
       "description": "Es irreversible: anonimizamos tu nombre y correo, borramos tus itinerarios guardados y anulamos tus créditos. Conservamos las órdenes de compra por obligación legal y tributaria.",
@@ -432,15 +514,115 @@
       "limit": "Ya tienes 50 itinerarios. Elimina alguno para guardar otro",
       "limitLink": "Ver mis itinerarios",
       "error": "No pudimos guardarlo. Inténtalo de nuevo."
+    },
+    "details": {
+      "openButton": "Ver detalles",
+      "title": "Detalles del análisis",
+      "close": "Cerrar",
+      "routeSectionTitle": "Evaluación de conectividad y ruta",
+      "connectivityLatency": "Verificación de conectividad",
+      "connectivityDesc": "Filtro con hasta 2 escalas",
+      "optimalPathLatency": "Cálculo de ruta óptima",
+      "optimalPathDesc": "Tiempo mínimo físico",
+      "airportsExplored": "Aeropuertos explorados",
+      "pairsEvaluated_one": "{{count}} par evaluado",
+      "pairsEvaluated_other": "{{count}} pares evaluados",
+      "pairsHeading": "Combinaciones evaluadas",
+      "pairItem": "{{origin}} → {{destination}} · mín. {{stops}} · ~{{hours}} h",
+      "multicriteriaHeading": "Selección multicriterio",
+      "offersReceived": "Opciones consultadas",
+      "optimalFrontier": "Frontera óptima",
+      "finalPodium": "Podio final",
+      "weightsApplied": "Pesos activos: Precio {{price}} % · Duración {{duration}} % · Escalas {{stops}} %",
+      "physicalMinimum": "Referencia física mínima: {{duration}}",
+      "tableOption": "Opción",
+      "tableAffinity": "Afinidad",
+      "tableScore": "Índice",
+      "tableDuration": "Duración",
+      "tableExtra": "Sobre mínimo",
+      "scoreNote": "Índice menor = más cercano al ideal.",
+      "milliseconds": "{{value}} ms",
+      "noQuoteYet": "Pulsa Buscar para comparar precios, duración y gráficas.",
+      "latencyChartLabel": "Tiempos de evaluación (ms)",
+      "funnelTitle": "Embudo de selección",
+      "weightsDistribution": "Distribución de criterios",
+      "scatterTitle": "Precio vs. Duración",
+      "scatterCaption": "Abajo e izquierda = menor precio y menor duración.",
+      "scatterAxisPrice": "Precio",
+      "scatterAxisDuration": "Duración",
+      "tabs": {
+        "charts": "Gráficas y métricas",
+        "simulation": "Simular ruta"
+      },
+      "simulation": {
+        "ctaButton": "Simular cómo se halló la ruta",
+        "play": "Simular",
+        "pause": "Pausar",
+        "restart": "Reiniciar",
+        "prevStep": "Fase anterior",
+        "nextStep": "Siguiente fase",
+        "speedLabel": "Velocidad {{speed}}x",
+        "timelineAria": "Progreso de la simulación",
+        "stepLabel": "Fase {{current}} de {{total}}",
+        "pairProgress": "Par {{index}}/{{total}}: {{origin}} → {{destination}}",
+        "statExplored": "Aeropuertos explorados",
+        "statEvaluated": "Evaluados",
+        "statTime": "Tiempo",
+        "statActivePair": "Par evaluado",
+        "statRoute": "Ruta mínima",
+        "queueTitle": "Evaluación paso a paso",
+        "legendOrigin": "Origen / Destino",
+        "legendActive": "En evaluación",
+        "legendDiscarded": "Descartada",
+        "legendOptimal": "Ruta óptima",
+        "legendAlternative": "Alternativa del podio",
+        "canvasAria": "Simulación visual animada de búsqueda de ruta entre {{origin}} y {{destination}}",
+        "candidateLabel": "{{route}} · est. {{hours}} h",
+        "statusChecking": "Verificando alcance (nivel {{level}})",
+        "statusScanning": "Priorizando menor tiempo total",
+        "statusBest": "Ruta de mínimo físico hallada",
+        "steps": {
+          "originTitle": "1. Expansión por niveles desde origen",
+          "originDesc": "Barrido inicial por conexiones directas y hasta 2 escalas en {{ms}} ms.",
+          "bfsTitle": "2. Búsqueda guiada por pares",
+          "bfsDesc": "Evalúa {{pairs}} pares priorizando rutas con menor tiempo acumulado + restante ({{explored}} aeropuertos).",
+          "astarTitle": "3. Comparación y convergencia",
+          "astarDesc": "Descarta ramas más lentas y fija la ruta de menor duración física: {{route}}.",
+          "rankTitle": "4. Filtrado multicriterio al Top 3",
+          "rankDesc": "Sobre {{offers}} opciones consultadas, {{frontier}} no dominadas compiten hasta elegir el podio final.",
+          "rankPreviewDesc": "Ruta base {{route}} (~{{duration}}) lista para cotizar precios reales."
+        }
+      }
     }
   },
   "itineraries": {
     "title": "Mis itinerarios",
+    "backToSearch": "Volver al buscador",
     "count": "{{count}} de {{max}}",
     "full": "Llegaste al máximo de 50. Elimina alguno para guardar otro",
     "listLabel": "Itinerarios guardados",
     "savedOn": "Guardado el {{date}}",
+    "priceAtSave": "Precio al guardar",
     "dates": "{{departure}} – {{return}}",
+    "tripType": {
+      "ONE_WAY": "Solo ida",
+      "ROUND_TRIP": "Ida y vuelta"
+    },
+    "viewDetail": "Ver ruta",
+    "searchLabel": "Buscar en mis itinerarios",
+    "searchPlaceholder": "Buscar por ruta, nombre o aerolínea",
+    "clearSearch": "Limpiar búsqueda",
+    "sortLabel": "Ordenar por",
+    "sort": {
+      "recent": "Más recientes",
+      "priceAsc": "Menor precio",
+      "durationAsc": "Menor duración",
+      "departureAsc": "Próxima salida"
+    },
+    "noMatches": {
+      "title": "No hay itinerarios que coincidan",
+      "description": "Prueba con otro destino, nombre o aerolínea, o limpia el filtro."
+    },
     "delete": "Eliminar",
     "deleteAria": "Eliminar {{name}}",
     "priceNote": "Los precios son del momento en que guardaste cada itinerario",
@@ -463,6 +645,7 @@
     },
     "detail": {
       "back": "Volver a mis itinerarios",
+      "searchLive": "Buscar precios actuales",
       "profile": "Cotizado con el perfil {{profile}}",
       "disclaimer": "Precio del {{date}}; puede haber cambiado. {{legal}}",
       "loading": "Cargando itinerario…",
@@ -540,7 +723,40 @@
       "paginationLabel": "Paginación del historial",
       "previousPage": "Anterior",
       "nextPage": "Siguiente",
-      "pageOf": "Página {{page}} de {{totalPages}}"
+      "pageOf": "Página {{page}} de {{totalPages}}",
+      "openDetailAria": "Ver detalle de {{type}}, {{date}}",
+      "detail": {
+        "title": "Detalle del movimiento",
+        "receiptTitle": "Comprobante de compra",
+        "close": "Cerrar",
+        "loadingOrder": "Consultando comprobante de orden…",
+        "orderUnavailable": "No pudimos cargar el comprobante completo de esta orden.",
+        "packageLabel": "Paquete",
+        "amountLabel": "Monto",
+        "orderCodeLabel": "N.° de orden",
+        "statusLabel": "Estado",
+        "dateLabel": "Fecha y hora",
+        "creditsTotalLabel": "Total en saldo",
+        "breakdownLabel": "Origen de créditos",
+        "freeDeltaLabel": "Gratis",
+        "paidDeltaLabel": "Comprados",
+        "statuses": {
+          "PENDING": "Pendiente",
+          "APPROVED": "Aprobado",
+          "REJECTED": "Rechazado",
+          "EXPIRED": "Vencido",
+          "REVERSED": "Revertido"
+        },
+        "purchaseNote": "Pago único con Mercado Pago. Los créditos comprados no caducan.",
+        "reversalNote": "El pago fue revertido o reembolsado y los créditos asociados se descontaron de tu saldo.",
+        "searchActiveRoute": "Ruta consultada",
+        "searchActiveOffers": "{{count}} opciones evaluadas · vigencia activa",
+        "searchViewResults": "Ver recomendaciones",
+        "searchExpiredNote": "Los resultados de esta búsqueda superaron los 30 minutos de vigencia. Si guardaste una opción, la encontrarás en Mis itinerarios.",
+        "searchGoItineraries": "Ir a mis itinerarios",
+        "refundNote": "La búsqueda no se pudo completar y te devolvimos los créditos sin costo.",
+        "accountDeletionNote": "Ajuste automático al cerrar la cuenta."
+      }
     },
     "result": {
       "title": "Estado de tu compra",

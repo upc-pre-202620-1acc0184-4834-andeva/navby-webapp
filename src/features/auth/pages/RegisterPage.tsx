@@ -18,8 +18,8 @@ import { type RegisterValues, registerSchema } from '../authSchemas';
 import { AUTH_LINK_CLASS, FormNotice } from '../components/AuthCard';
 import { AuthLayout } from '../components/AuthLayout';
 import { GoogleSignIn } from '../components/GoogleSignIn';
-import { PasswordChecklist } from '../components/PasswordChecklist';
-import { PasswordInput } from '../components/PasswordInput';
+import { PasswordChecklist } from '@/shared/ui/PasswordChecklist';
+import { PasswordInput } from '@/shared/ui/PasswordInput';
 import { useCaptcha } from '../useCaptcha';
 
 /** /register (US-01, US-05, RL-01, RN-17). */

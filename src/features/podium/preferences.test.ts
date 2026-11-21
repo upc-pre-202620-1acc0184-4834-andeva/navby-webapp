@@ -3,11 +3,13 @@ import {
   parsePreferences,
   preferenceKey,
   PROFILE_WEIGHTS,
+  readDefaultPreference,
   redistributeWeights,
   selectionFromApi,
   toApiPreferences,
   WEIGHT_KEYS,
   type PercentWeights,
+  writeDefaultPreference,
   writePreferences,
 } from './preferences';
 
@@ -119,5 +121,31 @@ describe('conversión con la API', () => {
         }),
       ),
     ).toBe('BALANCED');
+  });
+});
+
+describe('preferencia predeterminada del usuario', () => {
+  it('guarda y lee por usuario en localStorage y sirve de respaldo si la URL no especifica perfil', () => {
+    window.localStorage.clear();
+    expect(readDefaultPreference('usr_1')).toEqual({ profile: 'BALANCED' });
+
+    writeDefaultPreference('usr_1', {
+      profile: 'CUSTOM',
+      weights: { price: 60, duration: 25, stops: 15 },
+    });
+    expect(readDefaultPreference('usr_1')).toEqual({
+      profile: 'CUSTOM',
+      weights: { price: 60, duration: 25, stops: 15 },
+    });
+    expect(readDefaultPreference('usr_other')).toEqual({ profile: 'BALANCED' });
+
+    expect(parsePreferences(new URLSearchParams(''), readDefaultPreference('usr_1'))).toEqual({
+      profile: 'CUSTOM',
+      weights: { price: 60, duration: 25, stops: 15 },
+    });
+    // Si la URL explícitamente pide FAST, prevalece sobre la preferencia guardada.
+    expect(
+      parsePreferences(new URLSearchParams('profile=FAST'), readDefaultPreference('usr_1')),
+    ).toEqual({ profile: 'FAST' });
   });
 });

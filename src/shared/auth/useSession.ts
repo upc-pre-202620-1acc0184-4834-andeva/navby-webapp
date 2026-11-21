@@ -2,6 +2,7 @@ import { type QueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import { registerSessionListener } from '@/shared/api/client';
 import { bootstrapSession, logout } from '@/shared/api/endpoints';
 import { type UserSummary } from '@/shared/api/schemas';
+import { clearLastSearch } from '@/shared/search/lastSearch';
 
 export const sessionKeys = {
   current: ['session'] as const,
@@ -40,9 +41,11 @@ export function bindSessionSync(queryClient: QueryClient): () => void {
       // Las que siguen montadas se desmontan con RequireAuth y caen en el cambio de usuario.
       queryClient.removeQueries({ predicate: notSession, type: 'inactive' });
       clearPendingOrderStorage();
+      clearLastSearch();
     } else if (lastUserId !== null && lastUserId !== user.user_id) {
       queryClient.removeQueries({ predicate: notSession });
       clearPendingOrderStorage();
+      clearLastSearch();
     }
     if (user) lastUserId = user.user_id;
   });

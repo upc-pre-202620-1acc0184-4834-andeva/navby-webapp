@@ -6,6 +6,7 @@ import { isApiError } from '@/shared/api/errors';
 import { type OrderDetail } from '@/shared/api/schemas';
 import { useSession } from '@/shared/auth/useSession';
 import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
+import { useHomeHref } from '@/shared/search/lastSearch';
 import { Button } from '@/shared/ui/Button';
 import { buttonVariants } from '@/shared/ui/buttonVariants';
 import { Card } from '@/shared/ui/Card';
@@ -72,6 +73,7 @@ export default function BillingResultPage() {
   const { t } = useTranslation();
   const locale = useIntlLocale();
   const { user } = useSession();
+  const homeHref = useHomeHref(user?.user_id);
   const [searchParams] = useSearchParams();
 
   const searchKey = `${searchParams.toString()}:${user?.user_id ?? ''}`;
@@ -218,7 +220,7 @@ export default function BillingResultPage() {
             balanceValue={balanceValue}
           />
           <div className="flex flex-wrap justify-center gap-3">
-            <Link to="/" className={buttonVariants({ variant: 'primary' })}>
+            <Link to={homeHref} className={buttonVariants({ variant: 'primary' })}>
               {t('billing.result.searchFlights')}
             </Link>
             <Link to="/billing" className={buttonVariants({ variant: 'secondary' })}>
@@ -240,7 +242,7 @@ export default function BillingResultPage() {
             <Link to="/billing" className={buttonVariants({ variant: 'primary' })}>
               {t('billing.result.tryAgain')}
             </Link>
-            <Link to="/" className={buttonVariants({ variant: 'secondary' })}>
+            <Link to={homeHref} className={buttonVariants({ variant: 'secondary' })}>
               {t('billing.result.searchFlights')}
             </Link>
           </div>
@@ -275,7 +277,7 @@ export default function BillingResultPage() {
                   : 'billing.result.viewCredits',
               )}
             </Link>
-            <Link to="/" className={buttonVariants({ variant: 'secondary' })}>
+            <Link to={homeHref} className={buttonVariants({ variant: 'secondary' })}>
               {t('billing.result.searchFlights')}
             </Link>
           </div>

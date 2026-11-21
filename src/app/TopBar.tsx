@@ -22,10 +22,11 @@ import { resolveAuthRedirectFrom } from '@/shared/auth/authRedirect';
 import { apiErrorMessage } from '@/shared/api/errorMessage';
 import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
 import { useLogout, useSession } from '@/shared/auth/useSession';
+import { useHomeHref } from '@/shared/search/lastSearch';
 import { buttonVariants } from '@/shared/ui/buttonVariants';
 import { cn } from '@/shared/ui/cn';
-import { LegalLinksRow } from '@/shared/ui/LegalLinks';
 import { useTheme } from '@/shared/ui/theme';
+import { NotificationsMenu } from './NotificationsMenu';
 
 const MENU_ITEM_CLASS =
   'flex min-h-11 sm:min-h-10 w-full items-center gap-2.5 rounded-lg px-3 text-sm font-medium text-fg transition-colors duration-150 ease-(--ease-out) hover:bg-surface-sunken';
@@ -61,6 +62,10 @@ export function TopBar() {
   const locale = useIntlLocale();
   const currentLang = (i18n.resolvedLanguage ?? i18n.language).startsWith('en') ? 'en' : 'es';
   const redirectFrom = resolveAuthRedirectFrom(location);
+  const homeHref = useHomeHref(user?.user_id);
+  const isOnHome = location.pathname === '/';
+  const logoTo =
+    homeHref !== '/' ? homeHref : isOnHome && location.search ? `/${location.search}` : '/';
   const walletLabel = wallet
     ? t('nav.creditsAria', {
         count: wallet.total_credits,
@@ -103,12 +108,12 @@ export function TopBar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 h-14 border-b border-line bg-surface sm:h-16">
+    <header className="sticky top-0 z-30 h-14 border-b border-line bg-surface">
       <div className="mx-auto flex h-full max-w-[90rem] items-center justify-between gap-3 px-4 sm:px-6">
         <Link
-          to="/"
+          to={logoTo}
           aria-label={t('nav.homeAria')}
-          aria-current={location.pathname === '/' ? 'page' : undefined}
+          aria-current={isOnHome ? 'page' : undefined}
           className="inline-flex min-h-11 items-center rounded-lg py-1"
         >
           <img
@@ -130,6 +135,13 @@ export function TopBar() {
         </Link>
 
         <div className="flex items-center gap-2">
+          {isAuthenticated && user ? (
+            <NotificationsMenu
+              key={user.user_id}
+              userId={user.user_id}
+              enabled={user.email_verified}
+            />
+          ) : null}
           {isAuthenticated ? (
             <Link
               to="/billing"
@@ -138,7 +150,8 @@ export function TopBar() {
               title={walletLabel}
               className={cn(
                 buttonVariants({ variant: 'secondary', size: 'md' }),
-                'rounded-full px-3 text-xs tabular-nums',
+                // En móvil el saldo vive dentro del menú de cuenta para ganar espacio.
+                'rounded-full px-3 text-xs tabular-nums max-sm:hidden',
               )}
             >
               <Coins className="h-4 w-4 text-brand-ink" aria-hidden="true" />
@@ -239,6 +252,11 @@ export function TopBar() {
                     >
                       <Wallet className="h-4 w-4 text-fg-muted" aria-hidden="true" />
                       <span>{t('nav.billing')}</span>
+                      {wallet ? (
+                        <span className="ml-auto text-xs font-semibold text-fg-muted tabular-nums sm:hidden">
+                          {t('nav.credits', { count: wallet.total_credits })}
+                        </span>
+                      ) : null}
                     </Link>
                     <Link
                       to="/account"
@@ -372,11 +390,6 @@ export function TopBar() {
                       {t('nav.langEn')}
                     </button>
                   </div>
-                </div>
-
-                <div className="border-t border-line pt-2.5">
-                  <LegalLinksRow showCopyright={false} />
-                  <p className="mt-1 text-[11px] text-fg-muted">{t('footer.copyright')}</p>
                 </div>
               </div>
             </div>

@@ -121,10 +121,10 @@ describe('AppLayout & shell', () => {
       'href',
       '/itineraries',
     );
-    expect(screen.getByRole('link', { name: 'Créditos' })).toHaveAttribute('href', '/billing');
+    expect(screen.getByRole('link', { name: /^Créditos/ })).toHaveAttribute('href', '/billing');
     expect(screen.getByRole('link', { name: 'Mi cuenta' })).toHaveAttribute('href', '/account');
-    expect(screen.getByRole('link', { name: 'Términos y condiciones' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Política de privacidad' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Términos y condiciones' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Política de privacidad' })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Oscuro' }));
     expect(document.documentElement).toHaveClass('dark');

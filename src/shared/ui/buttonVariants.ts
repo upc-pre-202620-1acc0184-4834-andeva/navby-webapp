@@ -1,10 +1,10 @@
 import { cn } from './cn';
 
 export type ButtonVariant = 'primary' | 'buy' | 'secondary' | 'ghost' | 'danger';
-export type ButtonSize = 'md' | 'icon';
+export type ButtonSize = 'sm' | 'md' | 'icon';
 
 const BASE_CLASSES =
-  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap select-none rounded-lg font-semibold text-sm transition-[transform,background-color,border-color,color,opacity] duration-150 ease-(--ease-out) active:scale-[0.97] motion-reduce:active:scale-100 disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100';
+  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap select-none font-semibold text-sm transition-[transform,background-color,border-color,color,opacity] duration-150 ease-(--ease-out) active:scale-[0.97] motion-reduce:active:scale-100 disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100';
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-white hover:bg-primary-dark',
@@ -15,8 +15,9 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  md: 'min-h-11 sm:min-h-10 px-4',
-  icon: 'min-h-11 min-w-11 sm:min-h-10 sm:min-w-10 px-0',
+  sm: 'min-h-10 lg:min-h-8 px-3 text-xs',
+  md: 'min-h-11 lg:min-h-10 px-4',
+  icon: 'min-h-11 min-w-11 lg:min-h-10 lg:min-w-10 px-0',
 };
 
 export function buttonVariants({
@@ -28,5 +29,7 @@ export function buttonVariants({
   size?: ButtonSize;
   className?: string;
 } = {}): string {
-  return cn(BASE_CLASSES, VARIANT_CLASSES[variant], SIZE_CLASSES[size], className);
+  // Evita que rounded-lg pise rounded-full porque cn() no deduplica utilidades de Tailwind.
+  const radiusClass = className?.includes('rounded-full') ? '' : 'rounded-lg';
+  return cn(BASE_CLASSES, radiusClass, VARIANT_CLASSES[variant], SIZE_CLASSES[size], className);
 }

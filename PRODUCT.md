@@ -4,7 +4,9 @@
 
 ## Platform
 
-web (SPA responsive; no es una app móvil)
+web
+
+SPA web responsive; no es una app móvil.
 
 ## Stack
 

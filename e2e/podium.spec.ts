@@ -16,14 +16,18 @@ test.describe('Podio (Plan 4)', () => {
     });
 
     await page.goto(SEARCH_URL);
-    await expect(page.getByRole('link', { name: /Saldo: 10 créditos/ })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Saldo: 10 créditos/, includeHidden: true }),
+    ).toBeAttached();
     await page.getByRole('button', { name: 'Buscar' }).click();
 
     const list = page.getByRole('list', { name: 'Recomendaciones ordenadas de mejor a peor' });
     await expect(list.locator(':scope > li')).toHaveCount(3);
     await expect(page.getByText('3 recomendaciones listas')).toBeAttached();
     await expect(page).toHaveURL(/sid=srch_01JE2EPODIUM/);
-    await expect(page.getByRole('link', { name: /Saldo: 5 créditos/ })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Saldo: 5 créditos/, includeHidden: true }),
+    ).toBeAttached();
 
     const first = list.locator(':scope > li').first();
     await expect(first.getByText('USD 812.40')).toBeVisible();
@@ -104,7 +108,9 @@ test.describe('Podio (Plan 4)', () => {
     // Rapidez 20/60/20 → precio 30: los otros dos se reparten la diferencia (50/20).
     await expect(page).toHaveURL(/profile=CUSTOM.*w=30%2C50%2C20/);
     expect(walletCalls).toBe(walletCallsAfterSearch);
-    await expect(page.getByRole('link', { name: /Saldo: 10 créditos/ })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Saldo: 10 créditos/, includeHidden: true }),
+    ).toBeAttached();
 
     const hasOverflow = await page
       .locator('html')
@@ -126,7 +132,9 @@ test.describe('Podio (Plan 4)', () => {
     );
 
     await page.goto(SEARCH_URL);
-    await expect(page.getByRole('link', { name: /Saldo: 10 créditos/ })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Saldo: 10 créditos/, includeHidden: true }),
+    ).toBeAttached();
     await page.getByRole('button', { name: 'Buscar' }).click();
 
     await expect(page.getByText('No tienes créditos suficientes')).toBeVisible();

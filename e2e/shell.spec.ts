@@ -37,7 +37,10 @@ test.describe('Armazón de navegación, sesión y paridad /app', () => {
       page.getByRole('heading', { level: 1, name: 'Créditos y paquetes' }),
     ).toBeVisible();
     await expect(page).toHaveTitle('Créditos y paquetes · Navby');
-    await expect(page.getByRole('link', { name: /Saldo/ })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('link', { name: /Saldo/, includeHidden: true })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
   });
 
   test('usuario sin sesión es redirigido a /app/login preservando layout y pasa axe en claro y oscuro', async ({
@@ -83,7 +86,7 @@ test.describe('Armazón de navegación, sesión y paridad /app', () => {
     );
 
     await page.goto('/app/');
-    await expect(page.getByRole('link', { name: /Saldo/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Saldo/, includeHidden: true })).toBeAttached();
 
     const trigger = page.getByRole('button', { name: 'Menú de cuenta y preferencias' });
     await trigger.click();

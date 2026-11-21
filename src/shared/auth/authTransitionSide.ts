@@ -1,6 +1,7 @@
 export type AuthDesktopSide = 'left' | 'right';
 
-export const AUTH_LIQUID_DURATION_MS = 460;
+/** Duración de la gota líquida; el CSS del layout la recibe como `--auth-liquid-ms`. */
+export const AUTH_LIQUID_DURATION_MS = 720;
 
 let lastDesktopSide: AuthDesktopSide | null = null;
 let transitionCounter = 0;

@@ -1,3 +1,4 @@
+import gsap from 'gsap';
 import { type RefObject, useLayoutEffect, useRef, useState } from 'react';
 import { AUTH_LIQUID_DURATION_MS } from '@/shared/auth/authTransitionSide';
 
@@ -16,6 +17,12 @@ const SATELLITE_SAMPLES = 20;
 
 function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
+}
+
+/** Curva suave 0..1 con derivada nula en los extremos (sin arranques ni cortes bruscos). */
+function smoothstep(x: number): number {
+  const v = clamp(x, 0, 1);
+  return v * v * (3 - 2 * v);
 }
 
 function cubicBezier(p1x: number, p1y: number, p2x: number, p2y: number, t: number): number {
@@ -58,7 +65,7 @@ function roundedRectPoint(theta: number, w: number, h: number, r: number): [numb
 function catmullRomClosedPath(pts: readonly [number, number][]): string {
   const n = pts.length;
   if (n < 3) return '';
-  let d = `M ${pts[0]![0].toFixed(1)} ${pts[0]![1].toFixed(1)}`;
+  let d = `M ${pts[0]![0].toFixed(2)} ${pts[0]![1].toFixed(1)}`;
   for (let i = 0; i < n; i += 1) {
     const p0 = pts[(i - 1 + n) % n]!;
     const p1 = pts[i]!;
@@ -68,7 +75,7 @@ function catmullRomClosedPath(pts: readonly [number, number][]): string {
     const c1y = p1[1] + (p2[1] - p0[1]) / 6;
     const c2x = p2[0] - (p3[0] - p1[0]) / 6;
     const c2y = p2[1] - (p3[1] - p1[1]) / 6;
-    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)} ${c2x.toFixed(1)} ${c2y.toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+    d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${p2[0].toFixed(2)} ${p2[1].toFixed(1)}`;
   }
   return `${d} Z`;
 }
@@ -262,7 +269,7 @@ export function LiquidBridge({
         sheenRef.current.setAttribute('ry', (main.ry * 0.22).toFixed(1));
         sheenRef.current.setAttribute(
           'transform',
-          `rotate(${(-12 * dir).toFixed(1)} ${sheenCx.toFixed(1)} ${sheenCy.toFixed(1)})`,
+          `rotate(${(-12 * dir).toFixed(2)} ${sheenCx.toFixed(2)} ${sheenCy.toFixed(1)})`,
         );
         sheenRef.current.setAttribute('opacity', (main.drop * 0.72).toFixed(3));
       }
@@ -284,7 +291,7 @@ export function LiquidBridge({
           const sx = main.tailTipX - dir * lag;
           const sy = main.cy + Math.sin(p * Math.PI * 2) * 2.5;
           sat1PathRef.current.setAttribute('d', teardropPath(sx, sy, 15 * scale, 9 * scale, dir));
-          sat1PathRef.current.setAttribute('opacity', scale > 0.08 ? '1' : '0');
+          sat1PathRef.current.setAttribute('opacity', clamp(scale * 5, 0, 1).toFixed(3));
         } else {
           sat1PathRef.current.setAttribute('opacity', '0');
         }
@@ -299,7 +306,7 @@ export function LiquidBridge({
           const sx = main.tailTipX - dir * lag;
           const sy = main.cy - 5 * scale;
           sat2PathRef.current.setAttribute('d', teardropPath(sx, sy, 9 * scale, 5.5 * scale, dir));
-          sat2PathRef.current.setAttribute('opacity', scale > 0.08 ? '1' : '0');
+          sat2PathRef.current.setAttribute('opacity', clamp(scale * 5, 0, 1).toFixed(3));
         } else {
           sat2PathRef.current.setAttribute('opacity', '0');
         }
@@ -307,28 +314,26 @@ export function LiquidBridge({
 
       // El puente permanece opaco hasta que el showcase destino debajo ya alcanzó opacidad 1
       if (svgEl) {
-        const fade = t <= 0.84 ? 1 : 1 - (t - 0.84) / 0.16;
-        svgEl.style.opacity = clamp(fade, 0, 1).toFixed(3);
+        svgEl.style.opacity = (1 - smoothstep((t - 0.8) / 0.2)).toFixed(3);
       }
     };
 
     drawFrame(0);
 
-    const start = performance.now();
-    let rafId = 0;
-
-    const tick = (now: number) => {
-      const t = clamp((now - start) / AUTH_LIQUID_DURATION_MS, 0, 1);
-      drawFrame(t);
-      if (t < 1) {
-        rafId = window.requestAnimationFrame(tick);
-      } else {
-        setActive(false);
-      }
+    // GSAP reparte el tiempo con su ticker: `lagSmoothing` absorbe los tirones (p. ej. al cargar la
+    // página destino) en vez de saltar fotogramas. Tiempo lineal: el CSS del showcase y del
+    // formulario usa la misma duración (`--auth-liquid-ms`) y las curvas ya van dentro de la forma.
+    const progress = { t: 0 };
+    const tween = gsap.to(progress, {
+      t: 1,
+      duration: AUTH_LIQUID_DURATION_MS / 1000,
+      ease: 'none',
+      onUpdate: () => drawFrame(progress.t),
+      onComplete: () => setActive(false),
+    });
+    return () => {
+      tween.kill();
     };
-
-    rafId = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(rafId);
   }, [direction, transitionKey, targetCardRef]);
 
   if (!active || !direction) return null;
@@ -339,7 +344,13 @@ export function LiquidBridge({
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-30 hidden overflow-hidden lg:block"
     >
-      <svg ref={svgRef} className="h-full w-full" preserveAspectRatio="none">
+      <svg
+        ref={svgRef}
+        className="h-full w-full"
+        preserveAspectRatio="none"
+        shapeRendering="geometricPrecision"
+        style={{ willChange: 'opacity' }}
+      >
         <defs>
           <radialGradient
             id="navby-liquid-body"

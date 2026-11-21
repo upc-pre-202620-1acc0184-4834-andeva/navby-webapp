@@ -348,4 +348,97 @@ describe('/account (US-07, US-09, US-10)', () => {
     const [, init] = fetchMock.mock.calls.find(([, i]) => i?.method === 'DELETE')!;
     expect(bodyOf(init)).toEqual({ confirmation: 'ELIMINAR' });
   });
+
+  describe('Acceso y seguridad', () => {
+    it('cuenta solo-Google: crea contraseña sin la actual y entonces permite desvincular', async () => {
+      let hasPassword = false;
+      const fetchMock = mockApi({
+        'POST /auth/refresh': () => jsonResponse(200, verifiedSession),
+        'GET /users/me': () =>
+          jsonResponse(200, { ...profile, has_password: hasPassword, has_google: true }),
+        'PUT /users/me/password': () => {
+          hasPassword = true;
+          return new Response(null, { status: 204 });
+        },
+      });
+      renderApp('/account');
+      const user = userEvent.setup();
+
+      // Sin contraseña no se puede desvincular Google.
+      expect(await screen.findByRole('button', { name: 'Desvincular Google' })).toBeDisabled();
+      expect(screen.getByText(/Crea una contraseña primero/)).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Crear contraseña' }));
+      expect(screen.queryByLabelText('Contraseña actual')).not.toBeInTheDocument();
+      await user.type(screen.getByLabelText('Contraseña nueva'), 'Viajar2026');
+      await user.click(screen.getByRole('button', { name: 'Guardar contraseña' }));
+
+      expect(await screen.findByRole('button', { name: 'Cambiar contraseña' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Desvincular Google' })).toBeEnabled();
+      const [, init] = fetchMock.mock.calls.find(([, i]) => i?.method === 'PUT')!;
+      expect(bodyOf(init)).toEqual({ new_password: 'Viajar2026' });
+    });
+
+    it('cambia la contraseña con la actual y marca una actual incorrecta en su campo', async () => {
+      let attempts = 0;
+      const fetchMock = mockApi({
+        'POST /auth/refresh': () => jsonResponse(200, verifiedSession),
+        'GET /users/me': () => jsonResponse(200, profile),
+        'PUT /users/me/password': () => {
+          attempts += 1;
+          return attempts === 1
+            ? problem(400, 'INVALID_CURRENT_PASSWORD')
+            : new Response(null, { status: 204 });
+        },
+      });
+      renderApp('/account');
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByRole('button', { name: 'Cambiar contraseña' }));
+      // Sin la actual ni se envía.
+      await user.type(screen.getByLabelText('Contraseña nueva'), 'Nueva2026x');
+      await user.click(screen.getByRole('button', { name: 'Actualizar contraseña' }));
+      expect(await screen.findByText('Escribe tu contraseña actual.')).toBeInTheDocument();
+      expect(fetchMock.mock.calls.some(([, i]) => i?.method === 'PUT')).toBe(false);
+
+      await user.type(screen.getByLabelText('Contraseña actual'), 'Incorrecta1');
+      await user.click(screen.getByRole('button', { name: 'Actualizar contraseña' }));
+      expect(await screen.findByText('La contraseña actual no es correcta.')).toBeInTheDocument();
+
+      await user.clear(screen.getByLabelText('Contraseña actual'));
+      await user.type(screen.getByLabelText('Contraseña actual'), 'Viajar2026');
+      await user.click(screen.getByRole('button', { name: 'Actualizar contraseña' }));
+      await waitFor(() =>
+        expect(screen.queryByRole('button', { name: 'Actualizar contraseña' })).toBeNull(),
+      );
+      const puts = fetchMock.mock.calls.filter(([, i]) => i?.method === 'PUT');
+      expect(bodyOf(puts[1]![1])).toEqual({
+        new_password: 'Nueva2026x',
+        current_password: 'Viajar2026',
+      });
+    });
+
+    it('desvincula Google tras confirmar y deja de ofrecerlo', async () => {
+      let linked = true;
+      const fetchMock = mockApi({
+        'POST /auth/refresh': () => jsonResponse(200, verifiedSession),
+        'GET /users/me': () => jsonResponse(200, { ...profile, has_google: linked }),
+        'DELETE /users/me/google': () => {
+          linked = false;
+          return new Response(null, { status: 204 });
+        },
+      });
+      renderApp('/account');
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByRole('button', { name: 'Desvincular Google' }));
+      const dialog = await screen.findByRole('dialog', { name: '¿Desvincular Google?' });
+      await user.click(within(dialog).getByRole('button', { name: 'Desvincular' }));
+
+      await waitFor(() =>
+        expect(screen.queryByRole('button', { name: 'Desvincular Google' })).toBeNull(),
+      );
+      expect(fetchMock.mock.calls.some(([, i]) => i?.method === 'DELETE')).toBe(true);
+    });
+  });
 });

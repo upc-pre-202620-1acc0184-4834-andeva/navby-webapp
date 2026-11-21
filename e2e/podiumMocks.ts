@@ -117,8 +117,7 @@ export const PODIUM = {
   offers_received: 3,
   pareto_size: 3,
   preferences: { profile: 'BALANCED', weights: { price: 0.5, duration: 0.3, stops: 0.2 } },
-  price_disclaimer:
-    'Precio referencial obtenido de terceros; se confirma en el sitio del vendedor.',
+  price_disclaimer: 'Precio referencial obtenido de terceros.',
   podium: [offer(1, '812.40', 0), offer(2, '760.00', 1), offer(3, '905.10', 0)],
 };
 
@@ -152,9 +151,15 @@ interface BrowserAnimation {
 
 /** Espera a que terminen las transiciones CSS finitas (p. ej. cambio de tema) antes de auditar contraste. */
 export async function settleTransitions(page: Page) {
-  await page.locator('html').evaluate((el) => {
+  await page.locator('html').evaluate(async (el) => {
+    const win = el.ownerDocument.defaultView;
+    if (win) {
+      await new Promise<void>((resolve) =>
+        win.requestAnimationFrame(() => win.requestAnimationFrame(() => resolve())),
+      );
+    }
     const doc = el.ownerDocument as unknown as { getAnimations(): BrowserAnimation[] };
-    return Promise.all(
+    await Promise.all(
       doc
         .getAnimations()
         .filter((anim) => anim.effect?.getComputedTiming().iterations !== Infinity)

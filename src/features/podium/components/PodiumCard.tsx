@@ -1,7 +1,8 @@
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Plane } from 'lucide-react';
 import { type FocusEvent, type ReactNode, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type Leg, type PodiumOffer } from '@/shared/api/schemas';
+import { formatDuration, formatExtra, formatPrice, formatStops } from '@/shared/format/flight';
 import { type PodiumRank, usePodiumHighlight } from '@/shared/state/podiumHighlight';
 import { dayOffset, formatLocalTime, layoverMinutes } from '@/shared/time/flightTime';
 import { Badge } from '@/shared/ui/Badge';
@@ -9,13 +10,12 @@ import { buttonVariants } from '@/shared/ui/buttonVariants';
 import { Card } from '@/shared/ui/Card';
 import { cn } from '@/shared/ui/cn';
 import { PriceDisclaimer } from '@/shared/ui/PriceDisclaimer';
-import { formatDuration, formatExtra, formatPrice, formatStops } from '@/shared/format/flight';
 
 /** Borde del puesto con el color de su ruta en el mapa (el número da la señal sin color). */
 const RANK_RING: Record<PodiumRank, string> = {
-  1: 'border-route-1',
-  2: 'border-route-2',
-  3: 'border-route-3',
+  1: 'border-route-1 bg-route-1 text-white',
+  2: 'border-route-2 text-fg',
+  3: 'border-route-3 text-fg',
 };
 
 export interface PodiumCardProps {
@@ -39,39 +39,75 @@ function LegSummary({ leg, locale }: { leg: Leg; locale: string }) {
     iata: segment.from,
     minutes: layoverMinutes(leg.segments[index]?.arrival ?? segment.departure, segment.departure),
   }));
+  const flightCodes = leg.segments.map((segment) => segment.flight_number).join(' · ');
 
   return (
-    <div className="flex flex-col gap-0.5">
-      <p className="flex flex-wrap items-baseline gap-x-2 text-sm text-fg tabular-nums">
-        <span className="text-xs font-semibold text-fg-muted">
+    <div className="flex flex-col gap-1.5 rounded-lg bg-surface-sunken/75 px-3 py-2.5">
+      <div className="flex items-center justify-between gap-2 text-xs">
+        <span className="font-semibold text-fg-muted">
           {t(leg.direction === 'OUTBOUND' ? 'podium.outbound' : 'podium.inbound')}
         </span>
-        <span className="font-semibold">
-          {formatLocalTime(leg.departure, locale)} {first.from}
-          <span aria-hidden="true"> → </span>
-          <span className="sr-only"> {t('podium.to')} </span>
-          {formatLocalTime(leg.arrival, locale)} {last.to}
-          {nextDay > 0 ? (
-            <sup className="ml-0.5 text-xs font-semibold text-fg-muted">
-              {t('podium.nextDay', { count: nextDay })}
-            </sup>
-          ) : null}
-        </span>
-      </p>
-      <p className="text-xs text-fg-muted tabular-nums">
-        {[
-          formatDuration(t, leg.duration_minutes),
-          ...layovers.map((stop) =>
-            t('podium.layover', { iata: stop.iata, duration: formatDuration(t, stop.minutes) }),
-          ),
-          leg.segments.map((segment) => segment.flight_number).join(' · '),
-        ].join(' · ')}
-      </p>
+        <span className="truncate text-fg-muted tabular-nums">{flightCodes}</span>
+      </div>
+
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+        <div className="flex flex-col">
+          <span className="text-base leading-tight font-bold text-fg tabular-nums">
+            {formatLocalTime(leg.departure, locale)}
+          </span>
+          <span className="text-xs font-semibold text-fg-muted">{first.from}</span>
+        </div>
+
+        <div className="flex min-w-0 flex-col items-center gap-1 text-center">
+          <span className="text-xs font-medium text-fg-muted tabular-nums">
+            {formatDuration(t, leg.duration_minutes)}
+          </span>
+          <div className="relative flex w-full items-center">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-line-strong" aria-hidden="true" />
+            <span className="h-px flex-1 bg-line-strong" aria-hidden="true" />
+            {layovers.map((stop) => (
+              <span
+                key={stop.iata}
+                className="mx-0.5 h-2 w-2 shrink-0 rounded-full border border-surface bg-brand-ink"
+                aria-hidden="true"
+              />
+            ))}
+            {layovers.length > 0 ? (
+              <span className="h-px flex-1 bg-line-strong" aria-hidden="true" />
+            ) : null}
+            <Plane className="ml-0.5 h-3 w-3 shrink-0 text-fg-muted" aria-hidden="true" />
+          </div>
+          <span className="max-w-full truncate text-xs text-fg-muted tabular-nums">
+            {layovers.length === 0
+              ? t('podium.direct')
+              : layovers
+                  .map((stop) =>
+                    t('podium.layover', {
+                      iata: stop.iata,
+                      duration: formatDuration(t, stop.minutes),
+                    }),
+                  )
+                  .join(' · ')}
+          </span>
+        </div>
+
+        <div className="flex flex-col items-end">
+          <span className="text-base leading-tight font-bold text-fg tabular-nums">
+            {formatLocalTime(leg.arrival, locale)}
+            {nextDay > 0 ? (
+              <sup className="ml-0.5 text-xs font-semibold text-brand-ink">
+                {t('podium.nextDay', { count: nextDay })}
+              </sup>
+            ) : null}
+          </span>
+          <span className="text-xs font-semibold text-fg-muted">{last.to}</span>
+        </div>
+      </div>
     </div>
   );
 }
 
-/** Tarjeta del podio (DESIGN.md §Tarjeta): puesto y afinidad → precio → duración → aerolíneas → acción. */
+/** Tarjeta del podio (DESIGN.md §Tarjeta): puesto y afinidad → precio y aerolíneas → línea de tiempo → acción. */
 export function PodiumCard({ offer, locale, actions, disclaimer, heading }: PodiumCardProps) {
   const { t } = useTranslation();
   const titleId = useId();
@@ -95,19 +131,23 @@ export function PodiumCard({ offer, locale, actions, disclaimer, heading }: Podi
       onPointerLeave={clearHighlight}
       onFocus={() => setHighlightedRank(rank)}
       onBlur={handleBlur}
-      className="flex flex-col gap-3 transition-colors duration-150 ease-(--ease-out)"
+      className={cn(
+        'flex flex-col gap-3 p-3.5 transition-colors duration-150 ease-(--ease-out) sm:p-4',
+        !isHighlighted && rank === 1 && heading === undefined && 'border-primary/40',
+        isHighlighted && 'shadow-sm',
+      )}
     >
       {heading !== undefined ? (
         <p id={titleId} className="text-sm font-semibold text-fg">
           {heading}
         </p>
       ) : (
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-2">
           <h3 id={titleId} className="flex items-center gap-2 text-sm font-semibold text-fg">
             <span
               aria-hidden="true"
               className={cn(
-                'inline-flex h-7 w-7 items-center justify-center rounded-full border-[3px] text-sm font-bold tabular-nums',
+                'inline-flex h-6 w-6 items-center justify-center rounded-full border-2 text-xs font-bold tabular-nums',
                 RANK_RING[rank],
               )}
             >
@@ -119,11 +159,36 @@ export function PodiumCard({ offer, locale, actions, disclaimer, heading }: Podi
         </div>
       )}
 
-      <div>
-        <p className="text-3xl font-extrabold tracking-tight text-fg tabular-nums">
-          {formatPrice(offer.price.amount, offer.price.currency, locale)}
-        </p>
-        <p className="mt-1 text-sm text-fg-muted tabular-nums">
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <p className="text-2xl font-extrabold tracking-tight text-fg tabular-nums sm:text-3xl">
+            {formatPrice(offer.price.amount, offer.price.currency, locale)}
+          </p>
+          <ul
+            className="flex flex-wrap items-center gap-x-2.5 gap-y-1"
+            aria-label={t('podium.airlines')}
+          >
+            {offer.airlines.map((airline) => (
+              <li
+                key={airline.iata}
+                className="flex items-center gap-1.5 text-xs font-semibold text-fg"
+              >
+                {airline.logo ? (
+                  <img
+                    src={airline.logo}
+                    alt=""
+                    width={16}
+                    height={16}
+                    loading="lazy"
+                    className="h-4 w-4 rounded-sm"
+                  />
+                ) : null}
+                <span>{airline.name}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="text-xs text-fg-muted tabular-nums">
           {[
             formatDuration(t, offer.duration_minutes),
             formatStops(t, offer.stops),
@@ -132,43 +197,19 @@ export function PodiumCard({ offer, locale, actions, disclaimer, heading }: Podi
         </p>
       </div>
 
-      <ul className="flex flex-wrap gap-x-3 gap-y-1" aria-label={t('podium.airlines')}>
-        {offer.airlines.map((airline) => (
-          <li key={airline.iata} className="flex items-center gap-1.5 text-sm font-medium text-fg">
-            {airline.logo ? (
-              <img
-                src={airline.logo}
-                alt=""
-                width={16}
-                height={16}
-                loading="lazy"
-                className="h-4 w-4 rounded-sm"
-              />
-            ) : null}
-            {airline.name}
-          </li>
-        ))}
-      </ul>
-
-      <div className="flex flex-col gap-2 border-t border-line pt-3">
+      <div className="flex flex-col gap-2">
         {offer.legs.map((leg) => (
           <LegSummary key={leg.direction} leg={leg} locale={locale} />
         ))}
       </div>
 
-      <div
-        className={cn(
-          'flex flex-col gap-3',
-          !actions && 'sm:flex-row sm:items-end sm:justify-between',
-        )}
-      >
-        <PriceDisclaimer text={disclaimer} className={cn(!actions && 'sm:max-w-[60%]')} />
+      <div className="flex flex-col gap-2.5 border-t border-line pt-2.5">
         <div className="flex flex-wrap items-center gap-2">
           <a
             href={offer.deep_link}
             target="_blank"
             rel="noopener noreferrer"
-            className={buttonVariants({ variant: 'buy', className: 'shrink-0' })}
+            className={buttonVariants({ variant: 'buy', className: 'flex-1 shrink-0' })}
           >
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
             {t('podium.buy')}
@@ -178,6 +219,7 @@ export function PodiumCard({ offer, locale, actions, disclaimer, heading }: Podi
           </a>
           {actions}
         </div>
+        <PriceDisclaimer text={disclaimer} />
       </div>
     </Card>
   );

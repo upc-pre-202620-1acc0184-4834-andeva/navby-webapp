@@ -95,12 +95,16 @@ test.describe('Itinerarios guardados (Plan 6)', () => {
     const list = page.getByRole('list', { name: 'Recomendaciones ordenadas de mejor a peor' });
     const second = list.locator(':scope > li').nth(1);
     await expect(second.getByText('USD 760')).toBeVisible();
-    await expect(page.getByRole('link', { name: /Saldo: 10 créditos/ })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Saldo: 10 créditos/, includeHidden: true }),
+    ).toBeAttached();
     await second.getByRole('button', { name: /^Guardar/ }).click();
     const saved = second.getByRole('link', { name: 'Guardado. Ver itinerario' });
     await expect(saved).toBeVisible();
     await expect(page.getByText(/Guardado en tus itinerarios: LIM → MAD/)).toBeAttached();
-    await expect(page.getByRole('link', { name: /Saldo: 10 créditos/ })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Saldo: 10 créditos/, includeHidden: true }),
+    ).toBeAttached();
     await expectNoHorizontalOverflow(page);
     await expectAxeLightAndDark(page);
 
@@ -165,5 +169,38 @@ test.describe('Itinerarios guardados (Plan 6)', () => {
     await expectNoAxeViolations(page);
     await page.getByRole('link', { name: 'Volver a mis itinerarios' }).last().click();
     await expect(page.getByText('Aún no guardas itinerarios')).toBeVisible();
+  });
+
+  test('al ir a Itinerarios y volver usando el logo de Navby conserva la búsqueda y sus resultados', async ({
+    page,
+  }) => {
+    await mockApi(page, (route) => json(route, 200, PODIUM));
+    await mockItineraries(page, []);
+
+    await page.goto(SEARCH_URL);
+    await page.getByRole('button', { name: 'Buscar' }).click();
+    const list = page.getByRole('list', { name: 'Recomendaciones ordenadas de mejor a peor' });
+    await expect(list.locator(':scope > li')).toHaveCount(3);
+    await expect(page).toHaveURL(/sid=srch_01JE2EPODIUM/);
+
+    // Navegar a Itinerarios desde el menú de cuenta.
+    await page.getByRole('button', { name: 'Menú de cuenta y preferencias' }).click();
+    await page.getByRole('link', { name: 'Itinerarios' }).click();
+    await expect(page).toHaveURL(/\/app\/itineraries$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Mis itinerarios' })).toBeVisible();
+
+    // Volver con el logo de Navby: restaura la búsqueda completa con sid y recomendaciones.
+    const logoLink = page.getByRole('link', { name: 'Navby, ir al inicio' });
+    await expect(logoLink).toHaveAttribute('href', /sid=srch_01JE2EPODIUM/);
+    await logoLink.click();
+    await expect(page).toHaveURL(/sid=srch_01JE2EPODIUM/);
+    await expect(list.locator(':scope > li')).toHaveCount(3);
+
+    // Estando ya en `/`, un clic en el logo mantiene la búsqueda activa y sus recomendaciones.
+    const homeLogoLink = page.getByRole('link', { name: 'Navby, ir al inicio' });
+    await expect(homeLogoLink).toHaveAttribute('href', /sid=srch_01JE2EPODIUM/);
+    await homeLogoLink.click();
+    await expect(page).toHaveURL(/sid=srch_01JE2EPODIUM/);
+    await expect(list.locator(':scope > li')).toHaveCount(3);
   });
 });

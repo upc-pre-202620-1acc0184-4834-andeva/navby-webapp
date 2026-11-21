@@ -138,8 +138,7 @@ export function podiumResponse(overrides: Partial<PodiumResponse> = {}): PodiumR
     offers_received: 3,
     pareto_size: 3,
     preferences: { profile: 'BALANCED', weights: { price: 0.5, duration: 0.3, stops: 0.2 } },
-    price_disclaimer:
-      'Precio referencial obtenido de terceros; se confirma en el sitio del vendedor.',
+    price_disclaimer: 'Precio referencial obtenido de terceros.',
     podium: oneWayOffers,
     ...overrides,
   };

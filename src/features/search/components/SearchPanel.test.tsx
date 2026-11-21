@@ -176,14 +176,13 @@ describe('SearchPanel (US-12 y US-34)', () => {
     expect(onSubmitCriteria).not.toHaveBeenCalled();
   });
 
-  it('muestra tiempo físico total ida y vuelta, ruta imposible y error 429 (US-12)', () => {
+  it('no muestra el aviso de duración física previa, sí muestra ruta imposible y error 429 (US-12)', () => {
     const { rerender } = renderPanel({
       initialCriteria: { ...DEFAULT_SEARCH_CRITERIA, tripType: 'ROUND_TRIP' },
       preview: REACHABLE_PREVIEW,
     });
 
-    // 2562 min / 60 = 42.7 -> ~43 h ida y vuelta
-    expect(screen.getByText('Ruta física más rápida (ida y vuelta): ~43 h')).toBeVisible();
+    expect(screen.queryByText(/Ruta física más rápida/)).not.toBeInTheDocument();
 
     rerender(
       <QueryClientProvider client={new QueryClient()}>

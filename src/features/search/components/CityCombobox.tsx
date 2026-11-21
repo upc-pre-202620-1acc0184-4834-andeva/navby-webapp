@@ -17,10 +17,97 @@ export interface CityComboboxProps {
   selectedAirports: string[];
   fallbackIatas?: string[];
   error?: string;
+  /** Permite mover los toggles de aeropuertos fuera de la grilla Origen/Destino. */
+  showAirportsPanel?: boolean;
   onSelectCity: (city: City, airports: string[]) => void;
   onToggleAirport: (iata: string) => void;
   onClearCity?: () => void;
   onBlur?: () => void;
+}
+
+export interface CityAirportsToggleProps {
+  city: City;
+  selectedAirports: string[];
+  onToggleAirport: (iata: string) => void;
+}
+
+export function CityAirportsToggle({
+  city,
+  selectedAirports,
+  onToggleAirport,
+}: CityAirportsToggleProps) {
+  const { t, i18n } = useTranslation();
+  const lang: 'es' | 'en' = (i18n.resolvedLanguage ?? i18n.language).startsWith('en') ? 'en' : 'es';
+  const [airportsOpen, setAirportsOpen] = useState(false);
+  const airportsPanelId = useId();
+  const minHintId = useId();
+
+  if (city.airports.length <= 1) return null;
+
+  const localizedCityShort = lang === 'es' ? (city.city_es ?? city.city) : city.city;
+
+  return (
+    <div className="rounded-lg border border-line bg-surface-sunken/60 px-3 py-1.5">
+      <button
+        type="button"
+        aria-expanded={airportsOpen}
+        aria-controls={airportsPanelId}
+        onClick={() => setAirportsOpen((prev) => !prev)}
+        className="flex min-h-11 w-full items-center justify-between gap-2 text-left text-xs font-semibold text-fg sm:min-h-8"
+      >
+        <span className="tabular-nums">
+          {t('search.airportsToggle', {
+            city: localizedCityShort,
+            selected: selectedAirports.length,
+            total: city.airports.length,
+          })}
+        </span>
+        <ChevronDown
+          className={cn(
+            'h-4 w-4 text-fg-muted transition-transform duration-150 ease-(--ease-out) motion-reduce:transition-none',
+            airportsOpen && 'rotate-180',
+          )}
+          aria-hidden="true"
+        />
+      </button>
+
+      {airportsOpen ? (
+        <div id={airportsPanelId} className="mt-1.5 flex flex-col gap-1 border-t border-line pt-2">
+          {city.airports.slice(0, 5).map((airport) => {
+            const checked = selectedAirports.includes(airport.iata);
+            const disableUncheck = checked && selectedAirports.length === 1;
+            return (
+              <label
+                key={airport.iata}
+                className={cn(
+                  'flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-md px-1.5 text-xs sm:min-h-9',
+                  disableUncheck && 'cursor-not-allowed opacity-75',
+                )}
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={disableUncheck}
+                    aria-describedby={disableUncheck ? minHintId : undefined}
+                    onChange={() => onToggleAirport(airport.iata)}
+                    className="h-4 w-4 rounded border-line-strong accent-primary"
+                  />
+                  <span className="truncate text-fg">{airport.name}</span>
+                </span>
+                <Badge variant="neutral" className="shrink-0">
+                  {airport.iata}
+                </Badge>
+              </label>
+            );
+          })}
+          <p id={minHintId} className="px-1.5 pt-0.5 text-xs text-fg-muted">
+            {t('search.airportsMinHint')}
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function getCityKey(city: City): string {
@@ -34,6 +121,7 @@ export function CityCombobox({
   selectedAirports,
   fallbackIatas = [],
   error,
+  showAirportsPanel = true,
   onSelectCity,
   onToggleAirport,
   onClearCity,
@@ -43,12 +131,9 @@ export function CityCombobox({
   const lang: 'es' | 'en' = (i18n.resolvedLanguage ?? i18n.language).startsWith('en') ? 'en' : 'es';
 
   const listboxId = useId();
-  const airportsPanelId = useId();
-  const minHintId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [airportsOpen, setAirportsOpen] = useState(false);
   const [draftQuery, setDraftQuery] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
 
@@ -124,12 +209,6 @@ export function CityCombobox({
   const activeCity = activeIndex >= 0 ? cities[activeIndex] : undefined;
   const activeOptionId =
     showResults && activeCity ? `${listboxId}-opt-${getCityKey(activeCity)}` : undefined;
-
-  const localizedCityShort = selectedCity
-    ? lang === 'es'
-      ? (selectedCity.city_es ?? selectedCity.city)
-      : selectedCity.city
-    : '';
 
   return (
     <div className="flex flex-col gap-2">
@@ -247,70 +326,12 @@ export function CityCombobox({
         </div>
       </AnchoredPopover>
 
-      {selectedCity && selectedCity.airports.length > 1 ? (
-        <div className="rounded-lg border border-line bg-surface-sunken/60 px-3 py-1.5">
-          <button
-            type="button"
-            aria-expanded={airportsOpen}
-            aria-controls={airportsPanelId}
-            onClick={() => setAirportsOpen((prev) => !prev)}
-            className="flex min-h-11 w-full items-center justify-between gap-2 text-left text-xs font-semibold text-fg sm:min-h-8"
-          >
-            <span className="tabular-nums">
-              {t('search.airportsToggle', {
-                city: localizedCityShort,
-                selected: selectedAirports.length,
-                total: selectedCity.airports.length,
-              })}
-            </span>
-            <ChevronDown
-              className={cn(
-                'h-4 w-4 text-fg-muted transition-transform duration-150 ease-(--ease-out) motion-reduce:transition-none',
-                airportsOpen && 'rotate-180',
-              )}
-              aria-hidden="true"
-            />
-          </button>
-
-          {airportsOpen ? (
-            <div
-              id={airportsPanelId}
-              className="mt-1.5 flex flex-col gap-1 border-t border-line pt-2"
-            >
-              {selectedCity.airports.slice(0, 5).map((airport) => {
-                const checked = selectedAirports.includes(airport.iata);
-                const disableUncheck = checked && selectedAirports.length === 1;
-                return (
-                  <label
-                    key={airport.iata}
-                    className={cn(
-                      'flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-md px-1.5 text-xs sm:min-h-9',
-                      disableUncheck && 'cursor-not-allowed opacity-75',
-                    )}
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        disabled={disableUncheck}
-                        aria-describedby={disableUncheck ? minHintId : undefined}
-                        onChange={() => onToggleAirport(airport.iata)}
-                        className="h-4 w-4 rounded border-line-strong accent-primary"
-                      />
-                      <span className="truncate text-fg">{airport.name}</span>
-                    </span>
-                    <Badge variant="neutral" className="shrink-0">
-                      {airport.iata}
-                    </Badge>
-                  </label>
-                );
-              })}
-              <p id={minHintId} className="px-1.5 pt-0.5 text-xs text-fg-muted">
-                {t('search.airportsMinHint')}
-              </p>
-            </div>
-          ) : null}
-        </div>
+      {showAirportsPanel && selectedCity ? (
+        <CityAirportsToggle
+          city={selectedCity}
+          selectedAirports={selectedAirports}
+          onToggleAirport={onToggleAirport}
+        />
       ) : null}
     </div>
   );

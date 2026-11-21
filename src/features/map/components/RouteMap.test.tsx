@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { type RoutePreviewResponse } from '@/shared/api/schemas';
@@ -23,14 +24,18 @@ vi.mock('maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url', () => ({
 
 vi.mock('maplibre-gl/dist/maplibre-gl.css', () => ({}));
 
-vi.mock('@deck.gl/layers', () => ({
-  ArcLayer: class MockArcLayer {
+vi.mock('@deck.gl/layers', () => {
+  class MockLayer {
     props: Record<string, unknown>;
     constructor(props: Record<string, unknown>) {
       this.props = props;
     }
-  },
-}));
+  }
+  return {
+    ArcLayer: class MockArcLayer extends MockLayer {},
+    ScatterplotLayer: class MockScatterplotLayer extends MockLayer {},
+  };
+});
 
 vi.mock('@deck.gl/mapbox', () => ({
   MapboxOverlay: class MockMapboxOverlay {
@@ -148,6 +153,32 @@ describe('RouteMap y componentes accesibles del mapa', () => {
     expect(mockOverlaySetProps).toHaveBeenCalled();
   });
 
+  it('al pulsar una ciudad muestra su tarjeta y se cierra con Escape', async () => {
+    const user = userEvent.setup();
+    render(
+      <RouteMap
+        preview={SAMPLE_PREVIEW}
+        originAirports={[{ iata: 'LIM', name: 'Jorge Chávez Intl', lat: -12.02, lon: -77.11 }]}
+        destinationAirports={[]}
+        fitTrigger={1}
+      />,
+    );
+
+    expect(screen.queryByRole('group', { name: 'LIM' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Origen: LIM' }));
+
+    const card = screen.getByRole('group', { name: 'LIM' });
+    expect(card).toHaveTextContent('Jorge Chávez Intl');
+    expect(card).toHaveTextContent('Origen');
+    expect(screen.getByRole('button', { name: 'Origen: LIM' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('group', { name: 'LIM' })).not.toBeInTheDocument();
+  });
+
   it('activa el fallback textual cuando WebGL no está disponible', () => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
     const onUnavailable = vi.fn();
@@ -220,7 +251,7 @@ describe('RouteMap y componentes accesibles del mapa', () => {
       expect(lastInitialViewState?.fitBoundsOptions?.padding?.left).toBe(492);
     });
 
-    it('con floatingPanel={false} encuadra con 44 px en los cuatro lados', () => {
+    it('con floatingPanel={false} encuadra con margen generoso para etiquetas y atribución', () => {
       useDesktopViewport();
       render(
         <RouteMap
@@ -233,14 +264,14 @@ describe('RouteMap y componentes accesibles del mapa', () => {
         />,
       );
       expect(lastInitialViewState?.fitBoundsOptions?.padding).toEqual({
-        top: 44,
-        right: 44,
-        bottom: 44,
-        left: 44,
+        top: 52,
+        right: 72,
+        bottom: 56,
+        left: 56,
       });
     });
 
-    it('sin panel, el fallback sin WebGL y la nota de teselas no reservan su espacio', () => {
+    it('sin panel, el fallback sin WebGL conserva regionLabel y no reserva espacio del panel', () => {
       vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
       const { container, unmount } = render(
         <RouteMap
@@ -262,11 +293,12 @@ describe('RouteMap y componentes accesibles del mapa', () => {
           destinationAirports={[]}
           fitTrigger={0}
           floatingPanel={false}
+          regionLabel="Mapa de la ruta guardada"
         />,
       );
-      expect(detail.container.querySelector('[role="region"]')?.className).not.toContain(
-        'lg:pl-[460px]',
-      );
+      const region = detail.container.querySelector('[role="region"]');
+      expect(region?.className).not.toContain('lg:pl-[460px]');
+      expect(region).toHaveAttribute('aria-label', 'Mapa de la ruta guardada');
     });
   });
 

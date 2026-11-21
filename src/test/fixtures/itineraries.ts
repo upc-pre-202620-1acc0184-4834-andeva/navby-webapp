@@ -49,8 +49,7 @@ export function itineraryJson(overrides: Partial<ItineraryJson> = {}): Itinerary
     destination: 'MAD',
     departure_date: '2026-11-01',
     return_date: null,
-    price_disclaimer:
-      'Precio referencial obtenido de terceros; se confirma en el sitio del vendedor.',
+    price_disclaimer: 'Precio referencial obtenido de terceros.',
     offer: savedOffer(offer),
     created_at: '2026-10-15T12:00:00Z',
     ...overrides,
