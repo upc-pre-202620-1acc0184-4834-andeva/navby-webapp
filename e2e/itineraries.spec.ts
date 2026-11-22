@@ -94,7 +94,7 @@ test.describe('Itinerarios guardados (Plan 6)', () => {
     await page.getByRole('button', { name: 'Buscar' }).click();
     const list = page.getByRole('list', { name: 'Recomendaciones ordenadas de mejor a peor' });
     const second = list.locator(':scope > li').nth(1);
-    await expect(second.getByText('USD 760')).toBeVisible();
+    await expect(second.getByText('S/ 2,660')).toBeVisible();
     await expect(
       page.getByRole('link', { name: /Saldo: 10 créditos/, includeHidden: true }),
     ).toBeAttached();
@@ -116,7 +116,7 @@ test.describe('Itinerarios guardados (Plan 6)', () => {
     ).toBeVisible();
     await expect(page.getByRole('region', { name: 'Mapa de la ruta guardada' })).toBeVisible();
     const card = page.getByRole('group', { name: 'Cotizado con el perfil Equilibrado' });
-    await expect(card.getByText('USD 760')).toBeVisible();
+    await expect(card.getByText('S/ 2,660')).toBeVisible();
     await expect(card.getByText(/Precio del .*; puede haber cambiado\./)).toBeVisible();
     await expect(card.getByRole('link', { name: /Comprar/ })).toHaveAttribute(
       'href',
@@ -132,7 +132,7 @@ test.describe('Itinerarios guardados (Plan 6)', () => {
       .getByRole('list', { name: 'Itinerarios guardados' })
       .locator(':scope > li')
       .first();
-    await expect(row.getByText('USD 760')).toBeVisible();
+    await expect(row.getByText('S/ 2,660')).toBeVisible();
     await expect(page.getByText('1 de 50')).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await expectAxeLightAndDark(page);

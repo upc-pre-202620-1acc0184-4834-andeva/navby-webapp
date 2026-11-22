@@ -7,6 +7,7 @@ import '@/app/HomePage';
 import { routes } from '@/app/router';
 import { bindSessionSync } from '@/shared/auth/useSession';
 import { packagesResponse, transactionsPage } from '@/test/fixtures/billing';
+import { exchangeRatesResponse } from '@/test/fixtures/fx';
 import { itineraryPage } from '@/test/fixtures/itineraries';
 import { wallet } from '@/test/fixtures/podium';
 
@@ -35,6 +36,8 @@ export const verifiedSession = {
 
 /** Saldo por defecto de la barra superior; cada prueba puede sobrescribirlo. */
 const defaultHandlers: Record<string, ApiHandler> = {
+  // Tipo de cambio público: con él las tarifas en USD se muestran en soles.
+  'GET /fx/rates': () => jsonResponse(200, exchangeRatesResponse),
   'GET /billing/wallet': () => jsonResponse(200, wallet),
   'GET /billing/packages': () => jsonResponse(200, packagesResponse()),
   'GET /billing/transactions': () => jsonResponse(200, transactionsPage()),

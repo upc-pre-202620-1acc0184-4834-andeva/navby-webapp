@@ -42,8 +42,8 @@ export const preview = {
 export const SID = podiumResponse().search_id;
 export const dep = addDaysIso(getTodayInLima(), 20);
 export const ret = addDaysIso(getTodayInLima(), 30);
-export const ONE_WAY_URL = `/?trip=ONE_WAY&from=LIM&to=MAD&dep=${dep}&ad=1&ch=0&in=0&cabin=ECONOMY&cur=USD`;
-export const ROUND_TRIP_URL = `/?trip=ROUND_TRIP&from=LIM&to=MAD&dep=${dep}&ret=${ret}&ad=1&ch=0&in=0&cabin=ECONOMY&cur=USD`;
+export const ONE_WAY_URL = `/?trip=ONE_WAY&from=LIM&to=MAD&dep=${dep}&ad=1&ch=0&in=0&cabin=ECONOMY`;
+export const ROUND_TRIP_URL = `/?trip=ROUND_TRIP&from=LIM&to=MAD&dep=${dep}&ret=${ret}&ad=1&ch=0&in=0&cabin=ECONOMY`;
 
 export function setup(handlers: Record<string, ApiHandler>) {
   return mockApi({

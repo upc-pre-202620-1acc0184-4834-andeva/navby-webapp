@@ -240,7 +240,7 @@ test.describe('Buscador y mapa preliminar (Plan 2)', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Iniciar sesión' })).toBeVisible();
   });
 
-  test('autocompletado (US-11), selector de aeropuertos (US-14), pasajeros/moneda (US-34) y ruta preliminar (US-12)', async ({
+  test('autocompletado (US-11), selector de aeropuertos (US-14), pasajeros (US-34) y ruta preliminar (US-12)', async ({
     page,
   }) => {
     const counters = { cityCalls: [] as string[], previewCalls: [] as string[] };
@@ -300,14 +300,13 @@ test.describe('Buscador y mapa preliminar (Plan 2)', () => {
     await page.keyboard.press('Escape');
 
     await page.getByLabel('Cabina').selectOption('BUSINESS');
-    await page.getByLabel('Moneda').selectOption('PEN');
 
     await page.getByRole('button', { name: 'Buscar' }).click();
 
     await expect(page).toHaveURL(/from=LIM/);
     await expect(page).toHaveURL(/to=HND%2CNRT/);
     await expect(page).toHaveURL(/cabin=BUSINESS/);
-    await expect(page).toHaveURL(/cur=PEN/);
+    await expect(page).not.toHaveURL(/cur=/);
 
     // Al buscar, los resultados reemplazan al formulario con flecha atrás y botón Ver detalles.
     await expect(page.getByRole('button', { name: 'Volver al buscador' })).toBeVisible();
@@ -392,7 +391,7 @@ test.describe('Buscador y mapa preliminar (Plan 2)', () => {
     await page.addInitScript(() => localStorage.setItem('navby-theme', 'dark'));
     await setupAuthenticatedMocks(page);
 
-    const sharedUrl = `/app/?trip=ONE_WAY&from=IPC&to=FNJ&dep=${futureIso(12)}&ad=1&ch=0&in=0&cabin=ECONOMY&cur=USD`;
+    const sharedUrl = `/app/?trip=ONE_WAY&from=IPC&to=FNJ&dep=${futureIso(12)}&ad=1&ch=0&in=0&cabin=ECONOMY`;
     await page.goto(sharedUrl);
 
     await expect(page.locator('html')).toHaveClass(/dark/);
@@ -403,7 +402,7 @@ test.describe('Buscador y mapa preliminar (Plan 2)', () => {
 
     // Cambia a Solo ida con ruta válida LIM -> HND y valida ausencia de pulso con reduced-motion.
     await page.goto(
-      `/app/?trip=ONE_WAY&from=LIM&to=HND&dep=${futureIso(12)}&ad=1&ch=0&in=0&cabin=ECONOMY&cur=USD`,
+      `/app/?trip=ONE_WAY&from=LIM&to=HND&dep=${futureIso(12)}&ad=1&ch=0&in=0&cabin=ECONOMY`,
     );
     await expect(page.getByText(/Tramos estimados: LIM → LAX → HND \(1 escala\)/)).toBeAttached();
     await expect(page.getByText(/Ruta física más rápida/)).toHaveCount(0);
@@ -423,7 +422,7 @@ test.describe('Buscador y mapa preliminar (Plan 2)', () => {
     await setupAuthenticatedMocks(page, counters);
 
     await page.goto(
-      '/app/?trip=ONE_WAY&from=LIM&to=HND&dep=2020-01-01&ad=1&ch=0&in=0&cabin=ECONOMY&cur=USD',
+      '/app/?trip=ONE_WAY&from=LIM&to=HND&dep=2020-01-01&ad=1&ch=0&in=0&cabin=ECONOMY',
     );
     await page.getByRole('button', { name: 'Buscar' }).click();
 
