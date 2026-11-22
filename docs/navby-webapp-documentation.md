@@ -18,7 +18,7 @@ Todas las rutas cuelgan de `https://navby.andeva.tech/app` (Vite con `base: "/ap
 
 Los enlaces a los Términos y la Política de Privacidad del website se añadirán cuando `navby-website` publique esas páginas; mientras tanto el pie solo muestra el copyright (ver Decisiones del Plan 3). Toda tarifa muestra el aviso `price_disclaimer` (RL-03).
 
-La búsqueda vive en la URL (`/app/?trip=ROUND_TRIP&from=LIM&to=HND,NRT&dep=2026-11-01&ret=2026-11-15&ad=2&ch=1&in=0&cabin=ECONOMY&cur=USD&profile=BALANCED&sid=srch_01J9Z…`) para poder compartirla y recargarla. `sid` es el `search_id` vigente (US-19): al recargar se lee el podio con `POST /quotes/{sid}/rank` y el perfil de la URL, sin costo; nunca se cotiza solo por abrir una URL. `profile` se omite si es `BALANCED`; con `CUSTOM` va `w=40,40,20` (precio, duración, escalas en múltiplos de 5 que suman 100).
+La búsqueda vive en la URL (`/app/?trip=ROUND_TRIP&from=LIM&to=HND,NRT&dep=2026-11-01&ret=2026-11-15&ad=2&ch=1&in=0&cabin=ECONOMY&profile=BALANCED&sid=srch_01J9Z…`) para poder compartirla y recargarla. `sid` es el `search_id` vigente (US-19): al recargar se lee el podio con `POST /quotes/{sid}/rank` y el perfil de la URL, sin costo; nunca se cotiza solo por abrir una URL. `profile` se omite si es `BALANCED`; con `CUSTOM` va `w=40,40,20` (precio, duración, escalas en múltiplos de 5 que suman 100).
 
 ## 2. Flujo de búsqueda
 
@@ -91,6 +91,7 @@ src/
 ## 5. Internacionalización y accesibilidad
 
 - **i18n**: `i18next` + `react-i18next`, idiomas `es` y `en`, detección por `?lang=`, `localStorage` y navegador. Precios con `Intl.NumberFormat` y horas con `Intl.DateTimeFormat` en la zona horaria de cada aeropuerto.
+- **Moneda de las tarifas**: no hay selector. Las tarifas llegan siempre en USD y `useMoney` (`src/shared/format`) las muestra en la moneda de la región del navegador (`navigator.languages[0]`): Perú → soles (`PEN`), cualquier otra → dólares (`USD`); si el idioma no trae región («es», «en») decide el idioma de la página. Convierte con `GET /fx/rates` (consulta pública, `staleTime` de 1 h), sin importar el idioma de la interfaz y redondea lo convertido a unidades enteras; si el tipo de cambio no carga, deja el USD original. Bajo el podio (y en Mis itinerarios) un aviso indica el tipo de cambio y que el vendedor puede cobrar en otra moneda. Los itinerarios guardados con otra moneda se convierten igual. Facturación no se convierte: los paquetes se cobran en soles. Los enlaces antiguos con `cur=` se ignoran.
 - **Accesibilidad (WCAG 2.1 AA)**:
   - El autocompletado usa `role="combobox"`.
   - El panel de resultados es una región `aria-live="polite"` («Buscando vuelos…», «3 recomendaciones listas»).
