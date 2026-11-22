@@ -2,7 +2,8 @@ import { ExternalLink, Plane } from 'lucide-react';
 import { type FocusEvent, type ReactNode, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type Leg, type PodiumOffer } from '@/shared/api/schemas';
-import { formatDuration, formatExtra, formatPrice, formatStops } from '@/shared/format/flight';
+import { formatDuration, formatExtra, formatStops } from '@/shared/format/flight';
+import { useMoney } from '@/shared/format/useMoney';
 import { type PodiumRank, usePodiumHighlight } from '@/shared/state/podiumHighlight';
 import { dayOffset, formatLocalTime, layoverMinutes } from '@/shared/time/flightTime';
 import { Badge } from '@/shared/ui/Badge';
@@ -25,6 +26,8 @@ export interface PodiumCardProps {
   actions?: ReactNode;
   /** Aviso de precio propio (itinerario guardado); por defecto el aviso RL-03 del idioma. */
   disclaimer?: string;
+  /** Línea extra bajo el aviso de precio (p. ej. la conversión de moneda). */
+  note?: string | null;
   /** Reemplaza puesto y afinidad (un itinerario guardado no tiene puesto en el podio de hoy). */
   heading?: ReactNode;
 }
@@ -108,8 +111,9 @@ function LegSummary({ leg, locale }: { leg: Leg; locale: string }) {
 }
 
 /** Tarjeta del podio (DESIGN.md §Tarjeta): puesto y afinidad → precio y aerolíneas → línea de tiempo → acción. */
-export function PodiumCard({ offer, locale, actions, disclaimer, heading }: PodiumCardProps) {
+export function PodiumCard({ offer, locale, actions, disclaimer, note, heading }: PodiumCardProps) {
   const { t } = useTranslation();
+  const { format } = useMoney();
   const titleId = useId();
   const rank = offer.rank as PodiumRank;
   const isHighlighted = usePodiumHighlight((state) => state.highlightedRank === rank);
@@ -162,7 +166,7 @@ export function PodiumCard({ offer, locale, actions, disclaimer, heading }: Podi
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="text-2xl font-extrabold tracking-tight text-fg tabular-nums sm:text-3xl">
-            {formatPrice(offer.price.amount, offer.price.currency, locale)}
+            {format(offer.price.amount, offer.price.currency)}
           </p>
           <ul
             className="flex flex-wrap items-center gap-x-2.5 gap-y-1"
@@ -219,7 +223,7 @@ export function PodiumCard({ offer, locale, actions, disclaimer, heading }: Podi
           </a>
           {actions}
         </div>
-        <PriceDisclaimer text={disclaimer} />
+        <PriceDisclaimer text={disclaimer} note={note} />
       </div>
     </Card>
   );

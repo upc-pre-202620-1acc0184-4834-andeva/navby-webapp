@@ -77,7 +77,7 @@ describe('SearchPanel (US-12 y US-34)', () => {
     vi.unstubAllGlobals();
   });
 
-  it('envía un viaje familiar válido en ejecutiva y moneda PEN (US-34)', async () => {
+  it('envía un viaje familiar válido en ejecutiva (US-34)', async () => {
     const today = getTodayInLima();
     const dep = addDaysIso(today, 10);
     const ret = addDaysIso(today, 20);
@@ -117,7 +117,6 @@ describe('SearchPanel (US-12 y US-34)', () => {
     await user.click(screen.getByRole('button', { name: 'Aumentar Infantes' }));
 
     await user.selectOptions(screen.getByLabelText('Cabina'), 'BUSINESS');
-    await user.selectOptions(screen.getByLabelText('Moneda'), 'PEN');
 
     await user.click(screen.getByRole('button', { name: 'Buscar' }));
 
@@ -132,7 +131,6 @@ describe('SearchPanel (US-12 y US-34)', () => {
         children: 1,
         infants: 1,
         cabin: 'BUSINESS',
-        currency: 'PEN',
       }),
     );
   });

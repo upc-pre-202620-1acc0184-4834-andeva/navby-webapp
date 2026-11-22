@@ -8,6 +8,7 @@ import '@/shared/ui/initBoneyard';
 import { isApiError } from '@/shared/api/errors';
 import { type Itinerary } from '@/shared/api/schemas';
 import { useSession } from '@/shared/auth/useSession';
+import { useMoney } from '@/shared/format/useMoney';
 import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
 import { useHomeHref } from '@/shared/search/lastSearch';
 import { Badge } from '@/shared/ui/Badge';
@@ -87,6 +88,7 @@ function sortItineraries(items: Itinerary[], sortBy: SortKey): Itinerary[] {
 export default function ItinerariesPage() {
   const { t } = useTranslation();
   const locale = useIntlLocale();
+  const { fxNote } = useMoney();
   const { user } = useSession();
   const homeHref = useHomeHref(user?.user_id);
   const location = useLocation();
@@ -298,7 +300,7 @@ export default function ItinerariesPage() {
                 )}
 
                 <PriceDisclaimer
-                  note={t('itineraries.priceNote')}
+                  note={[t('itineraries.priceNote'), fxNote]}
                   className="rounded-xl border border-line bg-surface-sunken px-4 py-3"
                 />
               </div>

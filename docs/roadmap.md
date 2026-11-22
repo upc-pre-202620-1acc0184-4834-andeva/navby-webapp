@@ -78,7 +78,7 @@ la ruta preliminar en milisegundos.
 
 - `features/search`: combobox de ciudades (`GET /routing/cities`, JWT, ES/EN, debounce corto,
   `role="combobox"`), desplegable de aeropuertos de la ciudad (US-14), tipo de viaje,
-  fechas (react-day-picker), pasajeros (RN-02), cabina y moneda (US-34). Validación Zod
+  fechas (react-day-picker), pasajeros (RN-02), cabina (US-34; la moneda sale de la región del navegador). Validación Zod
   (RN-01 a RN-04, origen ≠ destino).
 - Estado de la búsqueda en la URL (`?trip=…&from=LIM&to=HND,NRT…`): compartir y recargar.
 - `features/map`: MapLibre v6 (`react-map-gl/maplibre`, Positron/Dark Matter según tema),

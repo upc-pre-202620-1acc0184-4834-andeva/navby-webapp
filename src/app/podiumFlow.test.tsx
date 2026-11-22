@@ -1,7 +1,8 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { sileo } from 'sileo';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { formatPrice } from '@/shared/format/flight';
+import { formatLocalPrice } from '@/shared/format/money';
+import { TEST_RATES } from '@/test/fixtures/fx';
 import { at, oneWayOffers, podiumResponse, roundTripOffer, wallet } from '@/test/fixtures/podium';
 import {
   callsTo,
@@ -24,6 +25,10 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+/** Tarifa en soles como la muestra la página; Testing Library normaliza el espacio fino de Intl. */
+const soles = (amount: string, currency = 'USD') =>
+  formatLocalPrice(amount, currency, 'PEN', TEST_RATES, 'es-PE').replace(/\s/g, ' ');
+
 describe('Podio (US-13, US-31)', () => {
   it('cotiza al pulsar Buscar y muestra 3 recomendaciones ordenadas con Comprar y aviso', async () => {
     const fetchMock = setup({ 'POST /quotes/search': () => jsonResponse(200, podiumResponse()) });
@@ -39,7 +44,11 @@ describe('Podio (US-13, US-31)', () => {
 
     const first = cards[0]!;
     expect(within(first).getByText('82 % afinidad')).toBeInTheDocument();
-    expect(within(first).getByText(/USD\s?240/)).toBeInTheDocument();
+    expect(await within(first).findByText(soles('240.00'))).toBeInTheDocument();
+    // Un solo aviso de conversión bajo el podio, no uno por tarjeta.
+    expect(
+      await screen.findAllByText(/Precios convertidos desde USD \(US\$ 1 = S\/\s?3\.50/),
+    ).toHaveLength(1);
     expect(
       within(first).getByText('6 h 15 min · Directo · +15 min sobre el mínimo físico'),
     ).toBeInTheDocument();
@@ -82,7 +91,7 @@ describe('Podio (US-13, US-31)', () => {
     const card = (await findCards())[0]!;
     expect(within(card).getByText('Ida')).toBeInTheDocument();
     expect(within(card).getByText('Vuelta')).toBeInTheDocument();
-    expect(within(card).getByText(/USD\s?980[.,]50/)).toBeInTheDocument();
+    expect(await within(card).findByText(soles('980.50'))).toBeInTheDocument();
     expect(within(card).getByText(/^12 h 40 min · Directo/)).toBeInTheDocument();
   });
 
@@ -294,8 +303,7 @@ describe('Preferencias (US-20, US-21)', () => {
 
   const priceOf = (index: number) => {
     const { amount, currency } = at(oneWayOffers, index).price;
-    // Testing Library normaliza el espacio fino de Intl en el DOM, no en el texto esperado.
-    return formatPrice(amount, currency, 'es-PE').replace(/\s/g, ' ');
+    return soles(amount, currency);
   };
 
   const rankBodies = (fetchMock: ReturnType<typeof mockApi>) =>

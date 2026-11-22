@@ -124,9 +124,7 @@ describe('HomePage (Plan 2)', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     const futureDep = addDaysIso(getTodayInLima(), 14);
-    renderHome(
-      `/?trip=ONE_WAY&from=LIM&to=HND,NRT&dep=${futureDep}&ad=1&ch=0&in=0&cabin=ECONOMY&cur=USD`,
-    );
+    renderHome(`/?trip=ONE_WAY&from=LIM&to=HND,NRT&dep=${futureDep}&ad=1&ch=0&in=0&cabin=ECONOMY`);
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Buscador de vuelos' }),

@@ -189,6 +189,16 @@ export const PodiumResponseSchema = z.object({
 
 export type PodiumResponse = z.infer<typeof PodiumResponseSchema>;
 
+/** Unidades de cada moneda por 1 USD (`GET /fx/rates`); las tarifas siempre llegan en USD. */
+export const ExchangeRatesSchema = z.object({
+  base: z.literal('USD'),
+  rates: z.record(z.string(), z.coerce.number().positive()),
+  as_of: z.string(),
+  source: z.enum(['provider', 'fallback']),
+});
+
+export type ExchangeRates = z.infer<typeof ExchangeRatesSchema>;
+
 export const WalletSchema = z.object({
   free_credits: z.number().int(),
   paid_credits: z.number().int(),

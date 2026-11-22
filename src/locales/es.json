@@ -62,11 +62,6 @@
       "BUSINESS": "Ejecutiva",
       "FIRST": "Primera"
     },
-    "currencyLabel": "Moneda",
-    "currencies": {
-      "USD": "USD ($)",
-      "PEN": "PEN (S/)"
-    },
     "submit": "Buscar",
     "previewLoading": "Calculando ruta preliminar…",
     "unreachableTitle": "Ruta no disponible",
@@ -188,7 +183,9 @@
     "privacy": "Política de privacidad",
     "termsShort": "Términos",
     "privacyShort": "Privacidad",
-    "priceDisclaimer": "Precio referencial obtenido de terceros."
+    "priceDisclaimer": "Precio referencial obtenido de terceros.",
+    "fxNote": "Precios convertidos desde USD (US$ 1 = {{rate}}, tipo de cambio del {{date}}, ExchangeRate-API). El sitio del vendedor puede cobrar en otra moneda.",
+    "fxNoteFallback": "Precios convertidos desde USD con un tipo de cambio aproximado (US$ 1 = {{rate}}). El sitio del vendedor puede cobrar en otra moneda."
   },
   "errors": {
     "UNAUTHENTICATED": "Inicia sesión para continuar.",

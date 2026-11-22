@@ -125,7 +125,15 @@ export function futureIso(daysFromToday: number): string {
   return new Date(Date.now() + daysFromToday * 86_400_000).toISOString().slice(0, 10);
 }
 
-export const SEARCH_URL = `/app/?trip=ONE_WAY&from=LIM&to=MAD&dep=${futureIso(30)}&ad=1&ch=0&in=0&cabin=ECONOMY&cur=USD`;
+export const SEARCH_URL = `/app/?trip=ONE_WAY&from=LIM&to=MAD&dep=${futureIso(30)}&ad=1&ch=0&in=0&cabin=ECONOMY`;
+
+/** Tipo de cambio de prueba: con 3.50 las tarifas en USD se ven en soles (la página está en español). */
+export const FX_RATES = {
+  base: 'USD',
+  rates: { USD: '1', PEN: '3.50' },
+  as_of: '2026-11-22T00:02:32Z',
+  source: 'provider',
+};
 
 export const json = (route: Route, status: number, body: unknown) =>
   route.fulfill({
@@ -139,6 +147,7 @@ export async function mockApi(page: Page, quote: (route: Route) => Promise<void>
     json(route, 200, { version: 8, sources: {}, layers: [] }),
   );
   await page.route('**/api/v1/auth/refresh', (route) => json(route, 200, SESSION));
+  await page.route('**/api/v1/fx/rates', (route) => json(route, 200, FX_RATES));
   await page.route('**/api/v1/routing/cities*', (route) => json(route, 200, { cities: CITIES }));
   await page.route('**/api/v1/routing/preview*', (route) => json(route, 200, PREVIEW));
   await page.route('**/api/v1/quotes/search', quote);

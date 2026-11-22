@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { type Itinerary, type Leg } from '@/shared/api/schemas';
 import { formatCalendarDate, formatInstantDate } from '@/shared/format/date';
-import { formatDuration, formatPrice, formatStops } from '@/shared/format/flight';
+import { formatDuration, formatStops } from '@/shared/format/flight';
+import { useMoney } from '@/shared/format/useMoney';
 import { dayOffset, formatLocalTime } from '@/shared/time/flightTime';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
@@ -47,6 +48,7 @@ function LegTimeLine({ leg, locale }: { leg: Leg; locale: string }) {
 /** Fila de la lista (US-23): tarjeta con forma de billete de vuelo (cuerpo + talón perforado). */
 export function ItineraryRow({ itinerary, locale, onDelete }: ItineraryRowProps) {
   const { t } = useTranslation();
+  const { format } = useMoney();
   const { offer } = itinerary;
   const departure = formatCalendarDate(itinerary.departure_date, locale);
   const dates = itinerary.return_date
@@ -149,7 +151,7 @@ export function ItineraryRow({ itinerary, locale, onDelete }: ItineraryRowProps)
 
         <div className="flex flex-col sm:items-end">
           <span className="text-xl font-extrabold tracking-tight text-fg tabular-nums sm:text-2xl">
-            {formatPrice(offer.price.amount, offer.price.currency, locale)}
+            {format(offer.price.amount, offer.price.currency)}
           </span>
           <span className="text-xs text-fg-muted">{t('itineraries.priceAtSave')}</span>
         </div>

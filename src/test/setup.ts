@@ -7,6 +7,9 @@ import { resetApiClientForTests } from '@/shared/api/client';
 // Las rutas lazy con Suspense bajo workers paralelos de Vitest pueden superar los 1000 ms por defecto.
 configure({ asyncUtilTimeout: 8000 });
 
+// jsdom declara `en-US`; las pruebas simulan un navegador peruano (precios en soles).
+Object.defineProperty(window.navigator, 'languages', { value: ['es-PE'], configurable: true });
+
 beforeAll(async () => {
   await i18n.changeLanguage('es');
   // jsdom no trae ResizeObserver; boneyard-js lo usa para medir el skeleton.

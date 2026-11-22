@@ -6,7 +6,8 @@ import {
   type PodiumResponse,
   type RoutePreviewResponse,
 } from '@/shared/api/schemas';
-import { formatDuration, formatExtra, formatPrice, formatStops } from '@/shared/format/flight';
+import { formatDuration, formatExtra, formatStops } from '@/shared/format/flight';
+import { useMoney } from '@/shared/format/useMoney';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/ui/cn';
@@ -18,7 +19,6 @@ export interface SearchDetailsDialogProps {
   routeTitle: string;
   preview: RoutePreviewResponse | null | undefined;
   podium: PodiumResponse | undefined;
-  locale: string;
 }
 
 const RANK_CSS_COLOR: Record<number, string> = {
@@ -29,18 +29,17 @@ const RANK_CSS_COLOR: Record<number, string> = {
 
 function PriceDurationScatterChart({
   offers,
-  locale,
   tminMinutes,
   durationLabel,
   priceLabel,
 }: {
   offers: PodiumOffer[];
-  locale: string;
   tminMinutes: number;
   durationLabel: string;
   priceLabel: string;
 }) {
   const { t } = useTranslation();
+  const { format } = useMoney();
   const width = 380;
   const height = 160;
   const padLeft = 56;
@@ -101,7 +100,7 @@ function PriceDurationScatterChart({
               fontSize="10"
               className="tabular-nums"
             >
-              {formatPrice(val.toFixed(0), currency, locale)}
+              {format(val.toFixed(0), currency)}
             </text>
           </g>
         );
@@ -190,7 +189,7 @@ function PriceDurationScatterChart({
               fontWeight={isFirst ? '700' : '600'}
               className="tabular-nums"
             >
-              #{offer.rank} · {formatPrice(offer.price.amount, offer.price.currency, locale)}
+              #{offer.rank} · {format(offer.price.amount, offer.price.currency)}
             </text>
           </g>
         );
@@ -205,9 +204,9 @@ export function SearchDetailsDialog({
   routeTitle,
   preview,
   podium,
-  locale,
 }: SearchDetailsDialogProps) {
   const { t } = useTranslation();
+  const { format } = useMoney();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
@@ -523,7 +522,6 @@ export function SearchDetailsDialog({
                       </div>
                       <PriceDurationScatterChart
                         offers={podium.podium}
-                        locale={locale}
                         tminMinutes={podium.t_min_minutes}
                         durationLabel={t('podium.details.scatterAxisDuration')}
                         priceLabel={t('podium.details.scatterAxisPrice')}
@@ -556,8 +554,7 @@ export function SearchDetailsDialog({
                           {podium.podium.map((offer) => (
                             <tr key={offer.offer_id} className="bg-surface">
                               <td className="px-3 py-2 font-semibold text-fg">
-                                #{offer.rank} ·{' '}
-                                {formatPrice(offer.price.amount, offer.price.currency, locale)}
+                                #{offer.rank} · {format(offer.price.amount, offer.price.currency)}
                               </td>
                               <td className="px-3 py-2">
                                 <div className="flex items-center gap-2">

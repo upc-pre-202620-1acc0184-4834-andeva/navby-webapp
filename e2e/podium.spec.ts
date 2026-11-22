@@ -30,7 +30,7 @@ test.describe('Podio (Plan 4)', () => {
     ).toBeAttached();
 
     const first = list.locator(':scope > li').first();
-    await expect(first.getByText('USD 812.40')).toBeVisible();
+    await expect(first.getByText('S/ 2,843')).toBeVisible();
     await expect(first.getByText('80 % afinidad')).toBeVisible();
 
     // Resaltado tarjeta → ruta (borde primary en la tarjeta activa).
@@ -88,13 +88,13 @@ test.describe('Podio (Plan 4)', () => {
       .getByRole('list', { name: 'Recomendaciones ordenadas de mejor a peor' })
       .locator(':scope > li')
       .first();
-    await expect(first.getByText('USD 812.40')).toBeVisible();
+    await expect(first.getByText('S/ 2,843')).toBeVisible();
     await expect(page.getByRole('radio', { name: 'Equilibrado' })).toBeChecked();
     await expect.poll(() => walletCalls).toBe(2);
     const walletCallsAfterSearch = walletCalls;
 
     await page.getByText('Rapidez', { exact: true }).click();
-    await expect(first.getByText('USD 905.10')).toBeVisible();
+    await expect(first.getByText('S/ 3,168')).toBeVisible();
     await expect(page).toHaveURL(/profile=FAST/);
     expect(rankBodies).toEqual([{ profile: 'FAST' }]);
 

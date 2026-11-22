@@ -6,9 +6,11 @@ import '@/shared/ui/initBoneyard';
 import { isApiError } from '@/shared/api/errors';
 import { HANDLED_ELSEWHERE } from '../quoteErrors';
 import { type PodiumOffer, type PodiumResponse } from '@/shared/api/schemas';
+import { useMoney } from '@/shared/format/useMoney';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { cn } from '@/shared/ui/cn';
+import { PriceDisclaimer } from '@/shared/ui/PriceDisclaimer';
 import { StatusMessage } from '@/shared/ui/StatusMessage';
 import { PodiumCard } from './PodiumCard';
 
@@ -83,6 +85,7 @@ export function PodiumPanel({
   renderOfferActions,
 }: PodiumPanelProps) {
   const { t } = useTranslation();
+  const { fxNote } = useMoney();
   const sectionRef = useRef<HTMLElement>(null);
   const resultId = isQuoting || isLoadingPodium ? null : (podium?.search_id ?? null);
 
@@ -238,6 +241,7 @@ export function PodiumPanel({
                   </li>
                 ))}
               </ol>
+              {fxNote ? <PriceDisclaimer text={fxNote} /> : null}
             </div>
           )
         ) : null}

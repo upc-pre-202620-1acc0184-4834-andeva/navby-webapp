@@ -7,9 +7,6 @@ export type TripType = (typeof TRIP_TYPES)[number];
 export const CABIN_CLASSES = ['ECONOMY', 'PREMIUM_ECONOMY', 'BUSINESS', 'FIRST'] as const;
 export type CabinClass = (typeof CABIN_CLASSES)[number];
 
-export const CURRENCIES = ['USD', 'PEN'] as const;
-export type CurrencyCode = (typeof CURRENCIES)[number];
-
 export const MAX_PASSENGERS = 9;
 export const MAX_AIRPORTS_PER_SIDE = 5;
 export const MAX_ADVANCE_DAYS = 330;
@@ -27,7 +24,6 @@ export interface SearchCriteria {
   children: number;
   infants: number;
   cabin: CabinClass;
-  currency: CurrencyCode;
 }
 
 export const DEFAULT_SEARCH_CRITERIA: SearchCriteria = {
@@ -40,7 +36,6 @@ export const DEFAULT_SEARCH_CRITERIA: SearchCriteria = {
   children: 0,
   infants: 0,
   cabin: 'ECONOMY',
-  currency: 'USD',
 };
 
 /** Fecha actual en zona horaria `America/Lima` (UTC−5) en formato `YYYY-MM-DD` (RN-04). */
@@ -124,7 +119,6 @@ export function createSearchCriteriaSchema(todayLima: string = getTodayInLima())
         .int('search.errors.invalidPassengers')
         .min(0, 'search.errors.invalidPassengers'),
       cabin: z.enum(CABIN_CLASSES),
-      currency: z.enum(CURRENCIES),
     })
     .superRefine((data, ctx) => {
       const originSet = new Set(data.origins);
@@ -235,18 +229,7 @@ export interface ParsedSearchUrl {
   hasSearchQuery: boolean;
 }
 
-const SEARCH_PARAM_KEYS = [
-  'trip',
-  'from',
-  'to',
-  'dep',
-  'ret',
-  'ad',
-  'ch',
-  'in',
-  'cabin',
-  'cur',
-] as const;
+const SEARCH_PARAM_KEYS = ['trip', 'from', 'to', 'dep', 'ret', 'ad', 'ch', 'in', 'cabin'] as const;
 
 /**
  * Lee los criterios desde la URL preservando valores inválidos (p. ej. `?ad=1&in=2` o fechas
@@ -274,11 +257,6 @@ export function parseSearchParams(searchParams: URLSearchParams): ParsedSearchUr
     ? (cabinRaw as CabinClass)
     : DEFAULT_SEARCH_CRITERIA.cabin;
 
-  const curRaw = searchParams.get('cur')?.trim().toUpperCase();
-  const currency: CurrencyCode = (CURRENCIES as ReadonlyArray<string>).includes(curRaw ?? '')
-    ? (curRaw as CurrencyCode)
-    : DEFAULT_SEARCH_CRITERIA.currency;
-
   return {
     hasSearchQuery,
     criteria: {
@@ -291,7 +269,6 @@ export function parseSearchParams(searchParams: URLSearchParams): ParsedSearchUr
       children,
       infants,
       cabin,
-      currency,
     },
   };
 }
@@ -335,7 +312,8 @@ export function buildSearchParams(
   next.set('ch', String(criteria.children));
   next.set('in', String(criteria.infants));
   next.set('cabin', criteria.cabin);
-  next.set('cur', criteria.currency);
+  // Los enlaces viejos con `cur` se limpian al reescribir la URL.
+  next.delete('cur');
 
   return next;
 }
