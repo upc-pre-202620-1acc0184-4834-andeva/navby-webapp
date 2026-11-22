@@ -19,7 +19,6 @@ export function toQuotePayload(
       infants: criteria.infants,
     },
     cabin: criteria.cabin,
-    currency: criteria.currency,
     preferences: toApiPreferences(selection),
   };
 }

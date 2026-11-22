@@ -2,6 +2,8 @@ import { apiFetch, applySession, CAPTCHA_HEADER, clearSession, refreshSession } 
 import {
   type CitiesResponse,
   CitiesResponseSchema,
+  type ExchangeRates,
+  ExchangeRatesSchema,
   type HealthStatus,
   HealthSchema,
   type Itinerary,
@@ -234,8 +236,12 @@ export interface QuoteSearchPayload {
   return_date: string | null;
   passengers: { adults: number; children: number; infants: number };
   cabin: string;
-  currency: string;
   preferences: ApiPreferences;
+}
+
+/** Tipo de cambio público para mostrar tarifas en la moneda local. */
+export function getExchangeRates(signal?: AbortSignal): Promise<ExchangeRates> {
+  return apiFetch('/fx/rates', { signal, auth: 'none', schema: ExchangeRatesSchema });
 }
 
 export function searchQuotes(payload: QuoteSearchPayload): Promise<PodiumResponse> {

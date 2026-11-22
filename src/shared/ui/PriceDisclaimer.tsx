@@ -4,13 +4,15 @@ import { cn } from './cn';
 
 export interface PriceDisclaimerProps {
   text?: string;
-  note?: string;
+  /** Líneas extra bajo el aviso; las vacías se omiten. */
+  note?: string | null | ReadonlyArray<string | null | undefined>;
   className?: string;
 }
 
 /** Aviso legal obligatorio junto a toda tarifa (RL-03, US-31). */
 export function PriceDisclaimer({ text, note, className }: PriceDisclaimerProps) {
   const { t } = useTranslation();
+  const notes = [note ?? []].flat().filter(Boolean);
 
   return (
     <div
@@ -19,7 +21,9 @@ export function PriceDisclaimer({ text, note, className }: PriceDisclaimerProps)
       <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
       <div className="flex flex-col gap-0.5">
         <p>{text ?? t('legal.priceDisclaimer')}</p>
-        {note ? <p>{note}</p> : null}
+        {notes.map((line) => (
+          <p key={line}>{line}</p>
+        ))}
       </div>
     </div>
   );

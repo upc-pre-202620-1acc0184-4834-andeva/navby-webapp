@@ -35,7 +35,7 @@ import {
 import { isApiError } from '@/shared/api/errors';
 import { type City, type CityAirport, type PodiumOffer, type Wallet } from '@/shared/api/schemas';
 import { markEmailUnverified, useSession } from '@/shared/auth/useSession';
-import { formatPrice } from '@/shared/format/flight';
+import { useMoney } from '@/shared/format/useMoney';
 import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
 import { saveLastSearch } from '@/shared/search/lastSearch';
 import { usePodiumHighlight } from '@/shared/state/podiumHighlight';
@@ -84,6 +84,7 @@ function resolveCityName(city: City | null, fallbackIatas: string[], lang: 'es' 
 
 export function HomePage() {
   const { t, i18n } = useTranslation();
+  const { format: formatMoney } = useMoney();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -569,10 +570,9 @@ export function HomePage() {
           <p className="truncate text-xs text-fg-muted tabular-nums">
             {podium && podium.podium.length > 0
               ? t('home.sheetBestOffer', {
-                  price: formatPrice(
+                  price: formatMoney(
                     podium.podium[0]!.price.amount,
                     podium.podium[0]!.price.currency,
-                    locale,
                   ),
                 })
               : routeMeta || t('podium.title')}
@@ -769,7 +769,6 @@ export function HomePage() {
         routeTitle={routeTitle}
         preview={hasActiveSearch ? preview : null}
         podium={podium}
-        locale={locale}
       />
     </div>
   );

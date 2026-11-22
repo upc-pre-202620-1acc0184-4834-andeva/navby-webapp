@@ -73,11 +73,6 @@ export default defineConfig(({ mode }) => {
                 test: /node_modules[\\/](maplibre-gl|react-map-gl)[\\/]/,
                 priority: 25,
               },
-              {
-                name: 'vendor-deckgl',
-                test: /node_modules[\\/](@deck\.gl|@luma\.gl|@math\.gl|@loaders\.gl|@probe\.gl)[\\/]/,
-                priority: 25,
-              },
             ],
           },
         },

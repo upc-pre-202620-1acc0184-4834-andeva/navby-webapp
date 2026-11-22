@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { itineraryKeys } from '@/features/itineraries/itineraryKeys';
 import { formatCalendarDate, formatInstantDate } from '@/shared/format/date';
-import { formatPrice } from '@/shared/format/flight';
+import { formatLocalPrice } from '@/shared/format/money';
+import { TEST_RATES } from '@/test/fixtures/fx';
 import {
   itineraryJson,
   itineraryPage,
@@ -45,7 +46,9 @@ const OLDER = {
 };
 
 // Intl usa un espacio fino que Testing Library normaliza en el DOM, no en el texto esperado.
-const price = (amount: string) => formatPrice(amount, 'USD', 'es-PE').replace(/\s/g, ' ');
+// Las tarifas llegan en USD y la página (español) las muestra en soles con el tipo de cambio de prueba.
+const price = (amount: string) =>
+  formatLocalPrice(amount, 'USD', 'PEN', TEST_RATES, 'es-PE').replace(/\s/g, ' ');
 const OLDEST = itineraryJson({
   id: '00000000-0000-4000-8000-0000000000b3',
   name: 'LIM → CUZ · 2026-12-03',
@@ -83,7 +86,7 @@ describe('Lista de itinerarios (US-23)', () => {
       within(at(rows, 1)).getByText(`${departure} – ${formatCalendarDate('2026-11-15', 'es-PE')}`),
     ).toBeInTheDocument();
     expect(within(at(rows, 0)).getByText(/6 h 15 min · Directo/)).toBeInTheDocument();
-    expect(within(at(rows, 0)).getByText(price('240.00'))).toBeInTheDocument();
+    expect(await within(at(rows, 0)).findByText(price('240.00'))).toBeInTheDocument();
     expect(
       within(at(rows, 0)).getByText(`Guardado el ${formatInstantDate(RECENT.created_at, 'es-PE')}`),
     ).toBeInTheDocument();
@@ -287,7 +290,7 @@ describe('Detalle del itinerario (US-23)', () => {
     expect(screen.getByText('Ruta guardada:')).toBeInTheDocument();
 
     const card = screen.getByRole('group', { name: 'Cotizado con el perfil Equilibrado' });
-    expect(within(card).getByText(price('240.00'))).toBeInTheDocument();
+    expect(await within(card).findByText(price('240.00'))).toBeInTheDocument();
     expect(
       within(card).getByText(
         `Precio del ${formatInstantDate(QUOTED_AT, 'es-PE')}; puede haber cambiado. Precio referencial obtenido de terceros.`,
@@ -301,7 +304,7 @@ describe('Detalle del itinerario (US-23)', () => {
     expect(within(card).queryByRole('button', { name: /Guardar/ })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Buscar precios actuales' })).toHaveAttribute(
       'href',
-      '/?trip=ONE_WAY&from=LIM&to=MAD&dep=2026-11-01&cur=USD',
+      '/?trip=ONE_WAY&from=LIM&to=MAD&dep=2026-11-01',
     );
   });
 

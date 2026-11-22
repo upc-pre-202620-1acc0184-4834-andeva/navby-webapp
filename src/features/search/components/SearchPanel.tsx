@@ -16,8 +16,6 @@ import {
   CABIN_CLASSES,
   type CabinClass,
   createSearchCriteriaSchema,
-  CURRENCIES,
-  type CurrencyCode,
   getTodayInLima,
   type SearchCriteria,
 } from '../searchCriteria';
@@ -103,7 +101,6 @@ export function SearchPanel({
   const childrenCount = useWatch({ control, name: 'children' });
   const infants = useWatch({ control, name: 'infants' });
   const cabin = useWatch({ control, name: 'cabin' });
-  const currency = useWatch({ control, name: 'currency' });
 
   const [pickedOriginCity, setPickedOriginCity] = useState<City | null>(null);
   const [pickedDestCity, setPickedDestCity] = useState<City | null>(null);
@@ -171,7 +168,6 @@ export function SearchPanel({
         children: childrenCount,
         infants,
         cabin,
-        currency,
       });
     }, 400);
   };
@@ -427,59 +423,30 @@ export function SearchPanel({
           }}
         />
 
-        <div className="grid grid-cols-2 gap-2.5">
-          <Field label={t('search.cabinLabel')}>
-            {(ariaProps) => (
-              <div className="relative">
-                <select
-                  {...ariaProps}
-                  value={cabin}
-                  onChange={(event) =>
-                    setValue('cabin', event.target.value as CabinClass, { shouldValidate: true })
-                  }
-                  className={inputVariants({ className: 'cursor-pointer appearance-none pr-9' })}
-                >
-                  {CABIN_CLASSES.map((item) => (
-                    <option key={item} value={item}>
-                      {t(`search.cabins.${item}`)}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-fg-muted"
-                  aria-hidden="true"
-                />
-              </div>
-            )}
-          </Field>
-
-          <Field label={t('search.currencyLabel')}>
-            {(ariaProps) => (
-              <div className="relative">
-                <select
-                  {...ariaProps}
-                  value={currency}
-                  onChange={(event) =>
-                    setValue('currency', event.target.value as CurrencyCode, {
-                      shouldValidate: true,
-                    })
-                  }
-                  className={inputVariants({ className: 'cursor-pointer appearance-none pr-9' })}
-                >
-                  {CURRENCIES.map((item) => (
-                    <option key={item} value={item}>
-                      {t(`search.currencies.${item}`)}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-fg-muted"
-                  aria-hidden="true"
-                />
-              </div>
-            )}
-          </Field>
-        </div>
+        <Field label={t('search.cabinLabel')}>
+          {(ariaProps) => (
+            <div className="relative">
+              <select
+                {...ariaProps}
+                value={cabin}
+                onChange={(event) =>
+                  setValue('cabin', event.target.value as CabinClass, { shouldValidate: true })
+                }
+                className={inputVariants({ className: 'cursor-pointer appearance-none pr-9' })}
+              >
+                {CABIN_CLASSES.map((item) => (
+                  <option key={item} value={item}>
+                    {t(`search.cabins.${item}`)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-fg-muted"
+                aria-hidden="true"
+              />
+            </div>
+          )}
+        </Field>
 
         <Button
           type="submit"

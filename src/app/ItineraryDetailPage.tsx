@@ -13,6 +13,7 @@ import { PodiumCard } from '@/features/podium/components/PodiumCard';
 import { isApiError } from '@/shared/api/errors';
 import { type Itinerary } from '@/shared/api/schemas';
 import { formatCalendarDate, formatInstantDate } from '@/shared/format/date';
+import { useMoney } from '@/shared/format/useMoney';
 import { useIntlLocale } from '@/shared/i18n/useIntlLocale';
 import { usePodiumHighlight } from '@/shared/state/podiumHighlight';
 import { Button } from '@/shared/ui/Button';
@@ -40,6 +41,7 @@ export default function ItineraryDetailPage() {
   const { id = '' } = useParams();
   const { t } = useTranslation();
   const locale = useIntlLocale();
+  const { fxNote } = useMoney();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: itinerary, error, isPending, refetch } = useItinerary(id);
@@ -212,6 +214,7 @@ export default function ItineraryDetailPage() {
       <PodiumCard
         offer={offer}
         locale={locale}
+        note={fxNote}
         heading={t('itineraries.detail.profile', { profile })}
         disclaimer={t('itineraries.detail.disclaimer', {
           date: formatInstantDate(itinerary.offer.quoted_at, locale),

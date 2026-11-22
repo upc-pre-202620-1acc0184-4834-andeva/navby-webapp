@@ -22,7 +22,6 @@ const VALID_ROUND_TRIP: SearchCriteria = {
   children: 1,
   infants: 1,
   cabin: 'BUSINESS',
-  currency: 'PEN',
 };
 
 describe('searchCriteria (RN-01..RN-04 & URL state)', () => {

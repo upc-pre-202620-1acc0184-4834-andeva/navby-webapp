@@ -10,9 +10,5 @@ export function buildLiveSearchHref(itinerary: Itinerary): string {
   if (itinerary.trip_type === 'ROUND_TRIP' && itinerary.return_date) {
     params.set('ret', itinerary.return_date);
   }
-  const currency = itinerary.offer.price.currency.toUpperCase();
-  if (currency === 'USD' || currency === 'PEN') {
-    params.set('cur', currency);
-  }
   return `/?${params.toString()}`;
 }
